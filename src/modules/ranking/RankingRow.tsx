@@ -27,7 +27,7 @@ export function RankingRow({ item, state, rank, tier, canMarkNotSeen, onOpenHist
   const rowStyle = dragX === 0 ? undefined : { transform: `translateX(${dragX}px)` };
 
   function isActivePointer(event: PointerEvent<HTMLButtonElement>) {
-    return pointerIdRef.current === undefined || event.pointerId === 0 || pointerIdRef.current === event.pointerId;
+    return pointerIdRef.current !== undefined && pointerIdRef.current === event.pointerId;
   }
 
   function resetDrag() {
