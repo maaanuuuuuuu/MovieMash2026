@@ -34,6 +34,8 @@ L'application utilise un `HashRouter`, ce qui donne des routes avec `#` sur GitH
 
 Les onglets `All`, `Action` et `Comedy` ne changent pas de base de données. Ils changent seulement le filtre de vue et de sélection des duels.
 
+La navigation de filtre est visible sur l'écran de match, la page de classement et la page de restauration. Changer de filtre depuis une liste garde le même type de vue.
+
 ## Catalogue de films
 
 Le catalogue fonctionnel est une seule liste globale dans `src/data/films.ts`.
@@ -139,6 +141,8 @@ Les deux états désactivent le film dans le ranking global. Même si la protect
 
 ## Page de classement
 
+La page de classement affiche aussi la navigation de filtre `All`, `Action`, `Comedy`.
+
 La page de classement trie les films actifs par score décroissant.
 
 Chaque ligne affiche :
@@ -157,6 +161,8 @@ La page de classement a un bouton icon-only vers la page des films sauvegardés.
 Glisser une ligne de ranking vers la gauche marque le film `interested`. Glisser une ligne vers la droite marque le film `removed`. Les deux gestes utilisent la même protection des 10 derniers films.
 
 ## Page de restauration
+
+La page de restauration affiche aussi la navigation de filtre `All`, `Action`, `Comedy`.
 
 La page `saved` affiche deux vues :
 

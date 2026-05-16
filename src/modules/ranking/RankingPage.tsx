@@ -11,6 +11,7 @@ import {
   filmItemsByFilterId,
   type FilmFilter,
 } from '../content/filmSource';
+import { FilmFilterSwitch } from '../content/FilmFilterSwitch';
 import {
   MINIMUM_ACTIVE_ITEMS,
   listComparisonRecords,
@@ -60,6 +61,7 @@ export function RankingPage({ filter }: RankingPageProps) {
 
   return (
     <main className="ranking-page">
+      <FilmFilterSwitch activeFilter={filter} view="ranking" />
       <header className="ranking-page__header">
         <Link
           to={filter.comparisonPath}

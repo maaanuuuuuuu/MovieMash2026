@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HashRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -110,6 +110,21 @@ describe('filtered ranking page', () => {
     expect(screen.getByLabelText('Back to comparisons')).toHaveAttribute('href', '#/action');
   });
 
+  it('shows genre filters on the ranking page and keeps the ranking route', () => {
+    render(
+      <HashRouter>
+        <RankingPage filter={actionFilmFilter} />
+      </HashRouter>,
+    );
+
+    const filterNav = screen.getByRole('navigation', { name: 'Genre filter' });
+
+    expect(within(filterNav).getByRole('link', { name: 'All' })).toHaveAttribute('href', '#/ranking');
+    expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveAttribute('href', '#/action/ranking');
+    expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveClass('film-filter-switch__link--active');
+    expect(within(filterNav).getByRole('link', { name: 'Comedy' })).toHaveAttribute('href', '#/comedy/ranking');
+  });
+
   it('does not show interested movies above the ranking list', async () => {
     const actionItem = filmItemsByFilterId.action[0];
     await db.catalogRankingStates.bulkPut([savedState(actionItem.id, 1)]);
@@ -147,5 +162,20 @@ describe('filtered ranking page', () => {
 
     expect(await screen.findByText(actionItem.label)).toBeInTheDocument();
     expect(screen.queryByText(outsideItem.label)).not.toBeInTheDocument();
+  });
+
+  it('shows genre filters on the saved page and keeps the saved route', () => {
+    render(
+      <HashRouter>
+        <SavedMoviesPage filter={actionFilmFilter} />
+      </HashRouter>,
+    );
+
+    const filterNav = screen.getByRole('navigation', { name: 'Genre filter' });
+
+    expect(within(filterNav).getByRole('link', { name: 'All' })).toHaveAttribute('href', '#/saved');
+    expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveAttribute('href', '#/action/saved');
+    expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveClass('film-filter-switch__link--active');
+    expect(within(filterNav).getByRole('link', { name: 'Comedy' })).toHaveAttribute('href', '#/comedy/saved');
   });
 });

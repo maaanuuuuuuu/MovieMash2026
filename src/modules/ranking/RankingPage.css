@@ -5,6 +5,10 @@
   padding: 22px 14px 36px;
 }
 
+.ranking-page > .film-filter-switch {
+  margin-bottom: 14px;
+}
+
 .ranking-page__header {
   display: grid;
   grid-template-columns: auto 1fr auto;

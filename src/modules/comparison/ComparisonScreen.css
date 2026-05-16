@@ -10,8 +10,13 @@
 }
 
 .comparison-screen--empty {
-  place-items: center;
   color: var(--muted);
+}
+
+.comparison-screen__loading {
+  margin: 0;
+  align-self: center;
+  justify-self: center;
 }
 
 .comparison-header {
@@ -27,46 +32,6 @@
   font-family: var(--font-display);
   font-size: 1.8rem;
   line-height: 1;
-}
-
-.catalog-switch {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  padding: 5px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.62);
-}
-
-.catalog-switch__link {
-  min-width: 76px;
-  min-height: 44px;
-  padding: 0 12px;
-  border-radius: 999px;
-  color: var(--muted);
-  display: grid;
-  font-size: 0.78rem;
-  font-weight: 900;
-  place-items: center;
-  text-align: center;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    background var(--fast),
-    color var(--fast),
-    transform var(--fast);
-}
-
-.catalog-switch__link:hover {
-  color: var(--ink);
-  transform: translateY(-1px);
-}
-
-.catalog-switch__link--active {
-  background: var(--ink);
-  color: #fff;
 }
 
 .comparison-status {
@@ -130,10 +95,5 @@
 
   .comparison-stage {
     gap: 7px;
-  }
-
-  .catalog-switch__link {
-    min-width: 68px;
-    padding-inline: 9px;
   }
 }

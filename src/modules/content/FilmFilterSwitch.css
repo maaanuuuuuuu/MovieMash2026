@@ -1,0 +1,49 @@
+.film-filter-switch {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.film-filter-switch__link {
+  min-width: 76px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--muted);
+  display: grid;
+  font-size: 0.78rem;
+  font-weight: 900;
+  place-items: center;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background var(--fast),
+    color var(--fast),
+    transform var(--fast);
+}
+
+.film-filter-switch__link:hover {
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.film-filter-switch__link--active {
+  background: var(--ink);
+  color: #fff;
+}
+
+@media (max-width: 390px) {
+  .film-filter-switch__link {
+    min-width: 68px;
+    padding-inline: 9px;
+  }
+}

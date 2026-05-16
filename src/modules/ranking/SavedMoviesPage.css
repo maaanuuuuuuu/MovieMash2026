@@ -5,6 +5,10 @@
   padding: 22px 14px 36px;
 }
 
+.saved-page > .film-filter-switch {
+  margin-bottom: 14px;
+}
+
 .saved-page__header {
   display: grid;
   grid-template-columns: auto 1fr;

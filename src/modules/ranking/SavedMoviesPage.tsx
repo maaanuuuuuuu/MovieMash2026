@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { NotSeenDisposition } from '../../domain/item';
 import './SavedMoviesPage.css';
+import { FilmFilterSwitch } from '../content/FilmFilterSwitch';
 import { GLOBAL_FILM_SCOPE_ID, filmItemById, filmItems, filmItemsByFilterId, type FilmFilter } from '../content/filmSource';
 import { listRankingStates, restoreRankingItem } from '../persistence/rankingRepository';
 import { countSavedRows, getSavedRows, restoreMessage, savedViews } from './SavedMoviesPage.utils';
@@ -35,6 +36,7 @@ export function SavedMoviesPage({ filter }: SavedMoviesPageProps) {
 
   return (
     <main className="saved-page">
+      <FilmFilterSwitch activeFilter={filter} view="saved" />
       <header className="saved-page__header">
         <Link
           to={filter.rankingPath}
