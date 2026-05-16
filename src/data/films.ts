@@ -1458,5 +1458,677 @@ export const frozenFilms: Film[] = [
     "title": "Civil War",
     "year": 2024,
     "posterPath": "posters/civil-war.jpg"
+  },
+  {
+    "id": "raging-bull",
+    "title": "Raging Bull",
+    "year": 1980,
+    "posterPath": "posters/raging-bull.jpg"
+  },
+  {
+    "id": "piranha-ii-the-spawning",
+    "title": "Piranha II: The Spawning",
+    "year": 1982,
+    "posterPath": "posters/piranha-ii-the-spawning.jpg"
+  },
+  {
+    "id": "the-king-of-comedy",
+    "title": "The King of Comedy",
+    "year": 1982,
+    "posterPath": "posters/the-king-of-comedy.jpg"
+  },
+  {
+    "id": "indiana-jones-and-the-temple-of-doom",
+    "title": "Indiana Jones and the Temple of Doom",
+    "year": 1984,
+    "posterPath": "posters/indiana-jones-and-the-temple-of-doom.jpg"
+  },
+  {
+    "id": "after-hours",
+    "title": "After Hours",
+    "year": 1985,
+    "posterPath": "posters/after-hours.jpg"
+  },
+  {
+    "id": "the-color-purple",
+    "title": "The Color Purple",
+    "year": 1985,
+    "posterPath": "posters/the-color-purple.jpg"
+  },
+  {
+    "id": "the-color-of-money",
+    "title": "The Color of Money",
+    "year": 1986,
+    "posterPath": "posters/the-color-of-money.jpg"
+  },
+  {
+    "id": "bad-taste",
+    "title": "Bad Taste",
+    "year": 1987,
+    "posterPath": "posters/bad-taste.jpg"
+  },
+  {
+    "id": "the-last-temptation-of-christ",
+    "title": "The Last Temptation of Christ",
+    "year": 1988,
+    "posterPath": "posters/the-last-temptation-of-christ.jpg"
+  },
+  {
+    "id": "always",
+    "title": "Always",
+    "year": 1989,
+    "posterPath": "posters/always.jpg"
+  },
+  {
+    "id": "indiana-jones-and-the-last-crusade",
+    "title": "Indiana Jones and the Last Crusade",
+    "year": 1989,
+    "posterPath": "posters/indiana-jones-and-the-last-crusade.jpg"
+  },
+  {
+    "id": "meet-the-feebles",
+    "title": "Meet the Feebles",
+    "year": 1989,
+    "posterPath": "posters/meet-the-feebles.jpg"
+  },
+  {
+    "id": "the-abyss",
+    "title": "The Abyss",
+    "year": 1989,
+    "posterPath": "posters/the-abyss.jpg"
+  },
+  {
+    "id": "cape-fear",
+    "title": "Cape Fear",
+    "year": 1991,
+    "posterPath": "posters/cape-fear.jpg"
+  },
+  {
+    "id": "hook",
+    "title": "Hook",
+    "year": 1991,
+    "posterPath": "posters/hook.jpg"
+  },
+  {
+    "id": "alien-3",
+    "title": "Alien 3",
+    "year": 1992,
+    "posterPath": "posters/alien-3.jpg"
+  },
+  {
+    "id": "braindead",
+    "title": "Braindead",
+    "year": 1992,
+    "posterPath": "posters/braindead.jpg"
+  },
+  {
+    "id": "the-age-of-innocence",
+    "title": "The Age of Innocence",
+    "year": 1993,
+    "posterPath": "posters/the-age-of-innocence.jpg"
+  },
+  {
+    "id": "cronos",
+    "title": "Cronos",
+    "year": 1993,
+    "posterPath": "posters/cronos.jpg"
+  },
+  {
+    "id": "heavenly-creatures",
+    "title": "Heavenly Creatures",
+    "year": 1994,
+    "posterPath": "posters/heavenly-creatures.jpg"
+  },
+  {
+    "id": "see-how-they-fall",
+    "title": "See How They Fall",
+    "year": 1994,
+    "posterPath": "posters/see-how-they-fall.jpg"
+  },
+  {
+    "id": "true-lies",
+    "title": "True Lies",
+    "year": 1994,
+    "posterPath": "posters/true-lies.jpg"
+  },
+  {
+    "id": "casino",
+    "title": "Casino",
+    "year": 1995,
+    "posterPath": "posters/casino.jpg"
+  },
+  {
+    "id": "forgotten-silver",
+    "title": "Forgotten Silver",
+    "year": 1995,
+    "posterPath": "posters/forgotten-silver.jpg"
+  },
+  {
+    "id": "se7en",
+    "title": "Se7en",
+    "year": 1995,
+    "posterPath": "posters/se7en.jpg"
+  },
+  {
+    "id": "a-self-made-hero",
+    "title": "A Self-Made Hero",
+    "year": 1996,
+    "posterPath": "posters/a-self-made-hero.jpg"
+  },
+  {
+    "id": "the-frighteners",
+    "title": "The Frighteners",
+    "year": 1996,
+    "posterPath": "posters/the-frighteners.jpg"
+  },
+  {
+    "id": "amistad",
+    "title": "Amistad",
+    "year": 1997,
+    "posterPath": "posters/amistad.jpg"
+  },
+  {
+    "id": "jackie-brown",
+    "title": "Jackie Brown",
+    "year": 1997,
+    "posterPath": "posters/jackie-brown.jpg"
+  },
+  {
+    "id": "kundun",
+    "title": "Kundun",
+    "year": 1997,
+    "posterPath": "posters/kundun.jpg"
+  },
+  {
+    "id": "mimic",
+    "title": "Mimic",
+    "year": 1997,
+    "posterPath": "posters/mimic.jpg"
+  },
+  {
+    "id": "the-game",
+    "title": "The Game",
+    "year": 1997,
+    "posterPath": "posters/the-game.jpg"
+  },
+  {
+    "id": "the-lost-world-jurassic-park",
+    "title": "The Lost World: Jurassic Park",
+    "year": 1997,
+    "posterPath": "posters/the-lost-world-jurassic-park.jpg"
+  },
+  {
+    "id": "following",
+    "title": "Following",
+    "year": 1998,
+    "posterPath": "posters/following.jpg"
+  },
+  {
+    "id": "bringing-out-the-dead",
+    "title": "Bringing Out the Dead",
+    "year": 1999,
+    "posterPath": "posters/bringing-out-the-dead.jpg"
+  },
+  {
+    "id": "amores-perros",
+    "title": "Amores Perros",
+    "year": 2000,
+    "posterPath": "posters/amores-perros.jpg"
+  },
+  {
+    "id": "memento",
+    "title": "Memento",
+    "year": 2000,
+    "posterPath": "posters/memento.jpg"
+  },
+  {
+    "id": "ai-artificial-intelligence",
+    "title": "A.I. Artificial Intelligence",
+    "year": 2001,
+    "posterPath": "posters/ai-artificial-intelligence.jpg"
+  },
+  {
+    "id": "read-my-lips",
+    "title": "Read My Lips",
+    "year": 2001,
+    "posterPath": "posters/read-my-lips.jpg"
+  },
+  {
+    "id": "the-devils-backbone",
+    "title": "The Devil's Backbone",
+    "year": 2001,
+    "posterPath": "posters/the-devils-backbone.jpg"
+  },
+  {
+    "id": "21-grams",
+    "title": "21 Grams",
+    "year": 2003,
+    "posterPath": "posters/21-grams.jpg"
+  },
+  {
+    "id": "blade-ii",
+    "title": "Blade II",
+    "year": 2002,
+    "posterPath": "posters/blade-ii.jpg"
+  },
+  {
+    "id": "catch-me-if-you-can",
+    "title": "Catch Me If You Can",
+    "year": 2002,
+    "posterPath": "posters/catch-me-if-you-can.jpg"
+  },
+  {
+    "id": "gangs-of-new-york",
+    "title": "Gangs of New York",
+    "year": 2002,
+    "posterPath": "posters/gangs-of-new-york.jpg"
+  },
+  {
+    "id": "insomnia",
+    "title": "Insomnia",
+    "year": 2002,
+    "posterPath": "posters/insomnia.jpg"
+  },
+  {
+    "id": "minority-report",
+    "title": "Minority Report",
+    "year": 2002,
+    "posterPath": "posters/minority-report.jpg"
+  },
+  {
+    "id": "panic-room",
+    "title": "Panic Room",
+    "year": 2002,
+    "posterPath": "posters/panic-room.jpg"
+  },
+  {
+    "id": "babel",
+    "title": "Babel",
+    "year": 2006,
+    "posterPath": "posters/babel.jpg"
+  },
+  {
+    "id": "hellboy",
+    "title": "Hellboy",
+    "year": 2004,
+    "posterPath": "posters/hellboy.jpg"
+  },
+  {
+    "id": "kill-bill-volume-1",
+    "title": "Kill Bill: Vol. 1",
+    "year": 2003,
+    "posterPath": "posters/kill-bill-volume-1.jpg"
+  },
+  {
+    "id": "kill-bill-volume-2",
+    "title": "Kill Bill: Vol. 2",
+    "year": 2004,
+    "posterPath": "posters/kill-bill-volume-2.jpg"
+  },
+  {
+    "id": "the-aviator",
+    "title": "The Aviator",
+    "year": 2004,
+    "posterPath": "posters/the-aviator.jpg"
+  },
+  {
+    "id": "the-terminal",
+    "title": "The Terminal",
+    "year": 2004,
+    "posterPath": "posters/the-terminal.jpg"
+  },
+  {
+    "id": "king-kong-2005",
+    "title": "King Kong",
+    "year": 2005,
+    "posterPath": "posters/king-kong-2005.jpg"
+  },
+  {
+    "id": "munich",
+    "title": "Munich",
+    "year": 2005,
+    "posterPath": "posters/munich.jpg"
+  },
+  {
+    "id": "the-beat-that-my-heart-skipped",
+    "title": "The Beat That My Heart Skipped",
+    "year": 2005,
+    "posterPath": "posters/the-beat-that-my-heart-skipped.jpg"
+  },
+  {
+    "id": "war-of-the-worlds",
+    "title": "War of the Worlds",
+    "year": 2005,
+    "posterPath": "posters/war-of-the-worlds.jpg"
+  },
+  {
+    "id": "death-proof",
+    "title": "Death Proof",
+    "year": 2007,
+    "posterPath": "posters/death-proof.jpg"
+  },
+  {
+    "id": "the-orphanage",
+    "title": "The Orphanage",
+    "year": 2007,
+    "posterPath": "posters/the-orphanage.jpg"
+  },
+  {
+    "id": "the-prestige",
+    "title": "The Prestige",
+    "year": 2006,
+    "posterPath": "posters/the-prestige.jpg"
+  },
+  {
+    "id": "zodiac",
+    "title": "Zodiac",
+    "year": 2007,
+    "posterPath": "posters/zodiac.jpg"
+  },
+  {
+    "id": "hellboy-ii-the-golden-army",
+    "title": "Hellboy II: The Golden Army",
+    "year": 2008,
+    "posterPath": "posters/hellboy-ii-the-golden-army.jpg"
+  },
+  {
+    "id": "indiana-jones-and-the-kingdom-of-the-crystal-skull",
+    "title": "Indiana Jones and the Kingdom of the Crystal Skull",
+    "year": 2008,
+    "posterPath": "posters/indiana-jones-and-the-kingdom-of-the-crystal-skull.jpg"
+  },
+  {
+    "id": "the-curious-case-of-benjamin-button",
+    "title": "The Curious Case of Benjamin Button",
+    "year": 2008,
+    "posterPath": "posters/the-curious-case-of-benjamin-button.jpg"
+  },
+  {
+    "id": "a-prophet",
+    "title": "A Prophet",
+    "year": 2009,
+    "posterPath": "posters/a-prophet.jpg"
+  },
+  {
+    "id": "avatar",
+    "title": "Avatar",
+    "year": 2009,
+    "posterPath": "posters/avatar.jpg"
+  },
+  {
+    "id": "the-lovely-bones",
+    "title": "The Lovely Bones",
+    "year": 2009,
+    "posterPath": "posters/the-lovely-bones.jpg"
+  },
+  {
+    "id": "biutiful",
+    "title": "Biutiful",
+    "year": 2010,
+    "posterPath": "posters/biutiful.jpg"
+  },
+  {
+    "id": "shutter-island",
+    "title": "Shutter Island",
+    "year": 2010,
+    "posterPath": "posters/shutter-island.jpg"
+  },
+  {
+    "id": "the-adventures-of-tintin",
+    "title": "The Adventures of Tintin",
+    "year": 2011,
+    "posterPath": "posters/the-adventures-of-tintin.jpg"
+  },
+  {
+    "id": "the-girl-with-the-dragon-tattoo",
+    "title": "The Girl with the Dragon Tattoo",
+    "year": 2011,
+    "posterPath": "posters/the-girl-with-the-dragon-tattoo.jpg"
+  },
+  {
+    "id": "hugo",
+    "title": "Hugo",
+    "year": 2011,
+    "posterPath": "posters/hugo.jpg"
+  },
+  {
+    "id": "lincoln",
+    "title": "Lincoln",
+    "year": 2012,
+    "posterPath": "posters/lincoln.jpg"
+  },
+  {
+    "id": "rust-and-bone",
+    "title": "Rust and Bone",
+    "year": 2012,
+    "posterPath": "posters/rust-and-bone.jpg"
+  },
+  {
+    "id": "the-dark-knight-rises",
+    "title": "The Dark Knight Rises",
+    "year": 2012,
+    "posterPath": "posters/the-dark-knight-rises.jpg"
+  },
+  {
+    "id": "the-hobbit-an-unexpected-journey",
+    "title": "The Hobbit: An Unexpected Journey",
+    "year": 2012,
+    "posterPath": "posters/the-hobbit-an-unexpected-journey.jpg"
+  },
+  {
+    "id": "the-impossible",
+    "title": "The Impossible",
+    "year": 2012,
+    "posterPath": "posters/the-impossible.jpg"
+  },
+  {
+    "id": "the-hobbit-the-desolation-of-smaug",
+    "title": "The Hobbit: The Desolation of Smaug",
+    "year": 2013,
+    "posterPath": "posters/the-hobbit-the-desolation-of-smaug.jpg"
+  },
+  {
+    "id": "birdman",
+    "title": "Birdman or (The Unexpected Virtue of Ignorance)",
+    "year": 2014,
+    "posterPath": "posters/birdman.jpg"
+  },
+  {
+    "id": "gone-girl",
+    "title": "Gone Girl",
+    "year": 2014,
+    "posterPath": "posters/gone-girl.jpg"
+  },
+  {
+    "id": "interstellar",
+    "title": "Interstellar",
+    "year": 2014,
+    "posterPath": "posters/interstellar.jpg"
+  },
+  {
+    "id": "the-hobbit-the-battle-of-the-five-armies",
+    "title": "The Hobbit: The Battle of the Five Armies",
+    "year": 2014,
+    "posterPath": "posters/the-hobbit-the-battle-of-the-five-armies.jpg"
+  },
+  {
+    "id": "bridge-of-spies",
+    "title": "Bridge of Spies",
+    "year": 2015,
+    "posterPath": "posters/bridge-of-spies.jpg"
+  },
+  {
+    "id": "crimson-peak",
+    "title": "Crimson Peak",
+    "year": 2015,
+    "posterPath": "posters/crimson-peak.jpg"
+  },
+  {
+    "id": "dheepan",
+    "title": "Dheepan",
+    "year": 2015,
+    "posterPath": "posters/dheepan.jpg"
+  },
+  {
+    "id": "the-hateful-eight",
+    "title": "The Hateful Eight",
+    "year": 2015,
+    "posterPath": "posters/the-hateful-eight.jpg"
+  },
+  {
+    "id": "the-revenant",
+    "title": "The Revenant",
+    "year": 2015,
+    "posterPath": "posters/the-revenant.jpg"
+  },
+  {
+    "id": "a-monster-calls",
+    "title": "A Monster Calls",
+    "year": 2016,
+    "posterPath": "posters/a-monster-calls.jpg"
+  },
+  {
+    "id": "silence",
+    "title": "Silence",
+    "year": 2016,
+    "posterPath": "posters/silence.jpg"
+  },
+  {
+    "id": "the-bfg",
+    "title": "The BFG",
+    "year": 2016,
+    "posterPath": "posters/the-bfg.jpg"
+  },
+  {
+    "id": "the-post",
+    "title": "The Post",
+    "year": 2017,
+    "posterPath": "posters/the-post.jpg"
+  },
+  {
+    "id": "the-shape-of-water",
+    "title": "The Shape of Water",
+    "year": 2017,
+    "posterPath": "posters/the-shape-of-water.jpg"
+  },
+  {
+    "id": "jurassic-world-fallen-kingdom",
+    "title": "Jurassic World: Fallen Kingdom",
+    "year": 2018,
+    "posterPath": "posters/jurassic-world-fallen-kingdom.jpg"
+  },
+  {
+    "id": "ready-player-one",
+    "title": "Ready Player One",
+    "year": 2018,
+    "posterPath": "posters/ready-player-one.jpg"
+  },
+  {
+    "id": "the-sisters-brothers",
+    "title": "The Sisters Brothers",
+    "year": 2018,
+    "posterPath": "posters/the-sisters-brothers.jpg"
+  },
+  {
+    "id": "once-upon-a-time-in-hollywood",
+    "title": "Once Upon a Time... in Hollywood",
+    "year": 2019,
+    "posterPath": "posters/once-upon-a-time-in-hollywood.jpg"
+  },
+  {
+    "id": "the-irishman",
+    "title": "The Irishman",
+    "year": 2019,
+    "posterPath": "posters/the-irishman.jpg"
+  },
+  {
+    "id": "mank",
+    "title": "Mank",
+    "year": 2020,
+    "posterPath": "posters/mank.jpg"
+  },
+  {
+    "id": "tenet",
+    "title": "Tenet",
+    "year": 2020,
+    "posterPath": "posters/tenet.jpg"
+  },
+  {
+    "id": "nightmare-alley",
+    "title": "Nightmare Alley",
+    "year": 2021,
+    "posterPath": "posters/nightmare-alley.jpg"
+  },
+  {
+    "id": "paris-13th-district",
+    "title": "Paris, 13th District",
+    "year": 2021,
+    "posterPath": "posters/paris-13th-district.jpg"
+  },
+  {
+    "id": "west-side-story",
+    "title": "West Side Story",
+    "year": 2021,
+    "posterPath": "posters/west-side-story.jpg"
+  },
+  {
+    "id": "avatar-the-way-of-water",
+    "title": "Avatar: The Way of Water",
+    "year": 2022,
+    "posterPath": "posters/avatar-the-way-of-water.jpg"
+  },
+  {
+    "id": "bardo",
+    "title": "Bardo, False Chronicle of a Handful of Truths",
+    "year": 2022,
+    "posterPath": "posters/bardo.jpg"
+  },
+  {
+    "id": "guillermo-del-toros-pinocchio",
+    "title": "Guillermo del Toro's Pinocchio",
+    "year": 2022,
+    "posterPath": "posters/guillermo-del-toros-pinocchio.jpg"
+  },
+  {
+    "id": "the-fabelmans",
+    "title": "The Fabelmans",
+    "year": 2022,
+    "posterPath": "posters/the-fabelmans.jpg"
+  },
+  {
+    "id": "killers-of-the-flower-moon",
+    "title": "Killers of the Flower Moon",
+    "year": 2023,
+    "posterPath": "posters/killers-of-the-flower-moon.jpg"
+  },
+  {
+    "id": "society-of-the-snow",
+    "title": "Society of the Snow",
+    "year": 2023,
+    "posterPath": "posters/society-of-the-snow.jpg"
+  },
+  {
+    "id": "the-killer-2023",
+    "title": "The Killer",
+    "year": 2023,
+    "posterPath": "posters/the-killer-2023.jpg"
+  },
+  {
+    "id": "emilia-perez",
+    "title": "Emilia Pérez",
+    "year": 2024,
+    "posterPath": "posters/emilia-perez.jpg"
+  },
+  {
+    "id": "avatar-fire-and-ash",
+    "title": "Avatar: Fire and Ash",
+    "year": 2025,
+    "posterPath": "posters/avatar-fire-and-ash.jpg"
+  },
+  {
+    "id": "frankenstein-2025",
+    "title": "Frankenstein",
+    "year": 2025,
+    "posterPath": "posters/frankenstein-2025.jpg"
   }
 ];

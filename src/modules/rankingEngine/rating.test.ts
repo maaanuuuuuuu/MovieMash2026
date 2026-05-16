@@ -3,8 +3,8 @@ import { createInitialRankingState, expectedScore, updateRatings } from './ratin
 
 describe('ranking engine', () => {
   it('moves ratings after a winner is chosen', () => {
-    const left = createInitialRankingState('left', 1);
-    const right = createInitialRankingState('right', 1);
+    const left = createInitialRankingState('test', 'left', 1);
+    const right = createInitialRankingState('test', 'right', 1);
     const result = updateRatings(left, right, { type: 'winner', winnerId: 'left', loserId: 'right' }, 2);
 
     expect(result.left.rating).toBeGreaterThan(left.rating);
@@ -15,8 +15,8 @@ describe('ranking engine', () => {
   });
 
   it('treats ties as real outcomes', () => {
-    const favorite = { ...createInitialRankingState('favorite', 1), rating: 1200 };
-    const underdog = { ...createInitialRankingState('underdog', 1), rating: 900 };
+    const favorite = { ...createInitialRankingState('test', 'favorite', 1), rating: 1200 };
+    const underdog = { ...createInitialRankingState('test', 'underdog', 1), rating: 900 };
     const result = updateRatings(favorite, underdog, { type: 'tie', leftId: 'favorite', rightId: 'underdog' }, 2);
 
     expect(result.left.rating).toBeLessThan(favorite.rating);

@@ -4,6 +4,7 @@ import type { OutcomeKind } from '../../domain/outcome';
 
 export type ComparisonRecord = {
   id: string;
+  catalogId: string;
   outcomeType: OutcomeKind;
   leftId?: string;
   rightId?: string;
@@ -27,15 +28,18 @@ export type MetaRecord = {
 };
 
 export type DatabaseSnapshot = {
-  version: 1;
+  version: 2;
   exportedAt: number;
   rankingStates: RankingItemState[];
   comparisons: ComparisonRecord[];
   meta: MetaRecord[];
 };
 
+type LegacyRankingItemState = Omit<RankingItemState, 'catalogId'>;
+type LegacyComparisonRecord = Omit<ComparisonRecord, 'catalogId'>;
+
 class MovieMashDatabase extends Dexie {
-  rankingStates!: Table<RankingItemState, string>;
+  catalogRankingStates!: Table<RankingItemState, [string, string]>;
   comparisons!: Table<ComparisonRecord, string>;
   meta!: Table<MetaRecord, string>;
 
@@ -47,14 +51,42 @@ class MovieMashDatabase extends Dexie {
       comparisons: 'id, outcomeType, createdAt',
       meta: 'key',
     });
+
+    this.version(2)
+      .stores({
+        rankingStates: 'itemId, active, appearances, rating',
+        catalogRankingStates: '[catalogId+itemId], catalogId, itemId, active, appearances, rating',
+        comparisons: 'id, catalogId, outcomeType, createdAt',
+        meta: 'key',
+      })
+      .upgrade(async (transaction) => {
+        const legacyStates = await transaction.table<LegacyRankingItemState, string>('rankingStates').toArray();
+
+        if (legacyStates.length > 0) {
+          await transaction
+            .table<RankingItemState, [string, string]>('catalogRankingStates')
+            .bulkPut(legacyStates.map((state) => ({ ...state, catalogId: 'default' })));
+        }
+
+        await transaction.table<LegacyComparisonRecord, string>('comparisons').toCollection().modify((record) => {
+          (record as ComparisonRecord).catalogId = 'default';
+        });
+      });
+
+    this.version(3).stores({
+      rankingStates: null,
+      catalogRankingStates: '[catalogId+itemId], catalogId, itemId, active, appearances, rating',
+      comparisons: 'id, catalogId, outcomeType, createdAt',
+      meta: 'key',
+    });
   }
 }
 
 export const db = new MovieMashDatabase();
 
 export async function resetDatabase() {
-  await db.transaction('rw', db.rankingStates, db.comparisons, db.meta, async () => {
-    await db.rankingStates.clear();
+  await db.transaction('rw', db.catalogRankingStates, db.comparisons, db.meta, async () => {
+    await db.catalogRankingStates.clear();
     await db.comparisons.clear();
     await db.meta.clear();
   });

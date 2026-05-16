@@ -1,10 +1,10 @@
 import type { ComparisonRecord } from '../persistence/db';
 import type { FilmItem } from '../content/types';
-import { filmItemById } from '../content/filmSource';
 
 type FightHistoryModalProps = {
   item: FilmItem;
   records: ComparisonRecord[];
+  itemById: Map<string, FilmItem>;
   onClose: () => void;
 };
 
@@ -18,11 +18,15 @@ function pointsLabel(delta: number) {
   return `${delta >= 0 ? '+' : ''}${delta} pts`;
 }
 
-function titleForItem(itemId: string) {
-  return filmItemById.get(itemId)?.label ?? itemId;
+function titleForItem(itemId: string, itemById: Map<string, FilmItem>) {
+  return itemById.get(itemId)?.label ?? itemId;
 }
 
-function getFightHistoryEntry(record: ComparisonRecord, item: FilmItem): FightHistoryEntry | undefined {
+function getFightHistoryEntry(
+  record: ComparisonRecord,
+  item: FilmItem,
+  itemById: Map<string, FilmItem>,
+): FightHistoryEntry | undefined {
   const change = record.ratingChanges?.find((ratingChange) => ratingChange.itemId === item.id);
 
   switch (record.outcomeType) {
@@ -30,7 +34,7 @@ function getFightHistoryEntry(record: ComparisonRecord, item: FilmItem): FightHi
       if (record.winnerId === item.id && record.loserId) {
         return {
           record,
-          text: `${item.label} won against ${titleForItem(record.loserId)}`,
+          text: `${item.label} won against ${titleForItem(record.loserId, itemById)}`,
           change,
         };
       }
@@ -38,7 +42,7 @@ function getFightHistoryEntry(record: ComparisonRecord, item: FilmItem): FightHi
       if (record.loserId === item.id && record.winnerId) {
         return {
           record,
-          text: `${item.label} lost to ${titleForItem(record.winnerId)}`,
+          text: `${item.label} lost to ${titleForItem(record.winnerId, itemById)}`,
           change,
         };
       }
@@ -48,7 +52,7 @@ function getFightHistoryEntry(record: ComparisonRecord, item: FilmItem): FightHi
       if (record.leftId === item.id && record.rightId) {
         return {
           record,
-          text: `${item.label} tied with ${titleForItem(record.rightId)}`,
+          text: `${item.label} tied with ${titleForItem(record.rightId, itemById)}`,
           change,
         };
       }
@@ -56,7 +60,7 @@ function getFightHistoryEntry(record: ComparisonRecord, item: FilmItem): FightHi
       if (record.rightId === item.id && record.leftId) {
         return {
           record,
-          text: `${item.label} tied with ${titleForItem(record.leftId)}`,
+          text: `${item.label} tied with ${titleForItem(record.leftId, itemById)}`,
           change,
         };
       }
@@ -69,20 +73,19 @@ function getFightHistoryEntry(record: ComparisonRecord, item: FilmItem): FightHi
   }
 }
 
-export function FightHistoryModal({ item, records, onClose }: FightHistoryModalProps) {
+export function FightHistoryModal({ item, records, itemById, onClose }: FightHistoryModalProps) {
   const fights = records
-    .map((record) => getFightHistoryEntry(record, item))
+    .map((record) => getFightHistoryEntry(record, item, itemById))
     .filter((entry) => entry !== undefined)
     .sort((first, second) => second.record.createdAt - first.record.createdAt);
 
   return (
-    <div className="fight-modal-backdrop" role="presentation" onClick={onClose}>
+    <div className="fight-modal-backdrop" role="presentation">
       <section
         className="fight-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="fight-modal-title"
-        onClick={(event) => event.stopPropagation()}
       >
         <header className="fight-modal__header">
           <div>
@@ -116,6 +119,12 @@ export function FightHistoryModal({ item, records, onClose }: FightHistoryModalP
           </ol>
         )}
       </section>
+      <button
+        type="button"
+        className="fight-modal-backdrop__dismiss"
+        onClick={onClose}
+        aria-label="Close fight history from backdrop"
+      />
     </div>
   );
 }

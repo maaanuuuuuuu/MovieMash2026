@@ -74,13 +74,65 @@ img {
   padding: 18px 14px 24px;
   position: relative;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
   gap: 14px;
 }
 
 .comparison-screen--empty {
   place-items: center;
   color: var(--muted);
+}
+
+.comparison-header {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.comparison-header h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.catalog-switch {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.catalog-switch__link {
+  min-width: 76px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background var(--fast),
+    color var(--fast),
+    transform var(--fast);
+}
+
+.catalog-switch__link:hover {
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.catalog-switch__link--active {
+  background: var(--ink);
+  color: #fff;
 }
 
 .comparison-status {
@@ -170,6 +222,7 @@ img {
 .ranking-row__button:focus-visible,
 .ranking-page__back:focus-visible,
 .fight-modal__close:focus-visible,
+.catalog-switch__link:focus-visible,
 .celebration-toast a:focus-visible,
 .celebration-toast button:focus-visible {
   outline: 3px solid var(--gold);
@@ -590,7 +643,17 @@ img {
   background: rgba(23, 33, 27, 0.38);
 }
 
+.fight-modal-backdrop__dismiss {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
 .fight-modal {
+  position: relative;
+  z-index: 1;
   width: min(100%, 620px);
   max-height: min(76svh, 680px);
   overflow: auto;
@@ -699,6 +762,10 @@ img {
     gap: 22px;
   }
 
+  .comparison-header h1 {
+    font-size: 2.35rem;
+  }
+
   .comparison-stage {
     gap: 20px;
   }
@@ -724,6 +791,11 @@ img {
 
   .comparison-stage {
     gap: 7px;
+  }
+
+  .catalog-switch__link {
+    min-width: 68px;
+    padding-inline: 9px;
   }
 
   .item-card {

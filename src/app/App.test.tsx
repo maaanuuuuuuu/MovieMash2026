@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { filmItemsByCatalogId } from '../modules/content/filmSource';
 import { resetDatabase } from '../modules/persistence/db';
 import { App } from './App';
 
@@ -31,6 +32,48 @@ describe('main app flow', () => {
 
     expect(await screen.findByRole('heading', { name: 'Your ranking' })).toBeInTheDocument();
     expect(screen.getAllByRole('listitem').length).toBeGreaterThan(0);
+  });
+
+  it('switches to the action catalog and opens its ranking page', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await screen.findAllByRole('button', { name: /^Choose / });
+    await user.click(screen.getByRole('link', { name: 'Action' }));
+
+    expect(await screen.findByRole('heading', { name: 'Pure action movies' })).toBeInTheDocument();
+    expect(screen.getByText(`${filmItemsByCatalogId.action.length} total`)).toBeInTheDocument();
+
+    const firstChoices = (await screen.findAllByRole('button', { name: /^Choose / })).map((choice) =>
+      choice.getAttribute('aria-label'),
+    );
+    await user.click(screen.getByLabelText('Open ranking'));
+
+    expect(await screen.findByRole('heading', { name: 'Your ranking' })).toBeInTheDocument();
+    expect(screen.getByText('Action cut')).toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(filmItemsByCatalogId.action.length);
+
+    await user.click(screen.getByLabelText('Back to comparisons'));
+
+    expect(await screen.findByRole('heading', { name: 'Pure action movies' })).toBeInTheDocument();
+    expect((await screen.findAllByRole('button', { name: /^Choose / })).map((choice) => choice.getAttribute('aria-label'))).toEqual(
+      firstChoices,
+    );
+  });
+
+  it('opens the comedy ranking route directly and returns to comedy comparisons', async () => {
+    const user = userEvent.setup();
+    window.location.hash = '#/comedy/ranking';
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'Your ranking' })).toBeInTheDocument();
+    expect(screen.getByText('Comedy cut')).toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(filmItemsByCatalogId.comedy.length);
+
+    await user.click(screen.getByLabelText('Back to comparisons'));
+
+    expect(await screen.findByRole('heading', { name: 'Comedy movies' })).toBeInTheDocument();
+    expect(screen.getByText(`${filmItemsByCatalogId.comedy.length} total`)).toBeInTheDocument();
   });
 
   it('returns to the same fight after visiting ranking', async () => {

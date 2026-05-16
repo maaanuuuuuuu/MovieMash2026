@@ -1,8 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ItemId, RankingItemState } from '../../domain/item';
 import type { ComparisonOutcome } from '../../domain/outcome';
-import { filmItemById } from '../content/filmSource';
 import type { FilmItem } from '../content/types';
 import { buildMatchupQueue, type Matchup } from '../pairing/selectMatchup';
 import {
@@ -30,10 +29,6 @@ function otherItemId(matchup: Matchup, itemId: ItemId) {
   return matchup.leftId === itemId ? matchup.rightId : matchup.leftId;
 }
 
-function getItem(itemId: ItemId) {
-  return filmItemById.get(itemId);
-}
-
 function matchupKey(matchup: Matchup) {
   return [matchup.leftId, matchup.rightId].sort().join('::');
 }
@@ -42,26 +37,11 @@ function matchupIsActive(matchup: Matchup, activeIds: Set<string>) {
   return activeIds.has(matchup.leftId) && activeIds.has(matchup.rightId);
 }
 
-function titleForLog(itemId: ItemId) {
-  return getItem(itemId)?.label ?? itemId;
-}
-
-function outcomeLogMessage(outcome: ComparisonOutcome) {
-  switch (outcome.type) {
-    case 'winner':
-      return `${titleForLog(outcome.winnerId)} wins against ${titleForLog(outcome.loserId)}`;
-    case 'tie':
-      return `Tie between ${titleForLog(outcome.leftId)} and ${titleForLog(outcome.rightId)}`;
-    case 'notSeen':
-      return `${titleForLog(outcome.itemId)} not seen`;
-    default:
-      return outcome satisfies never;
-  }
-}
-
-export function useComparisonFlow() {
-  const states = useLiveQuery(listRankingStates, [], []);
-  const comparisons = useLiveQuery(listComparisonRecords, [], []);
+export function useComparisonFlow(catalogId: string, items: FilmItem[]) {
+  const itemIds = useMemo(() => items.map((item) => item.id), [items]);
+  const itemById = useMemo(() => new Map(items.map((item) => [item.id, item])), [items]);
+  const states = useLiveQuery(() => listRankingStates(catalogId, itemIds), [catalogId, itemIds], []);
+  const comparisons = useLiveQuery(() => listComparisonRecords(catalogId), [catalogId], []);
   const [queue, setQueue] = useState<Matchup[]>([]);
   const queueRef = useRef<Matchup[]>([]);
   const [feedback, setFeedback] = useState<FlowFeedback | undefined>();
@@ -71,11 +51,32 @@ export function useComparisonFlow() {
   const activeStates = states.filter((state) => state.active);
   const currentMatchup = queue[0];
   const nextMatchup = queue[1];
-  const leftItem = currentMatchup ? getItem(currentMatchup.leftId) : undefined;
-  const rightItem = currentMatchup ? getItem(currentMatchup.rightId) : undefined;
-  const nextLeftItem = nextMatchup ? getItem(nextMatchup.leftId) : undefined;
-  const nextRightItem = nextMatchup ? getItem(nextMatchup.rightId) : undefined;
+  const leftItem = currentMatchup ? itemById.get(currentMatchup.leftId) : undefined;
+  const rightItem = currentMatchup ? itemById.get(currentMatchup.rightId) : undefined;
+  const nextLeftItem = nextMatchup ? itemById.get(nextMatchup.leftId) : undefined;
+  const nextRightItem = nextMatchup ? itemById.get(nextMatchup.rightId) : undefined;
   const canMarkNotSeen = activeStates.length > MINIMUM_ACTIVE_ITEMS;
+
+  function getItem(itemId: ItemId) {
+    return itemById.get(itemId);
+  }
+
+  function titleForLog(itemId: ItemId) {
+    return getItem(itemId)?.label ?? itemId;
+  }
+
+  function outcomeLogMessage(outcome: ComparisonOutcome) {
+    switch (outcome.type) {
+      case 'winner':
+        return `${titleForLog(outcome.winnerId)} wins against ${titleForLog(outcome.loserId)}`;
+      case 'tie':
+        return `Tie between ${titleForLog(outcome.leftId)} and ${titleForLog(outcome.rightId)}`;
+      case 'notSeen':
+        return `${titleForLog(outcome.itemId)} not seen`;
+      default:
+        return outcome satisfies never;
+    }
+  }
 
   // Keep the speculative queue fresh when IndexedDB changes after each action.
   useEffect(() => {
@@ -122,7 +123,7 @@ export function useComparisonFlow() {
     queueRef.current = nextQueue;
     setQueue(nextQueue);
     showFeedback(kind, label);
-    const result = await persistOutcome(outcome);
+    const result = await persistOutcome(catalogId, outcome, itemIds);
     console.log(
       result.applied ? outcomeLogMessage(outcome) : `${outcomeLogMessage(outcome)} blocked: ${result.reason}`,
     );

@@ -9,6 +9,7 @@ export type ComparableItem<Category extends string = string> = {
 };
 
 export type RankingItemState = {
+  catalogId: string;
   itemId: ItemId;
   rating: number;
   appearances: number;

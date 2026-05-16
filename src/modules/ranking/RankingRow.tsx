@@ -18,12 +18,17 @@ export function RankingRow({ item, state, rank, tier, canMarkNotSeen, onOpenHist
   const pointerIdRef = useRef<number | undefined>(undefined);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const startXRef = useRef(0);
+  const dragXRef = useRef(0);
   const [dragX, setDragX] = useState(0);
   const [isRemoving, setIsRemoving] = useState(false);
   const [isPointerDown, setIsPointerDown] = useState(false);
   const isDismissReady = Math.abs(dragX) >= SWIPE_THRESHOLD_PX;
   const isSwipeHintVisible = Math.abs(dragX) > 8;
   const rowStyle = dragX === 0 ? undefined : { transform: `translateX(${dragX}px)` };
+
+  function isActivePointer(event: PointerEvent<HTMLButtonElement>) {
+    return pointerIdRef.current !== undefined && pointerIdRef.current === event.pointerId;
+  }
 
   function resetDrag() {
     if (
@@ -36,6 +41,7 @@ export function RankingRow({ item, state, rank, tier, canMarkNotSeen, onOpenHist
     }
 
     pointerIdRef.current = undefined;
+    dragXRef.current = 0;
     setIsPointerDown(false);
     setDragX(0);
   }
@@ -51,20 +57,21 @@ export function RankingRow({ item, state, rank, tier, canMarkNotSeen, onOpenHist
   }
 
   function handlePointerMove(event: PointerEvent<HTMLButtonElement>) {
-    if (pointerIdRef.current !== event.pointerId || isRemoving) {
+    if (!isActivePointer(event) || isRemoving) {
       return;
     }
 
     const nextDragX = event.clientX - startXRef.current;
+    dragXRef.current = nextDragX;
     setDragX(nextDragX);
   }
 
   async function handlePointerEnd(event: PointerEvent<HTMLButtonElement>) {
-    if (pointerIdRef.current !== event.pointerId) {
+    if (!isActivePointer(event)) {
       return;
     }
 
-    if (!isDismissReady) {
+    if (Math.abs(dragXRef.current) < SWIPE_THRESHOLD_PX) {
       resetDrag();
       return;
     }

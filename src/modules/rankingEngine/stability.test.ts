@@ -4,13 +4,13 @@ import { getStabilityTier } from './stability';
 
 describe('ranking stability tiers', () => {
   it('marks movies with very little evidence as new', () => {
-    expect(getStabilityTier({ ...createInitialRankingState('film', 1), appearances: 2 })).toBe('new');
+    expect(getStabilityTier({ ...createInitialRankingState('test', 'film', 1), appearances: 2 })).toBe('new');
   });
 
   it('keeps mixed early records settling', () => {
     expect(
       getStabilityTier({
-        ...createInitialRankingState('film', 1),
+        ...createInitialRankingState('test', 'film', 1),
         appearances: 5,
         wins: 2,
         losses: 2,
@@ -23,7 +23,7 @@ describe('ranking stability tiers', () => {
   it('marks decisive early records as stable', () => {
     expect(
       getStabilityTier({
-        ...createInitialRankingState('film', 1),
+        ...createInitialRankingState('test', 'film', 1),
         appearances: 5,
         wins: 4,
         losses: 1,
@@ -33,6 +33,6 @@ describe('ranking stability tiers', () => {
   });
 
   it('marks heavily compared movies as stable', () => {
-    expect(getStabilityTier({ ...createInitialRankingState('film', 1), appearances: 8 })).toBe('stable');
+    expect(getStabilityTier({ ...createInitialRankingState('test', 'film', 1), appearances: 8 })).toBe('stable');
   });
 });

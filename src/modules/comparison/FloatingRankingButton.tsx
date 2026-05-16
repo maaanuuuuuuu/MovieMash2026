@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom';
 
 type FloatingRankingButtonProps = {
   visible: boolean;
+  to: string;
 };
 
-export function FloatingRankingButton({ visible }: FloatingRankingButtonProps) {
+export function FloatingRankingButton({ visible, to }: FloatingRankingButtonProps) {
   return (
     <Link
-      to="/ranking"
+      to={to}
       className={visible ? 'ranking-fab ranking-fab--visible' : 'ranking-fab'}
       aria-label="Open ranking"
       title="Open ranking"

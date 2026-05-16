@@ -1,0 +1,314 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-preview-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+  build-preview:
+    name: Build GitHub Pages preview
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    outputs:
+      main_url: ${{ steps.preview.outputs.main_url }}
+      preview_id: ${{ steps.preview.outputs.preview_id }}
+      preview_name: ${{ steps.preview.outputs.preview_name }}
+      preview_branch: ${{ steps.preview.outputs.preview_branch }}
+      preview_kind: ${{ steps.preview.outputs.preview_kind }}
+      preview_pr_number: ${{ steps.preview.outputs.preview_pr_number }}
+      preview_url: ${{ steps.preview.outputs.preview_url }}
+      should_build_preview: ${{ steps.preview.outputs.should_build_preview }}
+      main_sha: ${{ steps.shas.outputs.main_sha }}
+      preview_sha: ${{ steps.shas.outputs.preview_sha }}
+
+    steps:
+      - name: Checkout preview source
+        uses: actions/checkout@v4
+        with:
+          path: preview-source
+          persist-credentials: false
+
+      - name: Checkout official main source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: main-source
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Configure preview metadata
+        id: preview
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          REPOSITORY: ${{ github.repository }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+
+          repo_name="${REPOSITORY#*/}"
+          main_url="https://${REPOSITORY_OWNER}.github.io/${repo_name}/"
+
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            preview_id="pr-${PR_NUMBER}"
+            preview_name="PR #${PR_NUMBER} - ${PR_BRANCH}"
+            preview_branch="$PR_BRANCH"
+            preview_kind="pull_request"
+            preview_pr_number="$PR_NUMBER"
+            preview_path="/${repo_name}/previews/${preview_id}/"
+            preview_url="https://${REPOSITORY_OWNER}.github.io/${repo_name}/previews/${preview_id}/"
+            should_build_preview="true"
+          else
+            preview_id="main"
+            preview_name="main"
+            preview_branch="main"
+            preview_kind="main"
+            preview_pr_number=""
+            preview_path="/${repo_name}/"
+            preview_url="$main_url"
+            should_build_preview="false"
+          fi
+
+          {
+            echo "main_url=$main_url"
+            echo "preview_id=$preview_id"
+            echo "preview_name=$preview_name"
+            echo "preview_branch=$preview_branch"
+            echo "preview_kind=$preview_kind"
+            echo "preview_pr_number=$preview_pr_number"
+            echo "preview_path=$preview_path"
+            echo "preview_url=$preview_url"
+            echo "should_build_preview=$should_build_preview"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build official main app
+        working-directory: main-source
+        env:
+          VITE_BASE_PATH: /MovieMash2026/
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build PR preview app
+        if: steps.preview.outputs.should_build_preview == 'true'
+        working-directory: preview-source
+        env:
+          VITE_BASE_PATH: ${{ steps.preview.outputs.preview_path }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Capture source SHAs
+        id: shas
+        run: |
+          {
+            echo "main_sha=$(git -C main-source rev-parse HEAD)"
+            echo "preview_sha=$(git -C preview-source rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Package official main app
+        run: |
+          mkdir main-dist-artifact
+          cp -R main-source/dist/. main-dist-artifact/
+
+      - name: Package PR preview app
+        if: steps.preview.outputs.should_build_preview == 'true'
+        run: |
+          mkdir preview-dist-artifact
+          cp -R preview-source/dist/. preview-dist-artifact/
+
+      - name: Upload official main app
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-main-dist
+          path: main-dist-artifact
+
+      - name: Upload PR preview app
+        if: steps.preview.outputs.should_build_preview == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-preview-dist
+          path: preview-dist-artifact
+
+  publish-preview:
+    name: Publish GitHub Pages preview
+    needs: build-preview
+    runs-on: ubuntu-latest
+    if: needs.build-preview.result == 'success'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download official main app
+        uses: actions/download-artifact@v4
+        with:
+          name: pages-main-dist
+          path: main-dist
+
+      - name: Download PR preview app
+        if: needs.build-preview.outputs.should_build_preview == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: pages-preview-dist
+          path: preview-dist
+
+      - name: Publish to gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAIN_URL: ${{ needs.build-preview.outputs.main_url }}
+          PREVIEW_ID: ${{ needs.build-preview.outputs.preview_id }}
+          PREVIEW_NAME: ${{ needs.build-preview.outputs.preview_name }}
+          PREVIEW_BRANCH: ${{ needs.build-preview.outputs.preview_branch }}
+          PREVIEW_KIND: ${{ needs.build-preview.outputs.preview_kind }}
+          PREVIEW_PR_NUMBER: ${{ needs.build-preview.outputs.preview_pr_number }}
+          PREVIEW_URL: ${{ needs.build-preview.outputs.preview_url }}
+          SHOULD_BUILD_PREVIEW: ${{ needs.build-preview.outputs.should_build_preview }}
+          MAIN_SHA: ${{ needs.build-preview.outputs.main_sha }}
+          PREVIEW_SHA: ${{ needs.build-preview.outputs.preview_sha }}
+        run: |
+          set -euo pipefail
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          mkdir pages
+          cd pages
+          git init
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+
+          if git fetch origin gh-pages; then
+            git checkout -B gh-pages origin/gh-pages
+          else
+            git checkout --orphan gh-pages
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+
+          main_dist_path="../main-dist"
+          if [ -d "../main-dist/main-dist-artifact" ]; then
+            main_dist_path="../main-dist/main-dist-artifact"
+          fi
+
+          mkdir -p previews
+          find . -mindepth 1 -maxdepth 1 ! -name previews ! -name .git -exec rm -rf {} +
+          cp -R "${main_dist_path}/." .
+          touch .nojekyll
+
+          if [ "$SHOULD_BUILD_PREVIEW" = "true" ]; then
+            preview_dist_path="../preview-dist"
+            if [ -d "../preview-dist/preview-dist-artifact" ]; then
+              preview_dist_path="../preview-dist/preview-dist-artifact"
+            fi
+
+            rm -rf "previews/${PREVIEW_ID}"
+            mkdir -p "previews/${PREVIEW_ID}"
+            cp -R "${preview_dist_path}/." "previews/${PREVIEW_ID}/"
+          fi
+
+          export MAIN_SHA PREVIEW_SHA
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+
+          const manifestPath = path.join('previews', 'manifest.json');
+          const existing = fs.existsSync(manifestPath)
+            ? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+            : { deployments: [] };
+
+          const mainDeployment = {
+            id: 'main',
+            name: 'main',
+            branch: 'main',
+            kind: 'main',
+            url: process.env.MAIN_URL,
+            updatedAt: new Date().toISOString(),
+            sha: process.env.MAIN_SHA,
+          };
+
+          const deployments = existing.deployments
+            .filter((deployment) => deployment.id !== 'main')
+            .filter((deployment) => deployment.id !== process.env.PREVIEW_ID)
+            .filter((deployment) => deployment.id.startsWith('pr-'))
+            .filter((deployment) => fs.existsSync(path.join('previews', deployment.id, 'index.html')));
+
+          deployments.push(mainDeployment);
+
+          if (process.env.SHOULD_BUILD_PREVIEW === 'true') {
+            const previewDeployment = {
+              id: process.env.PREVIEW_ID,
+              name: process.env.PREVIEW_NAME,
+              branch: process.env.PREVIEW_BRANCH,
+              kind: process.env.PREVIEW_KIND,
+              url: process.env.PREVIEW_URL,
+              updatedAt: new Date().toISOString(),
+              sha: process.env.PREVIEW_SHA,
+            };
+
+            if (process.env.PREVIEW_PR_NUMBER) {
+              previewDeployment.prNumber = Number(process.env.PREVIEW_PR_NUMBER);
+            }
+
+            deployments.push(previewDeployment);
+          }
+
+          deployments.sort((first, second) => {
+            if (first.id === 'main') return -1;
+            if (second.id === 'main') return 1;
+            return second.updatedAt.localeCompare(first.updatedAt);
+          });
+
+          fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
+          fs.writeFileSync(manifestPath, `${JSON.stringify({ deployments }, null, 2)}\n`);
+          NODE
+
+          git add .
+          if git diff --cached --quiet; then
+            echo "No GitHub Pages changes to publish."
+            exit 0
+          fi
+
+          git commit -m "Deploy GitHub Pages"
+          git push origin gh-pages

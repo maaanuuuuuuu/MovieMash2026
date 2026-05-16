@@ -80,8 +80,9 @@ export function updateRatings(
   };
 }
 
-export function createInitialRankingState(itemId: string, now: number): RankingItemState {
+export function createInitialRankingState(catalogId: string, itemId: string, now: number): RankingItemState {
   return {
+    catalogId,
     itemId,
     rating: DEFAULT_RATING,
     appearances: 0,

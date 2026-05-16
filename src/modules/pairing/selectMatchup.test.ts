@@ -12,7 +12,7 @@ function seededRandom(seed: number): RandomSource {
 }
 
 function states(ids: string[]) {
-  return ids.map((id) => createInitialRankingState(id, 1));
+  return ids.map((id) => createInitialRankingState('test', id, 1));
 }
 
 describe('adaptive matchup selection', () => {
