@@ -93,6 +93,9 @@ Actions utilisateur :
 
 - Cliquer une carte choisit ce film comme gagnant.
 - Cliquer le bouton central enregistre une égalité.
+- Après un choix gauche, un choix droite ou une égalité, un bouton d'annulation apparaît en bas à gauche.
+- Cliquer ce bouton annule le dernier vote, supprime son entrée d'historique, restaure les scores et revient au duel annulé.
+- Ce vote reste annulable jusqu'à la prochaine action de match. Il n'y a pas d'historique d'annulation complet.
 - Glisser vers le haut depuis la zone centrale du poster marque le film `interested`.
 - Glisser vers le bas depuis la zone centrale du poster marque le film `removed`.
 - Pendant ce glissement, deux zones apparaissent sur l'écran de match : `Interested` en haut et `Remove` en bas. La zone active se renforce quand le seuil est atteint.
@@ -138,8 +141,6 @@ Les deux états désactivent le film dans le ranking global. Même si la protect
 
 La page de classement trie les films actifs par score décroissant.
 
-Quand des films sont marqués `interested`, une section `Interested` avec une icône d'ampoule apparaît au-dessus de la liste de ranking. Elle montre ces films dans un format proche des lignes de ranking et permet de les restaurer.
-
 Chaque ligne affiche :
 
 - le rang global ;
@@ -151,7 +152,7 @@ Chaque ligne affiche :
 
 Cliquer une ligne ouvre l'historique des duels du film. Les entrées affichent le résultat, l'adversaire et le changement de points quand il existe. Les événements `notSeen` ne sont pas listés dans cet historique.
 
-La page de classement a un bouton icon-only vers la page des films sauvegardés.
+La page de classement a un bouton icon-only vers la page des films sauvegardés. Les films `interested` et `removed` ne sont pas affichés au-dessus du ranking.
 
 Glisser une ligne de ranking vers la gauche marque le film `interested`. Glisser une ligne vers la droite marque le film `removed`. Les deux gestes utilisent la même protection des 10 derniers films.
 
@@ -218,7 +219,7 @@ Base actuelle :
 - nom IndexedDB : `movie-mash-v1` ;
 - version Dexie : 4 ;
 - table `catalogRankingStates` : état de ranking par `catalogId` et `itemId`, avec `notSeenDisposition` pour `interested` ou `removed` ;
-- table `comparisons` : historique des choix, égalités et états non vus ;
+- table `comparisons` : historique des choix, égalités et états non vus, avec les changements de score requis pour annuler le dernier vote ;
 - table `meta` : petits drapeaux applicatifs, comme la célébration déjà affichée.
 
 Le code initialise seulement le scope `default`. Si de nouveaux films sont ajoutés au catalogue, leurs états manquants sont créés avec 1000 points sans effacer l'historique existant.

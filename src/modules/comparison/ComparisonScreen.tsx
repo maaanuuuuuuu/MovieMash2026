@@ -7,7 +7,7 @@ import { FloatingRankingButton } from './FloatingRankingButton';
 import { ItemCard } from './ItemCard';
 import { MatchSwipeZones, type MatchSwipeZoneState } from './MatchSwipeZones';
 import { TieButton } from './TieButton';
-import { UndoNotSeenButton } from './UndoNotSeenButton';
+import { UndoActionButton } from './UndoActionButton';
 import type { ComparisonFlow } from './useComparisonFlow';
 import { useIdleVisibility } from './useIdleVisibility';
 import { filmFilters, type FilmFilter } from '../content/filmSource';
@@ -20,6 +20,10 @@ type ComparisonScreenProps = {
 export function ComparisonScreen({ flow, filter }: ComparisonScreenProps) {
   const rankingButtonVisible = useIdleVisibility(flow.isInteracting, flow.feedback?.id);
   const [swipeZoneState, setSwipeZoneState] = useState<MatchSwipeZoneState | undefined>();
+  const undoAction =
+    flow.pendingNotSeen !== undefined
+      ? { ariaLabel: 'Undo last swipe', onUndo: flow.undoNotSeen }
+      : { ariaLabel: 'Undo last vote', onUndo: flow.undoLastVote };
   const handleSwipeZoneChange = useCallback((state: MatchSwipeZoneState | undefined) => {
     setSwipeZoneState(state);
   }, []);
@@ -85,7 +89,11 @@ export function ComparisonScreen({ flow, filter }: ComparisonScreenProps) {
 
       <ConfirmationBurst feedback={flow.feedback} />
       <CelebrationToast visible={flow.celebrationVisible} onClose={() => flow.setCelebrationVisible(false)} />
-      <UndoNotSeenButton visible={flow.pendingNotSeen !== undefined} onUndo={flow.undoNotSeen} />
+      <UndoActionButton
+        visible={flow.pendingNotSeen !== undefined || flow.undoableVote !== undefined}
+        ariaLabel={undoAction.ariaLabel}
+        onUndo={undoAction.onUndo}
+      />
       <FloatingRankingButton visible={rankingButtonVisible} to={filter.rankingPath} />
     </main>
   );

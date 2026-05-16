@@ -1,12 +1,13 @@
 import type { NotSeenDisposition, RankingItemState } from '../../domain/item';
 import type { ComparisonOutcome, DecidedOutcome } from '../../domain/outcome';
 import { updateRatings } from '../rankingEngine/rating';
-import { db } from './db';
+import { db, type ComparisonRecord, type RatingChangeRecord } from './db';
 import { listCatalogStates } from './rankingRepository.reads';
 import {
   MINIMUM_ACTIVE_ITEMS,
   type PersistOutcomeResult,
   type RestoreRankingItemResult,
+  type UndoDecidedOutcomeResult,
 } from './rankingRepository.types';
 import {
   createComparisonRecord,
@@ -34,6 +35,70 @@ function applyDecidedOutcome(
   return updateRatings(leftState, rightState, outcome, now);
 }
 
+function idsForDecidedRecord(record: ComparisonRecord) {
+  switch (record.outcomeType) {
+    case 'winner':
+      return record.winnerId && record.loserId ? [record.winnerId, record.loserId] : [];
+    case 'tie':
+      return record.leftId && record.rightId ? [record.leftId, record.rightId] : [];
+    case 'notSeen':
+      return [];
+    default:
+      return record.outcomeType satisfies never;
+  }
+}
+
+function getOutcomeRemovalDelta(record: ComparisonRecord, itemId: string) {
+  switch (record.outcomeType) {
+    case 'winner':
+      return {
+        wins: record.winnerId === itemId ? 1 : 0,
+        losses: record.loserId === itemId ? 1 : 0,
+        ties: 0,
+      };
+    case 'tie':
+      return { wins: 0, losses: 0, ties: 1 };
+    case 'notSeen':
+      return { wins: 0, losses: 0, ties: 0 };
+    default:
+      return record.outcomeType satisfies never;
+  }
+}
+
+function restoreStateBeforeOutcome(
+  state: RankingItemState,
+  record: ComparisonRecord,
+  change: RatingChangeRecord,
+  now: number,
+): RankingItemState | undefined {
+  const delta = getOutcomeRemovalDelta(record, state.itemId);
+
+  if (
+    state.rating !== change.afterRating ||
+    state.appearances <= 0 ||
+    state.wins < delta.wins ||
+    state.losses < delta.losses ||
+    state.ties < delta.ties
+  ) {
+    return undefined;
+  }
+
+  return {
+    ...state,
+    rating: change.beforeRating,
+    appearances: state.appearances - 1,
+    wins: state.wins - delta.wins,
+    losses: state.losses - delta.losses,
+    ties: state.ties - delta.ties,
+    updatedAt: now,
+  };
+}
+
+function isLatestCatalogRecord(record: ComparisonRecord, records: ComparisonRecord[]) {
+  const latestCreatedAt = Math.max(...records.map((catalogRecord) => catalogRecord.createdAt));
+  return record.createdAt === latestCreatedAt;
+}
+
 // Not-seen actions remove one movie without changing ratings.
 async function persistNotSeenOutcome(
   catalogId: string,
@@ -54,9 +119,14 @@ async function persistNotSeenOutcome(
     return { applied: false, reason: 'minimumActiveItems', states: scopedStates };
   }
 
+  const record = createComparisonRecord(catalogId, outcome, now);
   await db.catalogRankingStates.put(markStateNotSeen(itemState, outcome.disposition, now));
-  await db.comparisons.put(createComparisonRecord(catalogId, outcome, now));
-  return { applied: true, states: getScopedStates(await listCatalogStates(catalogId), activeScopeItemIds) };
+  await db.comparisons.put(record);
+  return {
+    applied: true,
+    comparisonId: record.id,
+    states: getScopedStates(await listCatalogStates(catalogId), activeScopeItemIds),
+  };
 }
 
 export async function persistOutcome(
@@ -86,14 +156,70 @@ export async function persistOutcome(
     }
 
     await db.catalogRankingStates.bulkPut([updated.left, updated.right]);
-    await db.comparisons.put(
-      createComparisonRecord(
-        catalogId,
-        outcome,
-        now,
-        ratingChangesForUpdate(beforeStates[0], beforeStates[1], updated.left, updated.right),
-      ),
+    const record = createComparisonRecord(
+      catalogId,
+      outcome,
+      now,
+      ratingChangesForUpdate(beforeStates[0], beforeStates[1], updated.left, updated.right),
     );
+
+    await db.comparisons.put(record);
+    return {
+      applied: true,
+      comparisonId: record.id,
+      states: getScopedStates(await listCatalogStates(catalogId), activeScopeItemIds),
+    };
+  });
+}
+
+export async function undoDecidedOutcome(
+  catalogId: string,
+  comparisonId: string,
+  activeScopeItemIds?: readonly string[],
+): Promise<UndoDecidedOutcomeResult> {
+  return db.transaction('rw', db.catalogRankingStates, db.comparisons, async () => {
+    const now = Date.now();
+    const states = await listCatalogStates(catalogId);
+    const scopedStates = getScopedStates(states, activeScopeItemIds);
+    const record = await db.comparisons.get(comparisonId);
+
+    if (!record || record.catalogId !== catalogId) {
+      return { applied: false, reason: 'missingRecord', states: scopedStates };
+    }
+
+    if (record.outcomeType === 'notSeen') {
+      return { applied: false, reason: 'notUndoable', states: scopedStates };
+    }
+
+    const catalogRecords = await db.comparisons.where('catalogId').equals(catalogId).toArray();
+
+    if (!isLatestCatalogRecord(record, catalogRecords)) {
+      return { applied: false, reason: 'staleRecord', states: scopedStates };
+    }
+
+    const outcomeIds = idsForDecidedRecord(record);
+    const ratingChanges = record.ratingChanges ?? [];
+
+    if (outcomeIds.length !== 2 || ratingChanges.length < 2) {
+      return { applied: false, reason: 'notUndoable', states: scopedStates };
+    }
+
+    const statesById = new Map(states.map((state) => [state.itemId, state]));
+    const changesById = new Map(ratingChanges.map((change) => [change.itemId, change]));
+    const restoredStates = outcomeIds.map((itemId) => {
+      const state = statesById.get(itemId);
+      const change = changesById.get(itemId);
+
+      return state && change ? restoreStateBeforeOutcome(state, record, change, now) : undefined;
+    });
+
+    if (!restoredStates[0] || !restoredStates[1]) {
+      return { applied: false, reason: 'missingState', states: scopedStates };
+    }
+
+    await db.catalogRankingStates.bulkPut([restoredStates[0], restoredStates[1]]);
+    await db.comparisons.delete(record.id);
+
     return { applied: true, states: getScopedStates(await listCatalogStates(catalogId), activeScopeItemIds) };
   });
 }
@@ -118,9 +244,15 @@ export async function markRankingItemNotSeen(
       return { applied: false, reason: 'minimumActiveItems', states: scopedStates };
     }
 
+    const record = createRankingNotSeenRecord(catalogId, itemId, disposition, now);
+
     await db.catalogRankingStates.put(markStateNotSeen(itemState, disposition, now));
-    await db.comparisons.put(createRankingNotSeenRecord(catalogId, itemId, disposition, now));
-    return { applied: true, states: getScopedStates(await listCatalogStates(catalogId), activeScopeItemIds) };
+    await db.comparisons.put(record);
+    return {
+      applied: true,
+      comparisonId: record.id,
+      states: getScopedStates(await listCatalogStates(catalogId), activeScopeItemIds),
+    };
   });
 }
 

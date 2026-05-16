@@ -7,7 +7,7 @@ import {
   listRankingStates,
 } from '../persistence/rankingRepository';
 import { createComparisonFlowActions } from './useComparisonFlow.actions';
-import type { FlowFeedback } from './useComparisonFlow.utils';
+import type { FlowFeedback, UndoableVote } from './useComparisonFlow.utils';
 import { useMatchupQueue } from './useMatchupQueue';
 import { usePendingNotSeen } from './usePendingNotSeen';
 
@@ -19,6 +19,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
   const states = useLiveQuery(() => listRankingStates(rankingScopeId, itemIds), [rankingScopeId, itemIds], []);
   const comparisons = useLiveQuery(() => listComparisonRecords(rankingScopeId), [rankingScopeId], []);
   const [feedback, setFeedback] = useState<FlowFeedback | undefined>();
+  const [undoableVote, setUndoableVote] = useState<UndoableVote | undefined>();
   const [celebrationVisible, setCelebrationVisible] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
   const activeStates = useMemo(() => states.filter((state) => state.active), [states]);
@@ -46,6 +47,8 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     queue,
     canMarkNotSeen,
     setFeedback,
+    undoableVote,
+    setUndoableVote,
     setCelebrationVisible,
     pendingNotSeenRef,
     clearPendingNotSeenTimeout,
@@ -66,6 +69,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     comparisonCount: comparisons.length,
     feedback,
     pendingNotSeen,
+    undoableVote,
     celebrationVisible,
     isInteracting,
     canMarkNotSeen,
@@ -74,6 +78,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     tie: actions.tie,
     markNotSeen: actions.markNotSeen,
     undoNotSeen: actions.undoNotSeen,
+    undoLastVote: actions.undoLastVote,
     setCelebrationVisible,
     setIsInteracting,
   };

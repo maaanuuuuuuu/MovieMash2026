@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HashRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -108,6 +108,23 @@ describe('filtered ranking page', () => {
     );
 
     expect(screen.getByLabelText('Back to comparisons')).toHaveAttribute('href', '#/action');
+  });
+
+  it('does not show interested movies above the ranking list', async () => {
+    const actionItem = filmItemsByFilterId.action[0];
+    await db.catalogRankingStates.bulkPut([savedState(actionItem.id, 1)]);
+
+    render(
+      <HashRouter>
+        <RankingPage filter={actionFilmFilter} />
+      </HashRouter>,
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText(actionItem.label)).not.toBeInTheDocument();
+    });
+    expect(screen.queryByRole('heading', { name: 'Interested' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Interested movies')).not.toBeInTheDocument();
   });
 
   it('shows only saved movies from the active filter', async () => {

@@ -1,7 +1,7 @@
 import type { ItemId, NotSeenDisposition, RankingItemState } from '../../domain/item';
-import type { ComparisonOutcome } from '../../domain/outcome';
+import type { ComparisonOutcome, DecidedOutcome } from '../../domain/outcome';
 import type { FilmItem } from '../content/types';
-import { getMetaBoolean, persistOutcome, setMetaBoolean } from '../persistence/rankingRepository';
+import { getMetaBoolean, persistOutcome, setMetaBoolean, undoDecidedOutcome } from '../persistence/rankingRepository';
 import { hasReachedCelebrationThreshold } from '../rankingEngine/stability';
 import {
   getOutcomeLogMessage,
@@ -10,6 +10,7 @@ import {
   type FeedbackKind,
   type FlowFeedback,
   type PendingNotSeen,
+  type UndoableVote,
 } from './useComparisonFlow.utils';
 
 const CELEBRATION_META_KEY = 'celebrationShown';
@@ -26,6 +27,8 @@ type ComparisonFlowActionInput = {
   queue: PendingNotSeen['matchup'][];
   canMarkNotSeen: boolean;
   setFeedback: (feedback: FlowFeedback | undefined) => void;
+  undoableVote: UndoableVote | undefined;
+  setUndoableVote: (vote: UndoableVote | undefined) => void;
   setCelebrationVisible: (visible: boolean) => void;
   pendingNotSeenRef: PendingRef;
   clearPendingNotSeenTimeout: () => void;
@@ -83,8 +86,9 @@ export function createComparisonFlowActions(input: ComparisonFlowActionInput) {
     if (result.reason === 'minimumActiveItems') showFeedback('blocked', 'Last 10 stay');
   }
 
-  async function commitOutcome(outcome: ComparisonOutcome, kind: FeedbackKind, label: string) {
+  async function commitOutcome(outcome: DecidedOutcome, kind: FeedbackKind, label: string, matchup: PendingNotSeen['matchup']) {
     await flushPendingNotSeen();
+    input.setUndoableVote(undefined);
     input.advanceQueue();
     showFeedback(kind, label);
     const result = await persistOutcome(input.rankingScopeId, outcome, input.itemIds);
@@ -93,6 +97,7 @@ export function createComparisonFlowActions(input: ComparisonFlowActionInput) {
     );
 
     if (result.applied) {
+      input.setUndoableVote({ id: Date.now(), comparisonId: result.comparisonId, matchup });
       await maybeShowCelebration(result.states);
       return;
     }
@@ -109,6 +114,7 @@ export function createComparisonFlowActions(input: ComparisonFlowActionInput) {
       { type: 'winner', winnerId: input.currentMatchup.leftId, loserId: input.currentMatchup.rightId },
       'picked',
       'Picked',
+      input.currentMatchup,
     );
   }
 
@@ -121,6 +127,7 @@ export function createComparisonFlowActions(input: ComparisonFlowActionInput) {
       { type: 'winner', winnerId: input.currentMatchup.rightId, loserId: input.currentMatchup.leftId },
       'picked',
       'Picked',
+      input.currentMatchup,
     );
   }
 
@@ -133,6 +140,7 @@ export function createComparisonFlowActions(input: ComparisonFlowActionInput) {
       { type: 'tie', leftId: input.currentMatchup.leftId, rightId: input.currentMatchup.rightId },
       'tie',
       'Tie',
+      input.currentMatchup,
     );
   }
 
@@ -148,6 +156,7 @@ export function createComparisonFlowActions(input: ComparisonFlowActionInput) {
       return;
     }
 
+    input.setUndoableVote(undefined);
     void flushPendingNotSeen().then(() => {
       const nextQueue = getQueueAfterNotSeen(itemId, input.activeStates, input.queue);
       const pending: PendingNotSeen = {
@@ -176,5 +185,24 @@ export function createComparisonFlowActions(input: ComparisonFlowActionInput) {
     input.restoreMatchup(pending.matchup);
   }
 
-  return { chooseLeft, chooseRight, tie, markNotSeen, undoNotSeen };
+  function undoLastVote() {
+    const vote = input.undoableVote;
+
+    if (!vote) {
+      return;
+    }
+
+    input.setUndoableVote(undefined);
+    void undoDecidedOutcome(input.rankingScopeId, vote.comparisonId, input.itemIds).then((result) => {
+      if (result.applied) {
+        input.restoreMatchup(vote.matchup);
+        showFeedback('undo', 'Undone');
+        return;
+      }
+
+      showFeedback('blocked', 'Undo expired');
+    });
+  }
+
+  return { chooseLeft, chooseRight, tie, markNotSeen, undoNotSeen, undoLastVote };
 }

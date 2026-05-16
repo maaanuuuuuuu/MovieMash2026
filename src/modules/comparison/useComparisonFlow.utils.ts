@@ -5,7 +5,7 @@ import type { FilmItem } from '../content/types';
 
 export const MATCHUP_QUEUE_SIZE = 4;
 
-export type FeedbackKind = 'picked' | 'tie' | 'interested' | 'removed' | 'blocked';
+export type FeedbackKind = 'picked' | 'tie' | 'interested' | 'removed' | 'blocked' | 'undo';
 
 export type FlowFeedback = {
   id: number;
@@ -17,6 +17,12 @@ export type PendingNotSeen = {
   id: number;
   matchup: Matchup;
   outcome: Extract<ComparisonOutcome, { type: 'notSeen' }>;
+};
+
+export type UndoableVote = {
+  id: number;
+  comparisonId: string;
+  matchup: Matchup;
 };
 
 export function otherItemId(matchup: Matchup, itemId: ItemId) {

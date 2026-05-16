@@ -98,8 +98,8 @@ describe('main app swipe flow', () => {
     await swipeRankingRow(rowButton, 160, 20);
 
     expect(await screen.findByText(`${itemLabel} saved as interested`)).toBeInTheDocument();
-    expect(await screen.findByRole('heading', { name: 'Interested' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Interested movies')).toHaveTextContent(itemLabel);
+    expect(screen.queryByRole('heading', { name: 'Interested' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Interested movies')).not.toBeInTheDocument();
     await user.click(screen.getByLabelText('Open saved movies'));
 
     expect(await screen.findByRole('heading', { name: 'Saved movies' })).toBeInTheDocument();

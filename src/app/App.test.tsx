@@ -23,6 +23,46 @@ describe('main app flow', () => {
     });
   });
 
+  it('can undo the last vote from the comparison screen', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const originalChoices = (await screen.findAllByRole('button', { name: /^Choose / })).map((choice) =>
+      choice.getAttribute('aria-label'),
+    );
+    await user.click((await screen.findAllByRole('button', { name: /^Choose / }))[0]);
+
+    expect(await screen.findByLabelText('Undo last vote')).toBeInTheDocument();
+    await user.click(screen.getByLabelText('Undo last vote'));
+
+    await waitFor(() => {
+      expect(screen.getByText('0 picks')).toBeInTheDocument();
+    });
+    expect(screen.getAllByRole('button', { name: /^Choose / }).map((choice) => choice.getAttribute('aria-label'))).toEqual(
+      originalChoices,
+    );
+  });
+
+  it('can undo the last tie from the comparison screen', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const originalChoices = (await screen.findAllByRole('button', { name: /^Choose / })).map((choice) =>
+      choice.getAttribute('aria-label'),
+    );
+    await user.click(screen.getByRole('button', { name: 'Mark this pair as a tie' }));
+
+    expect(await screen.findByLabelText('Undo last vote')).toBeInTheDocument();
+    await user.click(screen.getByLabelText('Undo last vote'));
+
+    await waitFor(() => {
+      expect(screen.getByText('0 picks')).toBeInTheDocument();
+    });
+    expect(screen.getAllByRole('button', { name: /^Choose / }).map((choice) => choice.getAttribute('aria-label'))).toEqual(
+      originalChoices,
+    );
+  });
+
   it('opens the separate ranking page', async () => {
     const user = userEvent.setup();
     render(<App />);

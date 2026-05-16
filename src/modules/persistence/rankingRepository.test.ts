@@ -5,6 +5,7 @@ import {
   listComparisonRecords,
   listRankingStates,
   persistOutcome,
+  undoDecidedOutcome,
 } from './rankingRepository';
 import { item, items } from './rankingRepository.testUtils';
 
@@ -78,6 +79,90 @@ describe('ranking repository catalog scopes', () => {
       loserId: scopedIds[1],
     });
     expect(records[0].ratingChanges?.map((change) => change.itemId).sort()).toEqual([scopedIds[0], scopedIds[1]].sort());
+  });
+
+  it('undoes the latest winner outcome and restores both ranking states', async () => {
+    const scopedItems = items('scope', 11);
+    const scopedIds = scopedItems.map((scopedItem) => scopedItem.id);
+    await initializeRankingStates([{ catalogId: 'default', items: scopedItems }]);
+
+    const outcomeResult = await persistOutcome(
+      'default',
+      { type: 'winner', winnerId: scopedIds[0], loserId: scopedIds[1] },
+      scopedIds,
+    );
+
+    if (!outcomeResult.applied) {
+      throw new Error('Expected winner outcome to apply.');
+    }
+
+    const undoResult = await undoDecidedOutcome('default', outcomeResult.comparisonId, scopedIds);
+    const winnerState = await db.catalogRankingStates.get(['default', scopedIds[0]]);
+    const loserState = await db.catalogRankingStates.get(['default', scopedIds[1]]);
+
+    expect(undoResult.applied).toBe(true);
+    expect(winnerState).toMatchObject({ rating: 1000, appearances: 0, wins: 0, losses: 0, ties: 0 });
+    expect(loserState).toMatchObject({ rating: 1000, appearances: 0, wins: 0, losses: 0, ties: 0 });
+    expect(await listComparisonRecords('default')).toHaveLength(0);
+  });
+
+  it('undoes the latest tie outcome and restores tie counters', async () => {
+    const scopedItems = items('scope', 11);
+    const scopedIds = scopedItems.map((scopedItem) => scopedItem.id);
+    await initializeRankingStates([{ catalogId: 'default', items: scopedItems }]);
+
+    const outcomeResult = await persistOutcome(
+      'default',
+      { type: 'tie', leftId: scopedIds[0], rightId: scopedIds[1] },
+      scopedIds,
+    );
+
+    if (!outcomeResult.applied) {
+      throw new Error('Expected tie outcome to apply.');
+    }
+
+    const undoResult = await undoDecidedOutcome('default', outcomeResult.comparisonId, scopedIds);
+    const leftState = await db.catalogRankingStates.get(['default', scopedIds[0]]);
+    const rightState = await db.catalogRankingStates.get(['default', scopedIds[1]]);
+
+    expect(undoResult.applied).toBe(true);
+    expect(leftState).toMatchObject({ rating: 1000, appearances: 0, wins: 0, losses: 0, ties: 0 });
+    expect(rightState).toMatchObject({ rating: 1000, appearances: 0, wins: 0, losses: 0, ties: 0 });
+    expect(await listComparisonRecords('default')).toHaveLength(0);
+  });
+
+  it('does not undo an older decided outcome after another comparison is recorded', async () => {
+    const scopedItems = items('scope', 11);
+    const scopedIds = scopedItems.map((scopedItem) => scopedItem.id);
+    await initializeRankingStates([{ catalogId: 'default', items: scopedItems }]);
+
+    const firstResult = await persistOutcome(
+      'default',
+      { type: 'winner', winnerId: scopedIds[0], loserId: scopedIds[1] },
+      scopedIds,
+    );
+
+    if (!firstResult.applied) {
+      throw new Error('Expected first outcome to apply.');
+    }
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1);
+    });
+    const secondResult = await persistOutcome(
+      'default',
+      { type: 'winner', winnerId: scopedIds[2], loserId: scopedIds[3] },
+      scopedIds,
+    );
+
+    if (!secondResult.applied) {
+      throw new Error('Expected second outcome to apply.');
+    }
+
+    const undoResult = await undoDecidedOutcome('default', firstResult.comparisonId, scopedIds);
+
+    expect(undoResult).toMatchObject({ applied: false, reason: 'staleRecord' });
+    expect(await listComparisonRecords('default')).toHaveLength(2);
   });
 
   it('does not leak shared item ratings between catalogs', async () => {

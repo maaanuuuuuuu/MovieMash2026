@@ -1,10 +1,10 @@
-.undo-not-seen-button {
+.undo-action-button {
   position: fixed;
   left: 18px;
   bottom: 18px;
   z-index: 9;
-  width: 54px;
-  height: 54px;
+  width: 108px;
+  height: 108px;
   border: 0;
   border-radius: 50%;
   display: grid;
@@ -16,16 +16,21 @@
   animation: undo-button-in 180ms ease both;
 }
 
+.undo-action-button svg {
+  width: 48px;
+  height: 48px;
+}
+
 @media (max-width: 679px) {
-  .undo-not-seen-button {
+  .undo-action-button {
     left: 16px;
     bottom: calc(18px + env(safe-area-inset-bottom));
-    width: 66px;
-    height: 66px;
+    width: 132px;
+    height: 132px;
   }
 
-  .undo-not-seen-button svg {
-    width: 29px;
-    height: 29px;
+  .undo-action-button svg {
+    width: 58px;
+    height: 58px;
   }
 }

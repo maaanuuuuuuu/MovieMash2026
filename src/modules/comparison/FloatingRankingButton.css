@@ -3,8 +3,8 @@
   right: 18px;
   bottom: 18px;
   z-index: 9;
-  width: 54px;
-  height: 54px;
+  width: 108px;
+  height: 108px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -21,6 +21,11 @@
     visibility 0s linear 220ms;
 }
 
+.ranking-fab svg {
+  width: 48px;
+  height: 48px;
+}
+
 .ranking-fab--visible {
   visibility: visible;
   opacity: 1;
@@ -33,12 +38,12 @@
   .ranking-fab {
     right: 16px;
     bottom: calc(18px + env(safe-area-inset-bottom));
-    width: 66px;
-    height: 66px;
+    width: 132px;
+    height: 132px;
   }
 
   .ranking-fab svg {
-    width: 29px;
-    height: 29px;
+    width: 58px;
+    height: 58px;
   }
 }

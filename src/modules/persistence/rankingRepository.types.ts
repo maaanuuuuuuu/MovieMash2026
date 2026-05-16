@@ -10,11 +10,23 @@ export type RankingCatalogScope = {
 export type PersistOutcomeResult =
   | {
       applied: true;
+      comparisonId: string;
       states: RankingItemState[];
     }
   | {
       applied: false;
       reason: 'minimumActiveItems' | 'missingState';
+      states: RankingItemState[];
+    };
+
+export type UndoDecidedOutcomeResult =
+  | {
+      applied: true;
+      states: RankingItemState[];
+    }
+  | {
+      applied: false;
+      reason: 'missingRecord' | 'missingState' | 'notUndoable' | 'staleRecord';
       states: RankingItemState[];
     };
 
