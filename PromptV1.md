@@ -23,7 +23,9 @@ The product should feel lightweight, fast, slightly playful, and rewarding. It s
 - Tapping the left item chooses the left item.
 - Tapping the right item chooses the right item.
 - A tie action sits between the two cards.
-- The user can drag a single card far enough from its origin to mark that item as not seen, with a strong "get this out of my screen" feeling.
+- The user can drag a single card vertically far enough from its origin to mark that item as not seen.
+- Swipe up means the user has not seen it but is interested in it later.
+- Swipe down means the user wants it removed from their active comparison pool.
 - If the drag does not cross the threshold, the card should animate back into place.
 - After every action, transition immediately into the next meaningful comparison with very little interruption.
 - Add a very short, satisfying confirmation animation after each committed action so the interaction loop feels rewarding and addictive without slowing the flow.
@@ -37,8 +39,9 @@ The product should feel lightweight, fast, slightly playful, and rewarding. It s
 - Implement adaptive pairing intended to produce a good-feeling ranking quickly, then refine it over time.
 - Use an Elo-style model or a similarly lightweight rating system.
 - Ties are real outcomes and must update the ranking accordingly.
-- If an item is marked not seen, remove it permanently from that user's active pool and never show it again.
-- Prevent further not-seen removals once only 10 active items remain.
+- If an item is marked not seen, remove it from that user's active ranking pool and store whether it is `interested` or `removed`.
+- Prevent further not-seen actions once only 10 active items remain.
+- Let the user restore interested or removed items from a dedicated saved-items screen.
 - Favor items that have never appeared in a comparison yet until all active items have been seen at least once.
 - After that, bias pair selection toward meaningful comparisons such as nearby ratings, while keeping some exploration.
 - To avoid slowness between turns, keep a short speculative queue of the next 3 to 5 candidate matchups precomputed while the user is thinking or during idle time.
@@ -105,7 +108,7 @@ The product should feel lightweight, fast, slightly playful, and rewarding. It s
 - Backend storage
 - Onboarding
 - Filters or segments
-- Undo
+- Full undo history beyond the short swipe undo window
 - Shipped UI for non-film categories
 
 ## Implementation Priorities

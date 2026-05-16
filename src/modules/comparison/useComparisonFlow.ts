@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ItemId, RankingItemState } from '../../domain/item';
+import type { ItemId, NotSeenDisposition, RankingItemState } from '../../domain/item';
 import type { ComparisonOutcome } from '../../domain/outcome';
 import type { FilmItem } from '../content/types';
 import { buildMatchupQueue, type Matchup } from '../pairing/selectMatchup';
@@ -14,7 +14,7 @@ import {
 } from '../persistence/rankingRepository';
 import { hasReachedCelebrationThreshold } from '../rankingEngine/stability';
 
-type FeedbackKind = 'picked' | 'tie' | 'notSeen' | 'blocked';
+type FeedbackKind = 'picked' | 'tie' | 'interested' | 'removed' | 'blocked';
 
 export type FlowFeedback = {
   id: number;
@@ -82,7 +82,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
       case 'tie':
         return `Tie between ${titleForLog(outcome.leftId)} and ${titleForLog(outcome.rightId)}`;
       case 'notSeen':
-        return `${titleForLog(outcome.itemId)} not seen`;
+        return `${titleForLog(outcome.itemId)} marked ${outcome.disposition}`;
       default:
         return outcome satisfies never;
     }
@@ -240,7 +240,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     );
   }
 
-  function markNotSeen(itemId: ItemId) {
+  function markNotSeen(itemId: ItemId, disposition: NotSeenDisposition) {
     if (!currentMatchup) {
       return;
     }
@@ -268,13 +268,13 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
       const pending: PendingNotSeen = {
         id: Date.now(),
         matchup: pendingMatchup,
-        outcome: { type: 'notSeen', itemId, otherId: otherItemId(pendingMatchup, itemId) },
+        outcome: { type: 'notSeen', itemId, otherId: otherItemId(pendingMatchup, itemId), disposition },
       };
 
       queueRef.current = nextQueue;
       setQueue(nextQueue);
       schedulePendingNotSeen(pending);
-      showFeedback('notSeen', 'Gone');
+      showFeedback(disposition, disposition === 'interested' ? 'Interested' : 'Removed');
     });
   }
 

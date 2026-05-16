@@ -1,4 +1,4 @@
-import type { ItemId } from './item';
+import type { ItemId, NotSeenDisposition } from './item';
 
 export type DecidedOutcome =
   | {
@@ -16,6 +16,7 @@ export type NotSeenOutcome = {
   type: 'notSeen';
   itemId: ItemId;
   otherId: ItemId;
+  disposition: NotSeenDisposition;
 };
 
 export type ComparisonOutcome = DecidedOutcome | NotSeenOutcome;

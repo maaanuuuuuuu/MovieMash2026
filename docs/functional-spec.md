@@ -12,7 +12,7 @@ La documentation doit rester factuelle. Si le code et ce fichier ne disent pas l
 
 MovieMash construit un classement personnel de films par duels rapides.
 
-L'utilisateur voit deux films, choisit celui qu'il préfère, peut déclarer une égalité, ou peut retirer un film qu'il n'a pas vu. Le classement se construit progressivement avec un score global par film.
+L'utilisateur voit deux films, choisit celui qu'il préfère, peut déclarer une égalité, ou peut sortir un film du ranking actif parce qu'il ne l'a pas vu. Le classement se construit progressivement avec un score global par film.
 
 La route par défaut est l'écran de match. L'application n'a pas de page d'accueil marketing.
 
@@ -24,10 +24,13 @@ L'application utilise un `HashRouter`, ce qui donne des routes avec `#` sur GitH
 | --- | --- | --- |
 | `#/` | Match | Tous les films actifs peuvent être proposés. |
 | `#/ranking` | Liste | Classement global complet. |
+| `#/saved` | Liste | Films globaux marqués `interested` ou `removed`, avec restauration. |
 | `#/action` | Match | Seuls les films avec le genre `action` peuvent être proposés. |
 | `#/action/ranking` | Liste | Vue filtrée du classement global sur les films `action`. |
+| `#/action/saved` | Liste | Films `action` marqués `interested` ou `removed`, avec restauration. |
 | `#/comedy` | Match | Seuls les films avec le genre `comedy` peuvent être proposés. |
 | `#/comedy/ranking` | Liste | Vue filtrée du classement global sur les films `comedy`. |
+| `#/comedy/saved` | Liste | Films `comedy` marqués `interested` ou `removed`, avec restauration. |
 
 Les onglets `All`, `Action` et `Comedy` ne changent pas de base de données. Ils changent seulement le filtre de vue et de sélection des duels.
 
@@ -83,17 +86,19 @@ L'écran de match affiche :
 - deux cartes de films ;
 - une action d'égalité ;
 - un bouton flottant icon-only vers la liste ;
-- un feedback court après un choix, une égalité ou un retrait ;
+- un feedback court après un choix, une égalité, un `interested` ou un `removed` ;
 - une célébration de stabilité affichée une seule fois.
 
 Actions utilisateur :
 
 - Cliquer une carte choisit ce film comme gagnant.
 - Cliquer le bouton central enregistre une égalité.
-- Glisser depuis la zone centrale du poster démarre un retrait. Le seuil de retrait est volontairement plus haut qu'un petit mouvement accidentel.
-- Après un retrait, un bouton d'annulation apparaît en bas à gauche pendant 10 secondes.
-- Cliquer ce bouton annule le retrait et revient au duel qui vient d'être swipé.
-- Si l'utilisateur joue le duel suivant ou attend 10 secondes, le bouton disparaît et le retrait est enregistré.
+- Glisser vers le haut depuis la zone centrale du poster marque le film `interested`.
+- Glisser vers le bas depuis la zone centrale du poster marque le film `removed`.
+- Le geste doit dépasser un seuil vertical clair. Si le mouvement horizontal domine ou si le seuil n'est pas atteint, la carte revient en place.
+- Après un swipe vertical validé, un bouton d'annulation apparaît en bas à gauche pendant 10 secondes.
+- Cliquer ce bouton annule le swipe et revient au duel qui vient d'être swipé.
+- Si l'utilisateur joue le duel suivant ou attend 10 secondes, le bouton disparaît et l'état `interested` ou `removed` est enregistré.
 - Après chaque action, la file de duels avance immédiatement.
 
 Le bouton flottant vers le ranking est secondaire. Il se cache pendant une interaction et réapparaît après une période d'inactivité.
@@ -120,7 +125,12 @@ La protection des 10 derniers films est évaluée dans le filtre courant :
 - dans `Action`, il faut garder au moins 10 films `action` actifs ;
 - dans `Comedy`, il faut garder au moins 10 films `comedy` actifs.
 
-Même si cette protection est évaluée dans le filtre courant, le retrait appliqué est global après validation. Un film marqué non vu dans `Action` disparaît aussi de `All` et de toute autre vue où il était présent.
+Deux états non-ranking existent :
+
+- `interested` : l'utilisateur n'a pas vu le film mais veut le garder pour plus tard.
+- `removed` : l'utilisateur veut retirer le film de son pool actif.
+
+Les deux états désactivent le film dans le ranking global. Même si la protection est évaluée dans le filtre courant, l'état appliqué est global après validation. Un film marqué dans `Action` disparaît aussi de `All` et de toute autre vue où il était présent.
 
 ## Page de classement
 
@@ -137,7 +147,22 @@ Chaque ligne affiche :
 
 Cliquer une ligne ouvre l'historique des duels du film. Les entrées affichent le résultat, l'adversaire et le changement de points quand il existe. Les événements `notSeen` ne sont pas listés dans cet historique.
 
-Glisser une ligne de ranking sur le côté marque le film comme non vu, avec la même protection des 10 derniers films.
+La page de classement a un bouton icon-only vers la page des films sauvegardés.
+
+Glisser une ligne de ranking vers la gauche marque le film `interested`. Glisser une ligne vers la droite marque le film `removed`. Les deux gestes utilisent la même protection des 10 derniers films.
+
+## Page de restauration
+
+La page `saved` affiche deux vues :
+
+- `Interested` : films marqués `interested`.
+- `Removed` : films marqués `removed`.
+
+Chaque vue respecte le filtre courant : `#/action/saved` ne montre que les films `action`, `#/comedy/saved` ne montre que les films `comedy`, et `#/saved` montre tout.
+
+Les films sont triés par date de dernière mise à jour décroissante.
+
+Chaque ligne a un bouton `Restore`. Restaurer un film remet `active: true`, `notSeen: false` et `notSeenDisposition: null`. Le score et l'historique de ranking ne sont pas remis à zéro.
 
 ## Moteur de ranking
 
@@ -187,9 +212,9 @@ L'état utilisateur est stocké dans IndexedDB via Dexie.
 Base actuelle :
 
 - nom IndexedDB : `movie-mash-v1` ;
-- version Dexie : 3 ;
-- table `catalogRankingStates` : état de ranking par `catalogId` et `itemId` ;
-- table `comparisons` : historique des choix, égalités et retraits ;
+- version Dexie : 4 ;
+- table `catalogRankingStates` : état de ranking par `catalogId` et `itemId`, avec `notSeenDisposition` pour `interested` ou `removed` ;
+- table `comparisons` : historique des choix, égalités et états non vus ;
 - table `meta` : petits drapeaux applicatifs, comme la célébration déjà affichée.
 
 Le code initialise seulement le scope `default`. Si de nouveaux films sont ajoutés au catalogue, leurs états manquants sont créés avec 1000 points sans effacer l'historique existant.
@@ -197,6 +222,7 @@ Le code initialise seulement le scope `default`. Si de nouveaux films sont ajout
 Comportement des anciennes bases :
 
 - Les anciennes bases sans `catalogId` sont migrées vers `default`.
+- Les anciens films `notSeen` sans disposition sont migrés vers `removed`.
 - Les anciens scopes séparés `action` ou `comedy`, s'ils existent déjà dans IndexedDB, ne sont pas fusionnés automatiquement.
 - L'application actuelle ne lit pas ces anciens scopes séparés.
 - Une vraie fusion des anciens scores `action`/`comedy` vers `default` demanderait une migration dédiée.

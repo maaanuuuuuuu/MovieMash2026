@@ -1,5 +1,5 @@
 import { type PointerEvent, useRef, useState } from 'react';
-import type { RankingItemState, StabilityTier } from '../../domain/item';
+import type { NotSeenDisposition, RankingItemState, StabilityTier } from '../../domain/item';
 import type { FilmItem } from '../content/types';
 
 type RankingRowProps = {
@@ -9,7 +9,7 @@ type RankingRowProps = {
   tier: StabilityTier;
   canMarkNotSeen: boolean;
   onOpenHistory: () => void;
-  onMarkNotSeen: () => Promise<boolean>;
+  onMarkNotSeen: (disposition: NotSeenDisposition) => Promise<boolean>;
 };
 
 const SWIPE_THRESHOLD_PX = 96;
@@ -22,7 +22,14 @@ export function RankingRow({ item, state, rank, tier, canMarkNotSeen, onOpenHist
   const [dragX, setDragX] = useState(0);
   const [isRemoving, setIsRemoving] = useState(false);
   const [isPointerDown, setIsPointerDown] = useState(false);
-  const isDismissReady = Math.abs(dragX) >= SWIPE_THRESHOLD_PX;
+  const swipeDisposition: NotSeenDisposition | undefined =
+    dragX < -8 ? 'interested' : dragX > 8 ? 'removed' : undefined;
+  const isDismissReady =
+    swipeDisposition === 'interested'
+      ? dragX <= -SWIPE_THRESHOLD_PX
+      : swipeDisposition === 'removed'
+        ? dragX >= SWIPE_THRESHOLD_PX
+        : false;
   const isSwipeHintVisible = Math.abs(dragX) > 8;
   const rowStyle = dragX === 0 ? undefined : { transform: `translateX(${dragX}px)` };
 
@@ -71,13 +78,15 @@ export function RankingRow({ item, state, rank, tier, canMarkNotSeen, onOpenHist
       return;
     }
 
+    const disposition = dragXRef.current < 0 ? 'interested' : 'removed';
+
     if (Math.abs(dragXRef.current) < SWIPE_THRESHOLD_PX) {
       resetDrag();
       return;
     }
 
     setIsRemoving(true);
-    const removed = await onMarkNotSeen();
+    const removed = await onMarkNotSeen(disposition);
     setIsRemoving(false);
     resetDrag();
 
@@ -100,11 +109,20 @@ export function RankingRow({ item, state, rank, tier, canMarkNotSeen, onOpenHist
         className={[
           'ranking-row__swipe-hint',
           isSwipeHintVisible ? 'ranking-row__swipe-hint--visible' : '',
+          swipeDisposition ? `ranking-row__swipe-hint--${swipeDisposition}` : '',
           isDismissReady ? 'ranking-row__swipe-hint--ready' : '',
-        ].join(' ')}
+        ]
+          .filter(Boolean)
+          .join(' ')}
         aria-hidden="true"
       >
-        <span>{canMarkNotSeen ? 'Unseen' : 'Last 10 stay'}</span>
+        <span>
+          {canMarkNotSeen
+            ? swipeDisposition === 'interested'
+              ? 'Interested'
+              : 'Remove'
+            : 'Last 10 stay'}
+        </span>
       </div>
       <button
         ref={buttonRef}
@@ -112,8 +130,11 @@ export function RankingRow({ item, state, rank, tier, canMarkNotSeen, onOpenHist
         className={[
           'ranking-row__button',
           isPointerDown ? 'ranking-row__button--dragging' : '',
+          swipeDisposition ? `ranking-row__button--${swipeDisposition}` : '',
           isDismissReady ? 'ranking-row__button--dismiss-ready' : '',
-        ].join(' ')}
+        ]
+          .filter(Boolean)
+          .join(' ')}
         style={rowStyle}
         onClick={handleClick}
         onPointerDown={handlePointerDown}

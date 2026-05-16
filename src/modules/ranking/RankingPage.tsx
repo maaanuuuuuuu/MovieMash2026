@@ -1,7 +1,8 @@
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Bookmark } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import type { NotSeenDisposition } from '../../domain/item';
 import {
   GLOBAL_FILM_SCOPE_ID,
   filmItemById,
@@ -37,6 +38,7 @@ export function RankingPage({ filter }: RankingPageProps) {
       ties: 0,
       active: true,
       notSeen: false,
+      notSeenDisposition: null,
       catalogId: GLOBAL_FILM_SCOPE_ID,
       createdAt: 0,
       updatedAt: 0,
@@ -59,13 +61,15 @@ export function RankingPage({ filter }: RankingPageProps) {
   const selectedItem = selectedItemId ? filmItemById.get(selectedItemId) : undefined;
   const canRemoveFromRanking = rankedRows.length > MINIMUM_ACTIVE_ITEMS;
 
-  async function handleMarkNotSeen(itemId: string, itemLabel: string) {
-    const result = await markRankingItemNotSeen(GLOBAL_FILM_SCOPE_ID, itemId, filterItemIds);
-    console.log(result.applied ? `${itemLabel} not seen` : `${itemLabel} not seen blocked: ${result.reason}`);
+  async function handleMarkNotSeen(itemId: string, itemLabel: string, disposition: NotSeenDisposition) {
+    const result = await markRankingItemNotSeen(GLOBAL_FILM_SCOPE_ID, itemId, disposition, filterItemIds);
+    console.log(result.applied ? `${itemLabel} marked ${disposition}` : `${itemLabel} ${disposition} blocked: ${result.reason}`);
 
     if (result.applied) {
       setLocallyRemovedItemIds((current) => new Set(current).add(itemId));
-      setRankingMessage(`${itemLabel} removed`);
+      setRankingMessage(
+        disposition === 'interested' ? `${itemLabel} saved as interested` : `${itemLabel} removed`,
+      );
       return true;
     }
 
@@ -90,9 +94,17 @@ export function RankingPage({ filter }: RankingPageProps) {
         <div>
           <p className="eyebrow">{filter.eyebrow}</p>
           <h1>Your ranking</h1>
-          <p className="ranking-page__hint">Swipe a row sideways to mark a movie unseen.</p>
+          <p className="ranking-page__hint">Swipe left to save for later, right to remove.</p>
           {rankingMessage ? <p className="ranking-page__message">{rankingMessage}</p> : null}
         </div>
+        <Link
+          to={filter.savedPath}
+          className="ranking-page__saved"
+          aria-label="Open saved movies"
+          title="Open saved movies"
+        >
+          <Bookmark aria-hidden="true" size={22} />
+        </Link>
       </header>
 
       <ol className="ranking-list" aria-label="Ordered ranking">
@@ -112,7 +124,7 @@ export function RankingPage({ filter }: RankingPageProps) {
               tier={getStabilityTier(state)}
               canMarkNotSeen={canRemoveFromRanking}
               onOpenHistory={() => setSelectedItemId(item.id)}
-              onMarkNotSeen={() => handleMarkNotSeen(item.id, item.label)}
+              onMarkNotSeen={(disposition) => handleMarkNotSeen(item.id, item.label, disposition)}
             />
           );
         })}

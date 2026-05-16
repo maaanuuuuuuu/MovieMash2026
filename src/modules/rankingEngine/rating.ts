@@ -91,6 +91,7 @@ export function createInitialRankingState(catalogId: string, itemId: string, now
     ties: 0,
     active: true,
     notSeen: false,
+    notSeenDisposition: null,
     createdAt: now,
     updatedAt: now,
   };

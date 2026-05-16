@@ -15,8 +15,8 @@ export function UndoNotSeenButton({ visible, onUndo }: UndoNotSeenButtonProps) {
       type="button"
       className="undo-not-seen-button"
       onClick={onUndo}
-      aria-label="Undo not seen"
-      title="Undo not seen"
+      aria-label="Undo last swipe"
+      title="Undo last swipe"
     >
       <Undo2 aria-hidden="true" size={24} strokeWidth={2.4} />
     </button>

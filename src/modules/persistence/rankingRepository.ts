@@ -1,7 +1,14 @@
-import type { ComparableItem, RankingItemState } from '../../domain/item';
+import type { ComparableItem, NotSeenDisposition, RankingItemState } from '../../domain/item';
 import type { ComparisonOutcome, DecidedOutcome } from '../../domain/outcome';
 import { createInitialRankingState, updateRatings } from '../rankingEngine/rating';
-import { db, type ComparisonRecord, type DatabaseSnapshot, type RatingChangeRecord } from './db';
+import {
+  db,
+  type ComparisonRecord,
+  type DatabaseSnapshot,
+  type RatingChangeRecord,
+  type SnapshotComparisonRecord,
+  type SnapshotRankingItemState,
+} from './db';
 
 const MINIMUM_ACTIVE_ITEMS = 10;
 
@@ -19,6 +26,16 @@ export type PersistOutcomeResult =
       applied: false;
       reason: 'minimumActiveItems' | 'missingState';
       states: RankingItemState[];
+    };
+
+export type RestoreRankingItemResult =
+  | {
+      applied: true;
+      state: RankingItemState;
+    }
+  | {
+      applied: false;
+      reason: 'missingState';
     };
 
 function createRecord(
@@ -56,6 +73,7 @@ function createRecord(
         catalogId,
         outcomeType: outcome.type,
         notSeenId: outcome.itemId,
+        notSeenDisposition: outcome.disposition,
         leftId: outcome.itemId,
         rightId: outcome.otherId,
         createdAt: now,
@@ -126,6 +144,42 @@ function getScopedStates(states: RankingItemState[], itemIds?: readonly string[]
   return states.filter((state) => itemIdSet.has(state.itemId));
 }
 
+function normalizeRankingState(state: SnapshotRankingItemState): RankingItemState {
+  const disposition = state.active ? null : state.notSeenDisposition ?? (state.notSeen ? 'removed' : null);
+
+  return {
+    ...state,
+    active: disposition ? false : state.active,
+    notSeen: disposition ? true : state.notSeen,
+    notSeenDisposition: disposition,
+  };
+}
+
+function normalizeComparisonRecord(record: SnapshotComparisonRecord): ComparisonRecord {
+  if (record.outcomeType !== 'notSeen' || record.notSeenDisposition) {
+    return record;
+  }
+
+  return {
+    ...record,
+    notSeenDisposition: 'removed',
+  };
+}
+
+function markStateNotSeen(
+  state: RankingItemState,
+  disposition: NotSeenDisposition,
+  now: number,
+): RankingItemState {
+  return {
+    ...state,
+    active: false,
+    notSeen: true,
+    notSeenDisposition: disposition,
+    updatedAt: now,
+  };
+}
+
 async function listCatalogStates(catalogId: string, itemIds?: readonly string[]) {
   const states = await db.catalogRankingStates.where('catalogId').equals(catalogId).toArray();
   return getScopedStates(states, itemIds);
@@ -171,7 +225,7 @@ export function listComparisonRecords(catalogId?: string) {
 
 export async function exportDatabaseSnapshot(): Promise<DatabaseSnapshot> {
   return db.transaction('r', db.catalogRankingStates, db.comparisons, db.meta, async () => ({
-    version: 2,
+    version: 3,
     exportedAt: Date.now(),
     rankingStates: await db.catalogRankingStates.toArray(),
     comparisons: await db.comparisons.toArray(),
@@ -185,8 +239,8 @@ export async function importDatabaseSnapshot(snapshot: DatabaseSnapshot) {
     await db.comparisons.clear();
     await db.meta.clear();
 
-    await db.catalogRankingStates.bulkPut(snapshot.rankingStates);
-    await db.comparisons.bulkPut(snapshot.comparisons);
+    await db.catalogRankingStates.bulkPut(snapshot.rankingStates.map(normalizeRankingState));
+    await db.comparisons.bulkPut(snapshot.comparisons.map(normalizeComparisonRecord));
     await db.meta.bulkPut(snapshot.meta);
   });
 }
@@ -229,12 +283,7 @@ export async function persistOutcome(
         return { applied: false, reason: 'missingState', states: scopedStates };
       }
 
-      await db.catalogRankingStates.put({
-        ...itemState,
-        active: false,
-        notSeen: true,
-        updatedAt: now,
-      });
+      await db.catalogRankingStates.put(markStateNotSeen(itemState, outcome.disposition, now));
       await db.comparisons.put(createRecord(catalogId, outcome, now));
       return { applied: true, states: getScopedStates(await listCatalogStates(catalogId), activeScopeItemIds) };
     }
@@ -262,6 +311,7 @@ export async function persistOutcome(
 export async function markRankingItemNotSeen(
   catalogId: string,
   itemId: string,
+  disposition: NotSeenDisposition,
   activeScopeItemIds?: readonly string[],
 ): Promise<PersistOutcomeResult> {
   return db.transaction('rw', db.catalogRankingStates, db.comparisons, async () => {
@@ -280,22 +330,42 @@ export async function markRankingItemNotSeen(
       return { applied: false, reason: 'minimumActiveItems', states: scopedStates };
     }
 
-    await db.catalogRankingStates.put({
-      ...itemState,
-      active: false,
-      notSeen: true,
-      updatedAt: now,
-    });
+    await db.catalogRankingStates.put(markStateNotSeen(itemState, disposition, now));
     await db.comparisons.put({
       id: globalThis.crypto?.randomUUID?.() ?? `${now}-${Math.random().toString(16).slice(2)}`,
       catalogId,
       outcomeType: 'notSeen',
       notSeenId: itemId,
+      notSeenDisposition: disposition,
       leftId: itemId,
       createdAt: now,
     });
 
     return { applied: true, states: getScopedStates(await listCatalogStates(catalogId), activeScopeItemIds) };
+  });
+}
+
+export async function restoreRankingItem(
+  catalogId: string,
+  itemId: string,
+): Promise<RestoreRankingItemResult> {
+  return db.transaction('rw', db.catalogRankingStates, async () => {
+    const itemState = await db.catalogRankingStates.get([catalogId, itemId]);
+
+    if (!itemState) {
+      return { applied: false, reason: 'missingState' };
+    }
+
+    const restoredState: RankingItemState = {
+      ...itemState,
+      active: true,
+      notSeen: false,
+      notSeenDisposition: null,
+      updatedAt: Date.now(),
+    };
+
+    await db.catalogRankingStates.put(restoredState);
+    return { applied: true, state: restoredState };
   });
 }
 

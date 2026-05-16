@@ -5,6 +5,40 @@ import { filmItemsByFilterId } from '../modules/content/filmSource';
 import { resetDatabase } from '../modules/persistence/db';
 import { App } from './App';
 
+function mockPosterBox(element: Element) {
+  element.getBoundingClientRect = () =>
+    ({
+      x: 0,
+      y: 0,
+      top: 0,
+      left: 0,
+      right: 200,
+      bottom: 300,
+      width: 200,
+      height: 300,
+      toJSON: () => '',
+    }) as DOMRect;
+}
+
+async function swipeFirstPoster(deltaX: number, deltaY: number) {
+  const poster = document.querySelector('.item-card .item-card__poster-wrap');
+
+  if (!poster) {
+    throw new Error('Missing poster');
+  }
+
+  mockPosterBox(poster);
+  fireEvent.pointerDown(poster, { pointerId: 1, clientX: 100, clientY: 150 });
+  await waitFor(() => {
+    expect(poster.closest('.item-card')).toHaveClass('item-card--dragging');
+  });
+  fireEvent.pointerMove(poster, { pointerId: 1, clientX: 100 + deltaX, clientY: 150 + deltaY });
+  await waitFor(() => {
+    expect(poster.closest('.item-card')).toHaveClass('item-card--interested');
+  });
+  fireEvent.pointerUp(poster, { pointerId: 1, clientX: 100 + deltaX, clientY: 150 + deltaY });
+}
+
 describe('main app flow', () => {
   beforeEach(async () => {
     window.location.hash = '';
@@ -121,6 +155,55 @@ describe('main app flow', () => {
     expect(await screen.findByRole('dialog', { name: loserTitle })).toBeInTheDocument();
     expect(screen.getByText(`${loserTitle} lost to ${winnerTitle}`)).toBeInTheDocument();
     expect(screen.getByText(/-22 pts/)).toBeInTheDocument();
+  });
+
+  it('can undo an interested swipe from the comparison screen', async () => {
+    render(<App />);
+
+    const originalChoices = (await screen.findAllByRole('button', { name: /^Choose / })).map((choice) =>
+      choice.getAttribute('aria-label'),
+    );
+    await swipeFirstPoster(0, -160);
+
+    expect(await screen.findByText('Interested')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Undo last swipe')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('Undo last swipe'));
+
+    await waitFor(() => {
+      expect(screen.queryByLabelText('Undo last swipe')).not.toBeInTheDocument();
+    });
+    expect(screen.getAllByRole('button', { name: /^Choose / }).map((choice) => choice.getAttribute('aria-label'))).toEqual(
+      originalChoices,
+    );
+  });
+
+  it('saves a ranking row as interested and restores it', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await screen.findAllByRole('button', { name: /^Choose / });
+    await user.click(screen.getByLabelText('Open ranking'));
+
+    const rowButton = (await screen.findAllByRole('button', { name: /Open fight history for / }))[0];
+    const itemLabel = rowButton.getAttribute('aria-label')?.replace('Open fight history for ', '') ?? '';
+
+    fireEvent.pointerDown(rowButton, { pointerId: 1, clientX: 160 });
+    fireEvent.pointerMove(rowButton, { pointerId: 1, clientX: 20 });
+    fireEvent.pointerUp(rowButton, { pointerId: 1, clientX: 20 });
+
+    expect(await screen.findByText(`${itemLabel} saved as interested`)).toBeInTheDocument();
+    await user.click(screen.getByLabelText('Open saved movies'));
+
+    expect(await screen.findByRole('heading', { name: 'Saved movies' })).toBeInTheDocument();
+    expect(screen.getByText(itemLabel)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Restore/ }));
+
+    expect(await screen.findByText(`${itemLabel} restored`)).toBeInTheDocument();
+    await user.click(screen.getByLabelText('Back to ranking'));
+
+    expect(await screen.findByRole('button', { name: `Open fight history for ${itemLabel}` })).toBeInTheDocument();
   });
 
   it('removes a movie from ranking after a swipe', async () => {

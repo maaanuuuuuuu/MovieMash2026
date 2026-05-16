@@ -6,7 +6,7 @@ async function visibleCardLabels(page: Page) {
   );
 }
 
-async function swipeFirstPoster(page: Page) {
+async function swipeFirstPoster(page: Page, direction: 'up' | 'down') {
   const poster = page.locator('.item-card__poster-wrap').first();
   const box = await poster.boundingBox();
 
@@ -16,9 +16,26 @@ async function swipeFirstPoster(page: Page) {
 
   const startX = box.x + box.width / 2;
   const startY = box.y + box.height / 2;
+  const endY = startY + (direction === 'up' ? -150 : 150);
   await page.mouse.move(startX, startY);
   await page.mouse.down();
-  await page.mouse.move(startX + 150, startY + 16, { steps: 8 });
+  await page.mouse.move(startX, endY, { steps: 8 });
+  await page.mouse.up();
+}
+
+async function swipeFirstRankingRow(page: Page, deltaX: number) {
+  const row = page.getByRole('button', { name: /Open fight history for / }).first();
+  const box = await row.boundingBox();
+
+  if (!box) {
+    throw new Error('Missing ranking row box');
+  }
+
+  const startX = box.x + box.width / 2;
+  const startY = box.y + box.height / 2;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(startX + deltaX, startY, { steps: 8 });
   await page.mouse.up();
 }
 
@@ -69,30 +86,51 @@ test('app remains usable after a loaded session goes offline', async ({ context,
   await context.setOffline(false);
 });
 
-test('not-seen swipe can be undone before persistence', async ({ page }) => {
+test('interested swipe can be undone before persistence', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('button', { name: /^Choose / }).first()).toBeVisible();
   const originalLabels = await visibleCardLabels(page);
 
-  await swipeFirstPoster(page);
-  await expect(page.getByLabel('Undo not seen')).toBeVisible();
+  await swipeFirstPoster(page, 'up');
+  await expect(page.getByText('Interested')).toBeVisible();
+  await expect(page.getByLabel('Undo last swipe')).toBeVisible();
   await expect(page.getByText('0 picks')).toBeVisible();
 
-  await page.getByLabel('Undo not seen').click();
-  await expect(page.getByLabel('Undo not seen')).toBeHidden();
+  await page.getByLabel('Undo last swipe').click();
+  await expect(page.getByLabel('Undo last swipe')).toBeHidden();
   await expect.poll(() => visibleCardLabels(page)).toEqual(originalLabels);
   await expect(page.getByText('0 picks')).toBeVisible();
 });
 
-test('not-seen swipe persists when the next duel is played', async ({ page }) => {
+test('remove swipe persists when the next duel is played', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('button', { name: /^Choose / }).first()).toBeVisible();
 
-  await swipeFirstPoster(page);
-  await expect(page.getByLabel('Undo not seen')).toBeVisible();
+  await swipeFirstPoster(page, 'down');
+  await expect(page.getByText('Removed')).toBeVisible();
+  await expect(page.getByLabel('Undo last swipe')).toBeVisible();
   await page.getByRole('button', { name: /^Choose / }).first().click();
 
-  await expect(page.getByLabel('Undo not seen')).toBeHidden();
+  await expect(page.getByLabel('Undo last swipe')).toBeHidden();
   await expect(page.getByText('2 picks')).toBeVisible();
   await expect(page.getByText('396 active')).toBeVisible();
+});
+
+test('ranking interested swipe can be restored from saved movies', async ({ page }) => {
+  await page.goto('/#/ranking');
+  const row = page.getByRole('button', { name: /Open fight history for / }).first();
+  await expect(row).toBeVisible();
+  const itemLabel = (await row.getAttribute('aria-label'))?.replace('Open fight history for ', '') ?? '';
+
+  await swipeFirstRankingRow(page, -140);
+  await expect(page.getByText(`${itemLabel} saved as interested`)).toBeVisible();
+  await page.getByLabel('Open saved movies').click();
+
+  await expect(page.getByRole('heading', { name: 'Saved movies' })).toBeVisible();
+  await expect(page.getByText(itemLabel)).toBeVisible();
+  await page.getByRole('button', { name: /Restore/ }).click();
+
+  await expect(page.getByText(`${itemLabel} restored`)).toBeVisible();
+  await page.getByLabel('Back to ranking').click();
+  await expect(page.getByRole('button', { name: `Open fight history for ${itemLabel}` })).toBeVisible();
 });

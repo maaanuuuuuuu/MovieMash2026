@@ -18,6 +18,7 @@ function state(catalogId: string, itemId: string, rating: number, index: number)
     ties: 0,
     active: true,
     notSeen: false,
+    notSeenDisposition: null,
     createdAt: index,
     updatedAt: index,
   };

@@ -1,5 +1,7 @@
 export type ItemId = string;
 
+export type NotSeenDisposition = 'interested' | 'removed';
+
 export type ComparableItem<Category extends string = string> = {
   id: ItemId;
   category: Category;
@@ -18,6 +20,7 @@ export type RankingItemState = {
   ties: number;
   active: boolean;
   notSeen: boolean;
+  notSeenDisposition: NotSeenDisposition | null;
   createdAt: number;
   updatedAt: number;
 };

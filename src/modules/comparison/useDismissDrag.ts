@@ -7,9 +7,12 @@ type DragState = {
   returning: boolean;
 };
 
+export type DismissDirection = 'up' | 'down';
+
 const DISMISS_DISTANCE = 132;
 const CLICK_CANCEL_DISTANCE = 8;
 const DRAG_START_ZONE_INSET_RATIO = 0.18;
+const INTENT_DISTANCE = 16;
 
 function startsInsideCenterZone(event: PointerEvent<HTMLElement>) {
   const rect = event.currentTarget.getBoundingClientRect();
@@ -26,12 +29,23 @@ function startsInsideCenterZone(event: PointerEvent<HTMLElement>) {
   );
 }
 
-export function useDismissDrag(onDismiss: () => void, onInteractionChange: (active: boolean) => void) {
+function getVerticalDirection(x: number, y: number): DismissDirection | undefined {
+  if (Math.abs(y) <= INTENT_DISTANCE || Math.abs(y) <= Math.abs(x)) {
+    return undefined;
+  }
+
+  return y < 0 ? 'up' : 'down';
+}
+
+export function useDismissDrag(
+  onDismiss: (direction: DismissDirection) => void,
+  onInteractionChange: (active: boolean) => void,
+) {
   const originRef = useRef({ x: 0, y: 0 });
   const movedRef = useRef(false);
   const [dragState, setDragState] = useState<DragState>({ x: 0, y: 0, active: false, returning: false });
-  const distance = Math.hypot(dragState.x, dragState.y);
-  const dismissReady = distance > DISMISS_DISTANCE;
+  const direction = getVerticalDirection(dragState.x, dragState.y);
+  const dismissReady = direction !== undefined && Math.abs(dragState.y) > DISMISS_DISTANCE;
 
   function handlePointerDown(event: PointerEvent<HTMLElement>) {
     if (!startsInsideCenterZone(event)) {
@@ -64,8 +78,8 @@ export function useDismissDrag(onDismiss: () => void, onInteractionChange: (acti
     event.currentTarget.releasePointerCapture?.(event.pointerId);
     onInteractionChange(false);
 
-    if (dismissReady) {
-      onDismiss();
+    if (dismissReady && direction) {
+      onDismiss(direction);
       setDragState({ x: 0, y: 0, active: false, returning: false });
       return;
     }
@@ -88,12 +102,13 @@ export function useDismissDrag(onDismiss: () => void, onInteractionChange: (acti
   }
 
   const style: CSSProperties = {
-    transform: `translate3d(${dragState.x}px, ${dragState.y}px, 0) rotate(${dragState.x / 16}deg)`,
+    transform: `translate3d(${dragState.x}px, ${dragState.y}px, 0) rotate(${dragState.x / 28}deg)`,
   };
 
   return {
     style,
     dismissReady,
+    direction,
     isDragging: dragState.active,
     isReturning: dragState.returning,
     shouldIgnoreClick,

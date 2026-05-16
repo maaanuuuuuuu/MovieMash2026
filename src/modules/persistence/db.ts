@@ -1,5 +1,5 @@
 import { Dexie, type Table } from 'dexie';
-import type { RankingItemState } from '../../domain/item';
+import type { NotSeenDisposition, RankingItemState } from '../../domain/item';
 import type { OutcomeKind } from '../../domain/outcome';
 
 export type ComparisonRecord = {
@@ -11,6 +11,7 @@ export type ComparisonRecord = {
   winnerId?: string;
   loserId?: string;
   notSeenId?: string;
+  notSeenDisposition?: NotSeenDisposition;
   ratingChanges?: RatingChangeRecord[];
   createdAt: number;
 };
@@ -27,11 +28,19 @@ export type MetaRecord = {
   value: boolean | number | string;
 };
 
+export type SnapshotRankingItemState = Omit<RankingItemState, 'notSeenDisposition'> & {
+  notSeenDisposition?: NotSeenDisposition | null;
+};
+
+export type SnapshotComparisonRecord = Omit<ComparisonRecord, 'notSeenDisposition'> & {
+  notSeenDisposition?: NotSeenDisposition;
+};
+
 export type DatabaseSnapshot = {
-  version: 2;
+  version: 2 | 3;
   exportedAt: number;
-  rankingStates: RankingItemState[];
-  comparisons: ComparisonRecord[];
+  rankingStates: SnapshotRankingItemState[];
+  comparisons: SnapshotComparisonRecord[];
   meta: MetaRecord[];
 };
 
@@ -79,6 +88,33 @@ class MovieMashDatabase extends Dexie {
       comparisons: 'id, catalogId, outcomeType, createdAt',
       meta: 'key',
     });
+
+    this.version(4)
+      .stores({
+        rankingStates: null,
+        catalogRankingStates:
+          '[catalogId+itemId], catalogId, itemId, active, notSeen, notSeenDisposition, appearances, rating',
+        comparisons: 'id, catalogId, outcomeType, createdAt',
+        meta: 'key',
+      })
+      .upgrade(async (transaction) => {
+        await transaction
+          .table<RankingItemState, [string, string]>('catalogRankingStates')
+          .toCollection()
+          .modify((state) => {
+            state.notSeenDisposition = state.active ? null : state.notSeen ? 'removed' : null;
+          });
+
+        await transaction
+          .table<ComparisonRecord, string>('comparisons')
+          .where('outcomeType')
+          .equals('notSeen')
+          .modify((record) => {
+            if (!record.notSeenDisposition) {
+              record.notSeenDisposition = 'removed';
+            }
+          });
+      });
   }
 }
 

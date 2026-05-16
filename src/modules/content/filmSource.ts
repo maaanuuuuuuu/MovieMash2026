@@ -14,6 +14,7 @@ export type FilmFilter = {
   eyebrow: string;
   comparisonPath: string;
   rankingPath: string;
+  savedPath: string;
   films: Film[];
 };
 
@@ -45,6 +46,7 @@ export const allFilmFilter: FilmFilter = {
   eyebrow: 'Global ranking',
   comparisonPath: '/',
   rankingPath: '/ranking',
+  savedPath: '/saved',
   films: allFilms,
 };
 
@@ -55,6 +57,7 @@ export const actionFilmFilter: FilmFilter = {
   eyebrow: 'Action filter',
   comparisonPath: '/action',
   rankingPath: '/action/ranking',
+  savedPath: '/action/saved',
   films: actionFilms,
 };
 
@@ -65,6 +68,7 @@ export const comedyFilmFilter: FilmFilter = {
   eyebrow: 'Comedy filter',
   comparisonPath: '/comedy',
   rankingPath: '/comedy/ranking',
+  savedPath: '/comedy/saved',
   films: comedyFilms,
 };
 

@@ -227,6 +227,9 @@ img {
 .dev-db-transfer:focus-visible,
 .ranking-row__button:focus-visible,
 .ranking-page__back:focus-visible,
+.ranking-page__saved:focus-visible,
+.saved-page__tab:focus-visible,
+.saved-page__restore:focus-visible,
 .fight-modal__close:focus-visible,
 .catalog-switch__link:focus-visible,
 .celebration-toast a:focus-visible,
@@ -244,8 +247,8 @@ img {
 }
 
 .item-card--dragging {
-  border-color: var(--coral);
-  box-shadow: 0 24px 70px rgba(232, 93, 71, 0.28);
+  border-color: rgba(49, 93, 156, 0.36);
+  box-shadow: 0 24px 70px rgba(49, 93, 156, 0.2);
 }
 
 .item-card--returning {
@@ -254,6 +257,54 @@ img {
 
 .item-card--dismiss-ready {
   opacity: 0.72;
+}
+
+.item-card--interested {
+  border-color: rgba(31, 122, 76, 0.48);
+  box-shadow: 0 24px 70px rgba(31, 122, 76, 0.24);
+}
+
+.item-card--removed {
+  border-color: rgba(232, 93, 71, 0.48);
+  box-shadow: 0 24px 70px rgba(232, 93, 71, 0.26);
+}
+
+.item-card__swipe-hint {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  min-width: 112px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(23, 33, 27, 0.88);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 900;
+  opacity: 0;
+  pointer-events: none;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translateX(-50%) scale(0.9);
+  transition:
+    opacity var(--fast),
+    transform var(--fast);
+}
+
+.item-card__swipe-hint--interested {
+  top: 14px;
+  background: var(--green);
+  opacity: 0.92;
+}
+
+.item-card__swipe-hint--removed {
+  bottom: 74px;
+  background: var(--coral);
+  opacity: 0.92;
+}
+
+.item-card__swipe-hint--ready {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
 }
 
 .item-card__poster-wrap {
@@ -333,7 +384,11 @@ img {
   background: var(--blue);
 }
 
-.confirmation-burst--notSeen,
+.confirmation-burst--interested {
+  background: var(--green);
+}
+
+.confirmation-burst--removed,
 .confirmation-burst--blocked {
   background: var(--coral);
 }
@@ -475,13 +530,14 @@ img {
 
 .ranking-page__header {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 14px;
   margin-bottom: 18px;
 }
 
-.ranking-page__back {
+.ranking-page__back,
+.ranking-page__saved {
   width: 46px;
   height: 46px;
   border-radius: 50%;
@@ -489,6 +545,10 @@ img {
   place-items: center;
   background: var(--ink);
   color: #fff;
+}
+
+.ranking-page__saved {
+  background: var(--green);
 }
 
 .eyebrow {
@@ -517,6 +577,132 @@ img {
 .ranking-page__message {
   color: var(--coral);
   font-weight: 800;
+}
+
+.saved-page {
+  width: min(100%, 760px);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: 22px 14px 36px;
+}
+
+.saved-page__header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.saved-page h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  line-height: 1;
+}
+
+.saved-page__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.saved-page__tab {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.66);
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.saved-page__tab span {
+  min-width: 24px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #eef3ed;
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.saved-page__tab--active {
+  border-color: rgba(31, 122, 76, 0.36);
+  background: var(--green);
+  color: #fff;
+}
+
+.saved-page__empty {
+  margin: 28px 0 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+.saved-page__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.saved-page__row {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 8px 10px;
+  border: 1px solid rgba(23, 33, 27, 0.13);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(23, 33, 27, 0.08);
+}
+
+.saved-page__poster {
+  width: 46px;
+  height: 58px;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
+.saved-page__main {
+  min-width: 0;
+  display: grid;
+}
+
+.saved-page__title {
+  overflow: hidden;
+  color: var(--ink);
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-page__meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.saved-page__restore {
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 900;
 }
 
 .ranking-list {
@@ -555,13 +741,33 @@ img {
   transition: opacity var(--fast);
 }
 
+.ranking-row__swipe-hint--interested {
+  justify-content: flex-end;
+  background:
+    linear-gradient(90deg, rgba(31, 122, 76, 0.08), rgba(31, 122, 76, 0.82)),
+    rgba(31, 122, 76, 0.16);
+}
+
+.ranking-row__swipe-hint--removed {
+  justify-content: flex-start;
+  background:
+    linear-gradient(90deg, rgba(232, 93, 71, 0.82), rgba(232, 93, 71, 0.1)),
+    rgba(232, 93, 71, 0.16);
+}
+
 .ranking-row__swipe-hint--visible {
   opacity: 1;
 }
 
-.ranking-row__swipe-hint--ready {
+.ranking-row__swipe-hint--interested.ranking-row__swipe-hint--ready {
   background:
-    linear-gradient(90deg, rgba(232, 93, 71, 0.18), rgba(232, 93, 71, 1)),
+    linear-gradient(90deg, rgba(31, 122, 76, 0.12), rgba(31, 122, 76, 1)),
+    rgba(31, 122, 76, 0.2);
+}
+
+.ranking-row__swipe-hint--removed.ranking-row__swipe-hint--ready {
+  background:
+    linear-gradient(90deg, rgba(232, 93, 71, 1), rgba(232, 93, 71, 0.18)),
     rgba(232, 93, 71, 0.2);
 }
 
@@ -598,7 +804,12 @@ img {
   transition: none;
 }
 
-.ranking-row__button--dismiss-ready {
+.ranking-row__button--interested.ranking-row__button--dismiss-ready {
+  border-color: rgba(31, 122, 76, 0.46);
+  opacity: 0.84;
+}
+
+.ranking-row__button--removed.ranking-row__button--dismiss-ready {
   border-color: rgba(232, 93, 71, 0.42);
   opacity: 0.84;
 }
