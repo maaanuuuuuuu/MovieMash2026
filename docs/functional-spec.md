@@ -97,6 +97,16 @@ Le bouton flottant vers le ranking est secondaire. Il se cache pendant une inter
 
 La file spéculative contient au maximum 4 duels. Elle est recalculée après les changements IndexedDB.
 
+## Responsivité
+
+L'interface est pensée mobile portrait en premier.
+
+Sur l'écran de match, les cartes prennent l'espace vertical disponible dans le viewport. Sur mobile et tablette étroite, une zone basse est réservée pour que le bouton flottant vers le ranking ne masque pas le titre ou l'année des films.
+
+Les contrôles tactiles principaux doivent rester confortables. Les onglets de filtre et les boutons de modale ont une hauteur minimale adaptée au toucher.
+
+Dans la page de classement, les titres longs peuvent prendre deux lignes sur mobile. Sur tablette et desktop, ils restent sur une ligne avec troncature si nécessaire.
+
 ## Films non vus
 
 Marquer un film comme non vu le désactive dans le ranking global.
