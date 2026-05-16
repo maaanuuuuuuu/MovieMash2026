@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { HashRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { RankingItemState } from '../../domain/item';
-import { actionFilmCatalog, filmItemsByCatalogId } from '../content/filmSource';
+import { GLOBAL_FILM_SCOPE_ID, actionFilmFilter, filmItems, filmItemsByFilterId } from '../content/filmSource';
 import { db, resetDatabase } from '../persistence/db';
 import { RankingPage } from './RankingPage';
 
@@ -23,18 +23,18 @@ function state(catalogId: string, itemId: string, rating: number, index: number)
   };
 }
 
-describe('catalog ranking page', () => {
+describe('filtered ranking page', () => {
   beforeEach(async () => {
     await resetDatabase();
   });
 
-  it('filters fight history to records fully inside the active catalog', async () => {
+  it('shows filtered rows with global fight history', async () => {
     const user = userEvent.setup();
-    const actionItems = filmItemsByCatalogId.action;
+    const actionItems = filmItemsByFilterId.action;
     const actionIds = new Set(actionItems.map((item) => item.id));
     const subject = actionItems.find((item) => item.id === 'predator') ?? actionItems[0];
     const actionOpponent = actionItems.find((item) => item.id !== subject.id);
-    const outsideOpponent = filmItemsByCatalogId.comedy.find((item) => !actionIds.has(item.id));
+    const outsideOpponent = filmItemsByFilterId.comedy.find((item) => !actionIds.has(item.id));
 
     if (!actionOpponent) {
       throw new Error('Expected at least two action items for fight history.');
@@ -45,15 +45,14 @@ describe('catalog ranking page', () => {
     }
 
     await db.catalogRankingStates.bulkPut(
-      actionItems.map((item, index) =>
-        state(actionFilmCatalog.id, item.id, item.id === subject.id ? 1500 : 1000 - index, index),
+      filmItems.map((item, index) =>
+        state(GLOBAL_FILM_SCOPE_ID, item.id, item.id === subject.id ? 1500 : 1000 - index, index),
       ),
     );
-    await db.catalogRankingStates.put(state(actionFilmCatalog.id, outsideOpponent.id, 1600, 100));
     await db.comparisons.bulkPut([
       {
         id: 'inside-action',
-        catalogId: actionFilmCatalog.id,
+        catalogId: GLOBAL_FILM_SCOPE_ID,
         outcomeType: 'winner',
         winnerId: subject.id,
         loserId: actionOpponent.id,
@@ -65,7 +64,7 @@ describe('catalog ranking page', () => {
       },
       {
         id: 'outside-action',
-        catalogId: actionFilmCatalog.id,
+        catalogId: GLOBAL_FILM_SCOPE_ID,
         outcomeType: 'winner',
         winnerId: subject.id,
         loserId: outsideOpponent.id,
@@ -79,7 +78,7 @@ describe('catalog ranking page', () => {
 
     render(
       <HashRouter>
-        <RankingPage catalog={actionFilmCatalog} />
+        <RankingPage filter={actionFilmFilter} />
       </HashRouter>,
     );
 
@@ -87,13 +86,13 @@ describe('catalog ranking page', () => {
 
     expect(await screen.findByRole('dialog', { name: subject.label })).toBeInTheDocument();
     expect(screen.getByText(`${subject.label} won against ${actionOpponent.label}`)).toBeInTheDocument();
-    expect(screen.queryByText(`${subject.label} won against ${outsideOpponent.id}`)).not.toBeInTheDocument();
+    expect(screen.getByText(`${subject.label} won against ${outsideOpponent.label}`)).toBeInTheDocument();
   });
 
-  it('links back to the active catalog comparison route', () => {
+  it('links back to the active filter comparison route', () => {
     render(
       <HashRouter>
-        <RankingPage catalog={actionFilmCatalog} />
+        <RankingPage filter={actionFilmFilter} />
       </HashRouter>,
     );
 

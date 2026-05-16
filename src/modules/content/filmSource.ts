@@ -5,10 +5,12 @@ import type { Film, FilmItem } from './types';
 
 const basePath = import.meta.env.BASE_URL;
 
-export type FilmCatalogId = 'default' | 'action' | 'comedy';
+export const GLOBAL_FILM_SCOPE_ID = 'default';
 
-export type FilmCatalog = {
-  id: FilmCatalogId;
+export type FilmFilterId = 'all' | 'action' | 'comedy';
+
+export type FilmFilter = {
+  id: FilmFilterId;
   title: string;
   shortLabel: string;
   eyebrow: string;
@@ -29,48 +31,54 @@ function toFilmItems(films: Film[]): FilmItem[] {
   }));
 }
 
-export const defaultFilmCatalog: FilmCatalog = {
-  id: 'default',
-  title: 'Default movies',
-  shortLabel: 'Default',
-  eyebrow: 'Full catalog',
+function uniqueFilms(films: Film[]) {
+  return [...new Map(films.map((film) => [film.id, film])).values()];
+}
+
+export const allFilms = uniqueFilms([...frozenFilms, ...actionFilms, ...comedyFilms]);
+
+export const allFilmFilter: FilmFilter = {
+  id: 'all',
+  title: 'All movies',
+  shortLabel: 'All',
+  eyebrow: 'Global ranking',
   comparisonPath: '/',
   rankingPath: '/ranking',
-  films: frozenFilms,
+  films: allFilms,
 };
 
-export const actionFilmCatalog: FilmCatalog = {
+export const actionFilmFilter: FilmFilter = {
   id: 'action',
-  title: 'Pure action movies',
+  title: 'Action movies',
   shortLabel: 'Action',
-  eyebrow: 'Action cut',
+  eyebrow: 'Action filter',
   comparisonPath: '/action',
   rankingPath: '/action/ranking',
   films: actionFilms,
 };
 
-export const comedyFilmCatalog: FilmCatalog = {
+export const comedyFilmFilter: FilmFilter = {
   id: 'comedy',
   title: 'Comedy movies',
   shortLabel: 'Comedy',
-  eyebrow: 'Comedy cut',
+  eyebrow: 'Comedy filter',
   comparisonPath: '/comedy',
   rankingPath: '/comedy/ranking',
   films: comedyFilms,
 };
 
-export const filmCatalogs = [defaultFilmCatalog, actionFilmCatalog, comedyFilmCatalog] as const;
+export const filmFilters = [allFilmFilter, actionFilmFilter, comedyFilmFilter] as const;
 
-export const filmItems = toFilmItems(frozenFilms);
+export const filmItems = toFilmItems(allFilms);
 export const actionFilmItems = toFilmItems(actionFilms);
 export const comedyFilmItems = toFilmItems(comedyFilms);
-export const allFilmItems = toFilmItems([...frozenFilms, ...actionFilms, ...comedyFilms]);
+export const allFilmItems = filmItems;
 
-export const filmItemsByCatalogId = {
-  default: filmItems,
+export const filmItemsByFilterId = {
+  all: filmItems,
   action: actionFilmItems,
   comedy: comedyFilmItems,
-} satisfies Record<FilmCatalogId, FilmItem[]>;
+} satisfies Record<FilmFilterId, FilmItem[]>;
 
 export const filmItemById = new Map(allFilmItems.map((item) => [item.id, item]));
 export const offlineFilmAssetUrls = allFilmItems.map((item) => item.imageSrc);

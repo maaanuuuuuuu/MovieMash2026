@@ -37,11 +37,11 @@ function matchupIsActive(matchup: Matchup, activeIds: Set<string>) {
   return activeIds.has(matchup.leftId) && activeIds.has(matchup.rightId);
 }
 
-export function useComparisonFlow(catalogId: string, items: FilmItem[]) {
+export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
   const itemIds = useMemo(() => items.map((item) => item.id), [items]);
   const itemById = useMemo(() => new Map(items.map((item) => [item.id, item])), [items]);
-  const states = useLiveQuery(() => listRankingStates(catalogId, itemIds), [catalogId, itemIds], []);
-  const comparisons = useLiveQuery(() => listComparisonRecords(catalogId), [catalogId], []);
+  const states = useLiveQuery(() => listRankingStates(rankingScopeId, itemIds), [rankingScopeId, itemIds], []);
+  const comparisons = useLiveQuery(() => listComparisonRecords(rankingScopeId), [rankingScopeId], []);
   const [queue, setQueue] = useState<Matchup[]>([]);
   const queueRef = useRef<Matchup[]>([]);
   const [feedback, setFeedback] = useState<FlowFeedback | undefined>();
@@ -123,7 +123,7 @@ export function useComparisonFlow(catalogId: string, items: FilmItem[]) {
     queueRef.current = nextQueue;
     setQueue(nextQueue);
     showFeedback(kind, label);
-    const result = await persistOutcome(catalogId, outcome, itemIds);
+    const result = await persistOutcome(rankingScopeId, outcome, itemIds);
     console.log(
       result.applied ? outcomeLogMessage(outcome) : `${outcomeLogMessage(outcome)} blocked: ${result.reason}`,
     );

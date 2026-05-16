@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { filmItemsByCatalogId } from '../modules/content/filmSource';
+import { filmItemsByFilterId } from '../modules/content/filmSource';
 import { resetDatabase } from '../modules/persistence/db';
 import { App } from './App';
 
@@ -34,46 +34,51 @@ describe('main app flow', () => {
     expect(screen.getAllByRole('listitem').length).toBeGreaterThan(0);
   });
 
-  it('switches to the action catalog and opens its ranking page', async () => {
+  it('uses action as a global ranking filter', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await screen.findAllByRole('button', { name: /^Choose / });
     await user.click(screen.getByRole('link', { name: 'Action' }));
 
-    expect(await screen.findByRole('heading', { name: 'Pure action movies' })).toBeInTheDocument();
-    expect(screen.getByText(`${filmItemsByCatalogId.action.length} total`)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Action movies' })).toBeInTheDocument();
+    expect(screen.getByText(`${filmItemsByFilterId.action.length} total`)).toBeInTheDocument();
 
     const firstChoices = (await screen.findAllByRole('button', { name: /^Choose / })).map((choice) =>
       choice.getAttribute('aria-label'),
     );
+    await user.click((await screen.findAllByRole('button', { name: /^Choose / }))[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('1 picks')).toBeInTheDocument();
+    });
     await user.click(screen.getByLabelText('Open ranking'));
 
     expect(await screen.findByRole('heading', { name: 'Your ranking' })).toBeInTheDocument();
-    expect(screen.getByText('Action cut')).toBeInTheDocument();
-    expect(screen.getAllByRole('listitem')).toHaveLength(filmItemsByCatalogId.action.length);
+    expect(screen.getByText('Action filter')).toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(filmItemsByFilterId.action.length);
 
     await user.click(screen.getByLabelText('Back to comparisons'));
 
-    expect(await screen.findByRole('heading', { name: 'Pure action movies' })).toBeInTheDocument();
-    expect((await screen.findAllByRole('button', { name: /^Choose / })).map((choice) => choice.getAttribute('aria-label'))).toEqual(
+    expect(await screen.findByRole('heading', { name: 'Action movies' })).toBeInTheDocument();
+    expect((await screen.findAllByRole('button', { name: /^Choose / })).map((choice) => choice.getAttribute('aria-label'))).not.toEqual(
       firstChoices,
     );
   });
 
-  it('opens the comedy ranking route directly and returns to comedy comparisons', async () => {
+  it('opens the comedy ranking filter directly and returns to comedy comparisons', async () => {
     const user = userEvent.setup();
     window.location.hash = '#/comedy/ranking';
     render(<App />);
 
     expect(await screen.findByRole('heading', { name: 'Your ranking' })).toBeInTheDocument();
-    expect(screen.getByText('Comedy cut')).toBeInTheDocument();
-    expect(screen.getAllByRole('listitem')).toHaveLength(filmItemsByCatalogId.comedy.length);
+    expect(screen.getByText('Comedy filter')).toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(filmItemsByFilterId.comedy.length);
 
     await user.click(screen.getByLabelText('Back to comparisons'));
 
     expect(await screen.findByRole('heading', { name: 'Comedy movies' })).toBeInTheDocument();
-    expect(screen.getByText(`${filmItemsByCatalogId.comedy.length} total`)).toBeInTheDocument();
+    expect(screen.getByText(`${filmItemsByFilterId.comedy.length} total`)).toBeInTheDocument();
   });
 
   it('returns to the same fight after visiting ranking', async () => {

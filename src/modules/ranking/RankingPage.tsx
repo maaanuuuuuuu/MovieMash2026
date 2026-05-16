@@ -2,7 +2,13 @@ import { ArrowLeft } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { filmItemsByCatalogId, type FilmCatalog } from '../content/filmSource';
+import {
+  GLOBAL_FILM_SCOPE_ID,
+  filmItemById,
+  filmItems,
+  filmItemsByFilterId,
+  type FilmFilter,
+} from '../content/filmSource';
 import {
   MINIMUM_ACTIVE_ITEMS,
   listComparisonRecords,
@@ -14,18 +20,15 @@ import { FightHistoryModal } from './FightHistoryModal';
 import { RankingRow } from './RankingRow';
 
 type RankingPageProps = {
-  catalog: FilmCatalog;
+  filter: FilmFilter;
 };
 
-function recordIsInCatalog(recordItemIds: Set<string>, recordItemId: string | undefined) {
-  return recordItemId === undefined || recordItemIds.has(recordItemId);
-}
-
-export function RankingPage({ catalog }: RankingPageProps) {
-  const items = filmItemsByCatalogId[catalog.id];
-  const itemIds = useMemo(() => items.map((item) => item.id), [items]);
+export function RankingPage({ filter }: RankingPageProps) {
+  const items = filmItemsByFilterId[filter.id];
+  const allItemIds = useMemo(() => filmItems.map((item) => item.id), []);
+  const filterItemIds = useMemo(() => items.map((item) => item.id), [items]);
   const fallbackStates = useMemo(() => {
-    return itemIds.map((itemId) => ({
+    return allItemIds.map((itemId) => ({
       itemId,
       rating: 1000,
       appearances: 0,
@@ -34,32 +37,30 @@ export function RankingPage({ catalog }: RankingPageProps) {
       ties: 0,
       active: true,
       notSeen: false,
-      catalogId: catalog.id,
+      catalogId: GLOBAL_FILM_SCOPE_ID,
       createdAt: 0,
       updatedAt: 0,
     }));
-  }, [catalog.id, itemIds]);
-  const itemById = useMemo(() => new Map(items.map((item) => [item.id, item])), [items]);
-  const itemIdSet = useMemo(() => new Set(itemIds), [itemIds]);
-  const states = useLiveQuery(() => listRankingStates(catalog.id, itemIds), [catalog.id, itemIds], fallbackStates);
-  const records = useLiveQuery(() => listComparisonRecords(catalog.id), [catalog.id], []);
-  const catalogRecords = records.filter(
-    (record) =>
-      recordIsInCatalog(itemIdSet, record.leftId) &&
-      recordIsInCatalog(itemIdSet, record.rightId) &&
-      recordIsInCatalog(itemIdSet, record.winnerId) &&
-      recordIsInCatalog(itemIdSet, record.loserId) &&
-      recordIsInCatalog(itemIdSet, record.notSeenId),
+  }, [allItemIds]);
+  const filterItemIdSet = useMemo(() => new Set(filterItemIds), [filterItemIds]);
+  const states = useLiveQuery(
+    () => listRankingStates(GLOBAL_FILM_SCOPE_ID, allItemIds),
+    [allItemIds],
+    fallbackStates,
   );
+  const records = useLiveQuery(() => listComparisonRecords(GLOBAL_FILM_SCOPE_ID), [], []);
   const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
   const [rankingMessage, setRankingMessage] = useState<string | undefined>();
   const [locallyRemovedItemIds, setLocallyRemovedItemIds] = useState<Set<string>>(() => new Set());
-  const rankedStates = getOrderedRanking(states).filter((state) => !locallyRemovedItemIds.has(state.itemId));
-  const selectedItem = selectedItemId ? itemById.get(selectedItemId) : undefined;
-  const canRemoveFromRanking = rankedStates.length > MINIMUM_ACTIVE_ITEMS;
+  const rankedRows = getOrderedRanking(states)
+    .filter((state) => !locallyRemovedItemIds.has(state.itemId))
+    .map((state, index) => ({ state, globalRank: index + 1 }))
+    .filter((row) => filterItemIdSet.has(row.state.itemId));
+  const selectedItem = selectedItemId ? filmItemById.get(selectedItemId) : undefined;
+  const canRemoveFromRanking = rankedRows.length > MINIMUM_ACTIVE_ITEMS;
 
   async function handleMarkNotSeen(itemId: string, itemLabel: string) {
-    const result = await markRankingItemNotSeen(catalog.id, itemId, itemIds);
+    const result = await markRankingItemNotSeen(GLOBAL_FILM_SCOPE_ID, itemId, filterItemIds);
     console.log(result.applied ? `${itemLabel} not seen` : `${itemLabel} not seen blocked: ${result.reason}`);
 
     if (result.applied) {
@@ -79,7 +80,7 @@ export function RankingPage({ catalog }: RankingPageProps) {
     <main className="ranking-page">
       <header className="ranking-page__header">
         <Link
-          to={catalog.comparisonPath}
+          to={filter.comparisonPath}
           className="ranking-page__back"
           aria-label="Back to comparisons"
           title="Back to comparisons"
@@ -87,7 +88,7 @@ export function RankingPage({ catalog }: RankingPageProps) {
           <ArrowLeft aria-hidden="true" size={23} />
         </Link>
         <div>
-          <p className="eyebrow">{catalog.eyebrow}</p>
+          <p className="eyebrow">{filter.eyebrow}</p>
           <h1>Your ranking</h1>
           <p className="ranking-page__hint">Swipe a row sideways to mark a movie unseen.</p>
           {rankingMessage ? <p className="ranking-page__message">{rankingMessage}</p> : null}
@@ -95,8 +96,8 @@ export function RankingPage({ catalog }: RankingPageProps) {
       </header>
 
       <ol className="ranking-list" aria-label="Ordered ranking">
-        {rankedStates.map((state, index) => {
-          const item = itemById.get(state.itemId);
+        {rankedRows.map(({ state, globalRank }) => {
+          const item = filmItemById.get(state.itemId);
 
           if (!item) {
             return null;
@@ -107,7 +108,7 @@ export function RankingPage({ catalog }: RankingPageProps) {
               key={state.itemId}
               item={item}
               state={state}
-              rank={index + 1}
+              rank={globalRank}
               tier={getStabilityTier(state)}
               canMarkNotSeen={canRemoveFromRanking}
               onOpenHistory={() => setSelectedItemId(item.id)}
@@ -117,7 +118,12 @@ export function RankingPage({ catalog }: RankingPageProps) {
         })}
       </ol>
       {selectedItem ? (
-        <FightHistoryModal item={selectedItem} records={catalogRecords} itemById={itemById} onClose={() => setSelectedItemId(undefined)} />
+        <FightHistoryModal
+          item={selectedItem}
+          records={records}
+          itemById={filmItemById}
+          onClose={() => setSelectedItemId(undefined)}
+        />
       ) : null}
     </main>
   );

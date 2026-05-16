@@ -6,14 +6,14 @@ import { ItemCard } from './ItemCard';
 import { TieButton } from './TieButton';
 import type { ComparisonFlow } from './useComparisonFlow';
 import { useIdleVisibility } from './useIdleVisibility';
-import { filmCatalogs, type FilmCatalog } from '../content/filmSource';
+import { filmFilters, type FilmFilter } from '../content/filmSource';
 
 type ComparisonScreenProps = {
   flow: ComparisonFlow;
-  catalog: FilmCatalog;
+  filter: FilmFilter;
 };
 
-export function ComparisonScreen({ flow, catalog }: ComparisonScreenProps) {
+export function ComparisonScreen({ flow, filter }: ComparisonScreenProps) {
   const rankingButtonVisible = useIdleVisibility(flow.isInteracting, flow.feedback?.id);
 
   if (!flow.leftItem || !flow.rightItem) {
@@ -27,23 +27,23 @@ export function ComparisonScreen({ flow, catalog }: ComparisonScreenProps) {
   return (
     <main className="comparison-screen">
       <header className="comparison-header">
-        <nav className="catalog-switch" aria-label="Movie list selector">
-          {filmCatalogs.map((availableCatalog) => (
+        <nav className="catalog-switch" aria-label="Genre filter">
+          {filmFilters.map((availableFilter) => (
             <Link
-              key={availableCatalog.id}
-              to={availableCatalog.comparisonPath}
+              key={availableFilter.id}
+              to={availableFilter.comparisonPath}
               className={
-                availableCatalog.id === catalog.id
+                availableFilter.id === filter.id
                   ? 'catalog-switch__link catalog-switch__link--active'
                   : 'catalog-switch__link'
               }
             >
-              {availableCatalog.shortLabel}
+              {availableFilter.shortLabel}
             </Link>
           ))}
         </nav>
-        <p className="eyebrow">{catalog.eyebrow}</p>
-        <h1>{catalog.title}</h1>
+        <p className="eyebrow">{filter.eyebrow}</p>
+        <h1>{filter.title}</h1>
       </header>
 
       <header className="comparison-status">
@@ -74,7 +74,7 @@ export function ComparisonScreen({ flow, catalog }: ComparisonScreenProps) {
 
       <ConfirmationBurst feedback={flow.feedback} />
       <CelebrationToast visible={flow.celebrationVisible} onClose={() => flow.setCelebrationVisible(false)} />
-      <FloatingRankingButton visible={rankingButtonVisible} to={catalog.rankingPath} />
+      <FloatingRankingButton visible={rankingButtonVisible} to={filter.rankingPath} />
     </main>
   );
 }
