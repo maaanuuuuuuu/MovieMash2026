@@ -88,7 +88,11 @@ export function ComparisonScreen({ flow, filter }: ComparisonScreenProps) {
       </section>
 
       <ConfirmationBurst feedback={flow.feedback} />
-      <CelebrationToast visible={flow.celebrationVisible} onClose={() => flow.setCelebrationVisible(false)} />
+      <CelebrationToast
+        milestone={flow.celebrationMilestone}
+        to={filter.rankingPath}
+        onClose={() => flow.setCelebrationMilestone(undefined)}
+      />
       <UndoActionButton
         visible={flow.pendingNotSeen !== undefined || flow.undoableVote !== undefined}
         ariaLabel={undoAction.ariaLabel}

@@ -6,6 +6,7 @@ import {
   listComparisonRecords,
   listRankingStates,
 } from '../persistence/rankingRepository';
+import type { StableTopMilestone } from '../rankingEngine/stability';
 import { createComparisonFlowActions } from './useComparisonFlow.actions';
 import type { FlowFeedback, UndoableVote } from './useComparisonFlow.utils';
 import { useMatchupQueue } from './useMatchupQueue';
@@ -13,14 +14,14 @@ import { usePendingNotSeen } from './usePendingNotSeen';
 
 export type { FlowFeedback } from './useComparisonFlow.utils';
 
-export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
+export function useComparisonFlow(rankingScopeId: string, milestoneScopeId: string, items: FilmItem[]) {
   const itemIds = useMemo(() => items.map((item) => item.id), [items]);
   const itemById = useMemo(() => new Map(items.map((item) => [item.id, item])), [items]);
   const states = useLiveQuery(() => listRankingStates(rankingScopeId, itemIds), [rankingScopeId, itemIds], []);
   const comparisons = useLiveQuery(() => listComparisonRecords(rankingScopeId), [rankingScopeId], []);
   const [feedback, setFeedback] = useState<FlowFeedback | undefined>();
   const [undoableVote, setUndoableVote] = useState<UndoableVote | undefined>();
-  const [celebrationVisible, setCelebrationVisible] = useState(false);
+  const [celebrationMilestone, setCelebrationMilestone] = useState<StableTopMilestone | undefined>();
   const [isInteracting, setIsInteracting] = useState(false);
   const activeStates = useMemo(() => states.filter((state) => state.active), [states]);
   const { queue, replaceQueue, advanceQueue, restoreMatchup } = useMatchupQueue(activeStates);
@@ -40,6 +41,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
   const canMarkNotSeen = activeStates.length > MINIMUM_ACTIVE_ITEMS;
   const actions = createComparisonFlowActions({
     rankingScopeId,
+    milestoneScopeId,
     itemIds,
     itemById,
     activeStates,
@@ -49,7 +51,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     setFeedback,
     undoableVote,
     setUndoableVote,
-    setCelebrationVisible,
+    setCelebrationMilestone,
     pendingNotSeenRef,
     clearPendingNotSeenTimeout,
     setPendingNotSeen,
@@ -70,7 +72,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     feedback,
     pendingNotSeen,
     undoableVote,
-    celebrationVisible,
+    celebrationMilestone,
     isInteracting,
     canMarkNotSeen,
     chooseLeft: actions.chooseLeft,
@@ -79,7 +81,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     markNotSeen: actions.markNotSeen,
     undoNotSeen: actions.undoNotSeen,
     undoLastVote: actions.undoLastVote,
-    setCelebrationVisible,
+    setCelebrationMilestone,
     setIsInteracting,
   };
 }

@@ -1,9 +1,21 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { filmItemsByFilterId } from '../modules/content/filmSource';
-import { resetDatabase } from '../modules/persistence/db';
+import { GLOBAL_FILM_SCOPE_ID, filmItemsByFilterId, type FilmFilterId } from '../modules/content/filmSource';
+import { db, resetDatabase } from '../modules/persistence/db';
+import { createInitialRankingState } from '../modules/rankingEngine/rating';
 import { App } from './App';
+
+async function seedStableTop(filterId: FilmFilterId, count: number) {
+  const now = Date.now();
+  const states = filmItemsByFilterId[filterId].slice(0, count).map((item, index) => ({
+    ...createInitialRankingState(GLOBAL_FILM_SCOPE_ID, item.id, now),
+    appearances: 8,
+    rating: 2000 - index,
+  }));
+
+  await db.catalogRankingStates.bulkPut(states);
+}
 
 describe('main app flow', () => {
   beforeEach(async () => {
@@ -119,6 +131,31 @@ describe('main app flow', () => {
 
     expect(await screen.findByRole('heading', { name: 'Comedy movies' })).toBeInTheDocument();
     expect(screen.getByText(`${filmItemsByFilterId.comedy.length} total`)).toBeInTheDocument();
+  });
+
+  it('shows a stable top milestone once for the current filter', async () => {
+    const user = userEvent.setup();
+    window.location.hash = '#/action';
+    await seedStableTop('action', 10);
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'Action movies' })).toBeInTheDocument();
+    await user.click((await screen.findAllByRole('button', { name: /^Choose / }))[0]);
+
+    expect(await screen.findByText('Your first stable top 10 is ready. Wanna see?')).toBeInTheDocument();
+    await user.click(screen.getByRole('link', { name: 'See ranking' }));
+
+    expect(await screen.findByRole('heading', { name: 'Your ranking' })).toBeInTheDocument();
+    expect(screen.getByText('Action filter')).toBeInTheDocument();
+
+    await user.click(screen.getByLabelText('Back to comparisons'));
+    expect(await screen.findByRole('heading', { name: 'Action movies' })).toBeInTheDocument();
+    await user.click((await screen.findAllByRole('button', { name: /^Choose / }))[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('2 picks')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Your first stable top 10 is ready. Wanna see?')).not.toBeInTheDocument();
   });
 
   it('returns to the same fight after visiting ranking', async () => {

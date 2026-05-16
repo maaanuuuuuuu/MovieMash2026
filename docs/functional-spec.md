@@ -203,12 +203,11 @@ Un film est :
 - `stable` dès 5 apparitions si son score a bougé d'au moins 70 points ou si son écart victoires/défaites atteint 3 ;
 - `settling` dans les autres cas.
 
-La célébration de stabilité globale apparaît une seule fois quand les conditions suivantes sont réunies :
+Les notifications de top stable apparaissent pour les paliers top 10, top 15 et top 20.
 
-- au moins 10 films actifs ;
-- au moins 70 apparitions cumulées ;
-- au moins 35 % des films actifs ont été comparés ;
-- au moins 12 films actifs ont 3 apparitions ou plus.
+Un palier est atteint quand tous les films du top N courant ont le niveau `stable`.
+
+Ces notifications sont suivies par filtre (`All`, `Action`, `Comedy`) et par palier. Si plusieurs paliers sont déjà valides, l'application montre d'abord le plus petit palier non affiché. Chaque notification a un bouton vers la page de classement du filtre courant.
 
 ## Persistance locale
 
@@ -220,7 +219,7 @@ Base actuelle :
 - version Dexie : 4 ;
 - table `catalogRankingStates` : état de ranking par `catalogId` et `itemId`, avec `notSeenDisposition` pour `interested` ou `removed` ;
 - table `comparisons` : historique des choix, égalités et états non vus, avec les changements de score requis pour annuler le dernier vote ;
-- table `meta` : petits drapeaux applicatifs, comme la célébration déjà affichée.
+- table `meta` : petits drapeaux applicatifs, comme les notifications de top stable déjà affichées.
 
 Le code initialise seulement le scope `default`. Si de nouveaux films sont ajoutés au catalogue, leurs états manquants sont créés avec 1000 points sans effacer l'historique existant.
 

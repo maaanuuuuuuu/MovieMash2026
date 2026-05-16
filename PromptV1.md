@@ -56,10 +56,10 @@ The product should feel lightweight, fast, slightly playful, and rewarding. It s
   - settling
   - stable
 - Continue serving comparisons even after the ranking becomes reasonably stable.
-- The first time the ranking crosses the chosen stability threshold, show a celebratory message and animation such as:
-  - Congrats, your ranking is starting to look like something, wanna see?
-- That message should include a call to action to open the ranking page.
-- Show this celebration only once in v1.
+- Show celebratory milestone notifications when the current ranking filter first reaches stable top 10, stable top 15, and stable top 20.
+- A stable top milestone is reached when every item inside that top N has the `stable` tier.
+- Each milestone notification should include a call to action to open the matching ranking page.
+- Show each milestone only once per ranking filter in v1.
 
 ## Persistence
 

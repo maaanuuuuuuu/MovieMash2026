@@ -1,14 +1,22 @@
 import { Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import type { StableTopMilestone } from '../rankingEngine/stability';
 import './CelebrationToast.css';
 
 type CelebrationToastProps = {
-  visible: boolean;
+  milestone: StableTopMilestone | undefined;
+  to: string;
   onClose: () => void;
 };
 
-export function CelebrationToast({ visible, onClose }: CelebrationToastProps) {
-  if (!visible) {
+function milestoneMessage(milestone: StableTopMilestone) {
+  return milestone === 10
+    ? 'Your first stable top 10 is ready. Wanna see?'
+    : `Your stable top ${milestone} is ready. Wanna see?`;
+}
+
+export function CelebrationToast({ milestone, to, onClose }: CelebrationToastProps) {
+  if (!milestone) {
     return null;
   }
 
@@ -16,9 +24,9 @@ export function CelebrationToast({ visible, onClose }: CelebrationToastProps) {
     <section className="celebration-toast" aria-label="Ranking milestone">
       <Sparkles aria-hidden="true" size={24} />
       <div>
-        <p>Congrats, your ranking is starting to look like something, wanna see?</p>
+        <p>{milestoneMessage(milestone)}</p>
         <div className="celebration-toast__actions">
-          <Link to="/ranking" onClick={onClose}>
+          <Link to={to} onClick={onClose}>
             See ranking
           </Link>
           <button type="button" onClick={onClose}>

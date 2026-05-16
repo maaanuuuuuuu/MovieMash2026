@@ -6,6 +6,9 @@ const STABLE_APPEARANCE_LIMIT = 8;
 const EARLY_STABLE_APPEARANCE_LIMIT = 5;
 const DECISIVE_RATING_MOVE = 70;
 const DECISIVE_RECORD_GAP = 3;
+export const STABLE_TOP_MILESTONES = [10, 15, 20] as const;
+
+export type StableTopMilestone = (typeof STABLE_TOP_MILESTONES)[number];
 
 export function getStabilityTier(state: RankingItemState): StabilityTier {
   if (state.appearances < NEW_APPEARANCE_LIMIT) {
@@ -35,19 +38,12 @@ export function getOrderedRanking(states: RankingItemState[]) {
     .sort((first, second) => second.rating - first.rating || first.itemId.localeCompare(second.itemId));
 }
 
-export function hasReachedCelebrationThreshold(states: RankingItemState[]) {
-  const activeStates = states.filter((state) => state.active);
-  const comparedStates = activeStates.filter((state) => state.appearances > 0);
-  const settlingStates = activeStates.filter((state) => state.appearances >= 3);
-  const totalAppearances = activeStates.reduce((total, state) => total + state.appearances, 0);
+export function getReachedStableTopMilestones(states: RankingItemState[]) {
+  const orderedStates = getOrderedRanking(states);
 
-  if (activeStates.length < 10) {
-    return false;
-  }
+  return STABLE_TOP_MILESTONES.filter((milestone) => {
+    const topStates = orderedStates.slice(0, milestone);
 
-  return (
-    totalAppearances >= 70 &&
-    comparedStates.length / activeStates.length >= 0.35 &&
-    settlingStates.length >= 12
-  );
+    return topStates.length === milestone && topStates.every((state) => getStabilityTier(state) === 'stable');
+  });
 }

@@ -2,7 +2,7 @@ import type { ItemId, NotSeenDisposition, RankingItemState } from '../../domain/
 import type { ComparisonOutcome, DecidedOutcome } from '../../domain/outcome';
 import type { FilmItem } from '../content/types';
 import { getMetaBoolean, persistOutcome, setMetaBoolean, undoDecidedOutcome } from '../persistence/rankingRepository';
-import { hasReachedCelebrationThreshold } from '../rankingEngine/stability';
+import { getReachedStableTopMilestones, type StableTopMilestone } from '../rankingEngine/stability';
 import {
   getOutcomeLogMessage,
   getQueueAfterNotSeen,
@@ -13,13 +13,14 @@ import {
   type UndoableVote,
 } from './useComparisonFlow.utils';
 
-const CELEBRATION_META_KEY = 'celebrationShown';
+const STABLE_TOP_MILESTONE_META_PREFIX = 'stableTopMilestoneShown';
 const NOT_SEEN_UNDO_WINDOW_MS = 10000;
 
 type PendingRef = { current: PendingNotSeen | undefined };
 
 type ComparisonFlowActionInput = {
   rankingScopeId: string;
+  milestoneScopeId: string;
   itemIds: string[];
   itemById: Map<string, FilmItem>;
   activeStates: RankingItemState[];
@@ -29,7 +30,7 @@ type ComparisonFlowActionInput = {
   setFeedback: (feedback: FlowFeedback | undefined) => void;
   undoableVote: UndoableVote | undefined;
   setUndoableVote: (vote: UndoableVote | undefined) => void;
-  setCelebrationVisible: (visible: boolean) => void;
+  setCelebrationMilestone: (milestone: StableTopMilestone | undefined) => void;
   pendingNotSeenRef: PendingRef;
   clearPendingNotSeenTimeout: () => void;
   setPendingNotSeen: (pending: PendingNotSeen | undefined) => void;
@@ -44,16 +45,20 @@ export function createComparisonFlowActions(input: ComparisonFlowActionInput) {
     return getOutcomeLogMessage(outcome, input.itemById);
   }
 
+  function stableTopMilestoneMetaKey(milestone: StableTopMilestone) {
+    return `${STABLE_TOP_MILESTONE_META_PREFIX}:${input.milestoneScopeId}:${milestone}`;
+  }
+
   async function maybeShowCelebration(nextStates: RankingItemState[]) {
-    if (!hasReachedCelebrationThreshold(nextStates)) {
-      return;
-    }
+    for (const milestone of getReachedStableTopMilestones(nextStates)) {
+      const metaKey = stableTopMilestoneMetaKey(milestone);
+      const alreadyShown = await getMetaBoolean(metaKey);
 
-    const alreadyShown = await getMetaBoolean(CELEBRATION_META_KEY);
-
-    if (!alreadyShown) {
-      await setMetaBoolean(CELEBRATION_META_KEY, true);
-      input.setCelebrationVisible(true);
+      if (!alreadyShown) {
+        await setMetaBoolean(metaKey, true);
+        input.setCelebrationMilestone(milestone);
+        return;
+      }
     }
   }
 
