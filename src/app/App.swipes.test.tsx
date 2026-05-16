@@ -48,6 +48,22 @@ describe('main app swipe flow', () => {
     expect(screen.getByText('0 picks')).toBeInTheDocument();
   });
 
+  it('returns the card when an interested swipe is below the threshold', async () => {
+    render(<App />);
+
+    const originalChoices = (await screen.findAllByRole('button', { name: /^Choose / })).map((choice) =>
+      choice.getAttribute('aria-label'),
+    );
+
+    await swipeFirstPoster(0, -90);
+
+    expect(screen.queryByLabelText('Undo last swipe')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /^Choose / }).map((choice) => choice.getAttribute('aria-label'))).toEqual(
+      originalChoices,
+    );
+    expect(screen.getByText('0 picks')).toBeInTheDocument();
+  });
+
   it('can undo a removed swipe from the comparison screen', async () => {
     render(<App />);
 
@@ -82,6 +98,8 @@ describe('main app swipe flow', () => {
     await swipeRankingRow(rowButton, 160, 20);
 
     expect(await screen.findByText(`${itemLabel} saved as interested`)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Interested' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Interested movies')).toHaveTextContent(itemLabel);
     await user.click(screen.getByLabelText('Open saved movies'));
 
     expect(await screen.findByRole('heading', { name: 'Saved movies' })).toBeInTheDocument();

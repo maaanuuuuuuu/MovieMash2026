@@ -9,6 +9,7 @@ import {
   getItemCardSwipeHintClassName,
   labelForDisposition,
 } from './ItemCard.utils';
+import type { MatchSwipeZoneState } from './MatchSwipeZones';
 import { PreviewItemCard } from './PreviewItemCard';
 import { useDismissDrag } from './useDismissDrag';
 
@@ -19,6 +20,7 @@ type ItemCardProps = {
   onChoose: () => void;
   onNotSeen: (itemId: ItemId, disposition: NotSeenDisposition) => void;
   onInteractionChange: (active: boolean) => void;
+  onSwipeZoneChange: (state: MatchSwipeZoneState | undefined) => void;
 };
 
 export function ItemCard({
@@ -28,8 +30,21 @@ export function ItemCard({
   onChoose,
   onNotSeen,
   onInteractionChange,
+  onSwipeZoneChange,
 }: ItemCardProps) {
-  const drag = useDismissDrag((direction) => onNotSeen(item.id, dispositionForDirection(direction)), onInteractionChange);
+  const drag = useDismissDrag(
+    (direction) => onNotSeen(item.id, dispositionForDirection(direction)),
+    onInteractionChange,
+    (state) =>
+      onSwipeZoneChange(
+        state
+          ? {
+              disposition: state.direction ? dispositionForDirection(state.direction) : undefined,
+              ready: state.ready,
+            }
+          : undefined,
+      ),
+  );
   const dragDisposition = drag.direction ? dispositionForDirection(drag.direction) : undefined;
   const cardClass = getItemCardClassName(side, drag.isDragging, drag.isReturning, dragDisposition, drag.dismissReady);
   const stackClass = getItemCardStackClassName(drag.isDragging);

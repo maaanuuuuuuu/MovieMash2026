@@ -27,3 +27,7 @@ export function getVerticalDirection(x: number, y: number): DismissDirection | u
 
   return y < 0 ? 'up' : 'down';
 }
+
+export function isVerticalDismissReady(x: number, y: number, distance: number) {
+  return getVerticalDirection(x, y) !== undefined && Math.abs(y) > distance;
+}

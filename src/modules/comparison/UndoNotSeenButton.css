@@ -15,3 +15,17 @@
   cursor: pointer;
   animation: undo-button-in 180ms ease both;
 }
+
+@media (max-width: 679px) {
+  .undo-not-seen-button {
+    left: 16px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    width: 66px;
+    height: 66px;
+  }
+
+  .undo-not-seen-button svg {
+    width: 29px;
+    height: 29px;
+  }
+}

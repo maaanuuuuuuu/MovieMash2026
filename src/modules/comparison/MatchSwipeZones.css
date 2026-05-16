@@ -1,0 +1,81 @@
+.match-swipe-zones {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--fast);
+}
+
+.match-swipe-zones--visible {
+  opacity: 1;
+}
+
+.match-swipe-zone {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  min-height: 64px;
+  border: 1px solid rgba(23, 33, 27, 0.12);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  font-size: 0.82rem;
+  font-weight: 900;
+  opacity: 0.72;
+  text-transform: uppercase;
+  transform: scale(0.98);
+  transition:
+    background var(--fast),
+    border-color var(--fast),
+    color var(--fast),
+    opacity var(--fast),
+    transform var(--fast);
+}
+
+.match-swipe-zone--interested {
+  top: 0;
+  color: var(--green);
+}
+
+.match-swipe-zone--removed {
+  bottom: 0;
+  color: var(--coral);
+}
+
+.match-swipe-zone--active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.match-swipe-zone--interested.match-swipe-zone--active {
+  border-color: rgba(31, 122, 76, 0.4);
+  background: rgba(31, 122, 76, 0.16);
+}
+
+.match-swipe-zone--removed.match-swipe-zone--active {
+  border-color: rgba(232, 93, 71, 0.4);
+  background: rgba(232, 93, 71, 0.16);
+}
+
+.match-swipe-zone--interested.match-swipe-zone--ready {
+  background: var(--green);
+  color: #fff;
+}
+
+.match-swipe-zone--removed.match-swipe-zone--ready {
+  background: var(--coral);
+  color: #fff;
+}
+
+@media (max-width: 679px) {
+  .match-swipe-zone {
+    left: 6px;
+    right: 6px;
+    min-height: 54px;
+    font-size: 0.76rem;
+  }
+}

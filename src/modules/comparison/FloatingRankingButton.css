@@ -28,3 +28,17 @@
   transform: translateY(0);
   transition-delay: 0s;
 }
+
+@media (max-width: 679px) {
+  .ranking-fab {
+    right: 16px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    width: 66px;
+    height: 66px;
+  }
+
+  .ranking-fab svg {
+    width: 29px;
+    height: 29px;
+  }
+}

@@ -1,9 +1,11 @@
+import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './ComparisonScreen.css';
 import { ConfirmationBurst } from './ConfirmationBurst';
 import { CelebrationToast } from './CelebrationToast';
 import { FloatingRankingButton } from './FloatingRankingButton';
 import { ItemCard } from './ItemCard';
+import { MatchSwipeZones, type MatchSwipeZoneState } from './MatchSwipeZones';
 import { TieButton } from './TieButton';
 import { UndoNotSeenButton } from './UndoNotSeenButton';
 import type { ComparisonFlow } from './useComparisonFlow';
@@ -17,6 +19,10 @@ type ComparisonScreenProps = {
 
 export function ComparisonScreen({ flow, filter }: ComparisonScreenProps) {
   const rankingButtonVisible = useIdleVisibility(flow.isInteracting, flow.feedback?.id);
+  const [swipeZoneState, setSwipeZoneState] = useState<MatchSwipeZoneState | undefined>();
+  const handleSwipeZoneChange = useCallback((state: MatchSwipeZoneState | undefined) => {
+    setSwipeZoneState(state);
+  }, []);
 
   if (!flow.leftItem || !flow.rightItem) {
     return (
@@ -62,6 +68,7 @@ export function ComparisonScreen({ flow, filter }: ComparisonScreenProps) {
           onChoose={flow.chooseLeft}
           onNotSeen={flow.markNotSeen}
           onInteractionChange={flow.setIsInteracting}
+          onSwipeZoneChange={handleSwipeZoneChange}
         />
         <TieButton onTie={flow.tie} />
         <ItemCard
@@ -71,7 +78,9 @@ export function ComparisonScreen({ flow, filter }: ComparisonScreenProps) {
           onChoose={flow.chooseRight}
           onNotSeen={flow.markNotSeen}
           onInteractionChange={flow.setIsInteracting}
+          onSwipeZoneChange={handleSwipeZoneChange}
         />
+        <MatchSwipeZones state={swipeZoneState} />
       </section>
 
       <ConfirmationBurst feedback={flow.feedback} />

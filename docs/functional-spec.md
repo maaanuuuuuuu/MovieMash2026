@@ -95,7 +95,9 @@ Actions utilisateur :
 - Cliquer le bouton central enregistre une égalité.
 - Glisser vers le haut depuis la zone centrale du poster marque le film `interested`.
 - Glisser vers le bas depuis la zone centrale du poster marque le film `removed`.
+- Pendant ce glissement, deux zones apparaissent sur l'écran de match : `Interested` en haut et `Remove` en bas. La zone active se renforce quand le seuil est atteint.
 - Le geste doit dépasser un seuil vertical clair. Si le mouvement horizontal domine ou si le seuil n'est pas atteint, la carte revient en place.
+- Si le doigt est relâché avant le seuil de validation, le film revient en place et le match ne change pas.
 - Après un swipe vertical validé, un bouton d'annulation apparaît en bas à gauche pendant 10 secondes.
 - Cliquer ce bouton annule le swipe et revient au duel qui vient d'être swipé.
 - Si l'utilisateur joue le duel suivant ou attend 10 secondes, le bouton disparaît et l'état `interested` ou `removed` est enregistré.
@@ -135,6 +137,8 @@ Les deux états désactivent le film dans le ranking global. Même si la protect
 ## Page de classement
 
 La page de classement trie les films actifs par score décroissant.
+
+Quand des films sont marqués `interested`, une section `Interested` avec une icône d'ampoule apparaît au-dessus de la liste de ranking. Elle montre ces films dans un format proche des lignes de ranking et permet de les restaurer.
 
 Chaque ligne affiche :
 

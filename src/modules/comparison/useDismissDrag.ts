@@ -1,5 +1,10 @@
 import { useRef, useState, type CSSProperties, type PointerEvent } from 'react';
-import { type DismissDirection, getVerticalDirection, startsInsideCenterZone } from './useDismissDrag.utils';
+import {
+  type DismissDirection,
+  getVerticalDirection,
+  isVerticalDismissReady,
+  startsInsideCenterZone,
+} from './useDismissDrag.utils';
 
 type DragState = {
   x: number;
@@ -8,24 +13,55 @@ type DragState = {
   returning: boolean;
 };
 
+export type DismissDragIndicatorState = {
+  direction: DismissDirection | undefined;
+  ready: boolean;
+};
+
 const DISMISS_DISTANCE = 132;
 const CLICK_CANCEL_DISTANCE = 8;
 
 export function useDismissDrag(
   onDismiss: (direction: DismissDirection) => void,
   onInteractionChange: (active: boolean) => void,
+  onIndicatorChange?: (state: DismissDragIndicatorState | undefined) => void,
 ) {
   const originRef = useRef({ x: 0, y: 0 });
+  const pointerIdRef = useRef<number | undefined>(undefined);
   const movedRef = useRef(false);
   const [dragState, setDragState] = useState<DragState>({ x: 0, y: 0, active: false, returning: false });
   const direction = getVerticalDirection(dragState.x, dragState.y);
-  const dismissReady = direction !== undefined && Math.abs(dragState.y) > DISMISS_DISTANCE;
+  const dismissReady = isVerticalDismissReady(dragState.x, dragState.y, DISMISS_DISTANCE);
+
+  function isActivePointer(event: PointerEvent<HTMLElement>) {
+    return pointerIdRef.current !== undefined && pointerIdRef.current === event.pointerId;
+  }
+
+  function clearPointer(event: PointerEvent<HTMLElement>) {
+    if (
+      pointerIdRef.current !== undefined &&
+      typeof event.currentTarget.hasPointerCapture === 'function' &&
+      event.currentTarget.hasPointerCapture(pointerIdRef.current)
+    ) {
+      event.currentTarget.releasePointerCapture(pointerIdRef.current);
+    }
+
+    pointerIdRef.current = undefined;
+  }
+
+  function setIndicator(x: number, y: number) {
+    onIndicatorChange?.({
+      direction: getVerticalDirection(x, y),
+      ready: isVerticalDismissReady(x, y, DISMISS_DISTANCE),
+    });
+  }
 
   function handlePointerDown(event: PointerEvent<HTMLElement>) {
     if (!startsInsideCenterZone(event)) {
       return;
     }
 
+    pointerIdRef.current = event.pointerId;
     originRef.current = { x: event.clientX, y: event.clientY };
     movedRef.current = false;
     event.currentTarget.setPointerCapture?.(event.pointerId);
@@ -34,26 +70,35 @@ export function useDismissDrag(
   }
 
   function handlePointerMove(event: PointerEvent<HTMLElement>) {
-    if (!dragState.active) {
+    if (!isActivePointer(event)) {
       return;
     }
 
     const x = event.clientX - originRef.current.x;
     const y = event.clientY - originRef.current.y;
     movedRef.current = movedRef.current || Math.hypot(x, y) > CLICK_CANCEL_DISTANCE;
+    if (movedRef.current) {
+      setIndicator(x, y);
+    }
     setDragState({ x, y, active: true, returning: false });
   }
 
   function handlePointerUp(event: PointerEvent<HTMLElement>) {
-    if (!dragState.active) {
+    if (!isActivePointer(event)) {
       return;
     }
 
-    event.currentTarget.releasePointerCapture?.(event.pointerId);
-    onInteractionChange(false);
+    const x = event.clientX - originRef.current.x;
+    const y = event.clientY - originRef.current.y;
+    const releaseDirection = getVerticalDirection(x, y);
+    const releaseReady = isVerticalDismissReady(x, y, DISMISS_DISTANCE);
 
-    if (dismissReady && direction) {
-      onDismiss(direction);
+    clearPointer(event);
+    onInteractionChange(false);
+    onIndicatorChange?.(undefined);
+
+    if (releaseReady && releaseDirection) {
+      onDismiss(releaseDirection);
       setDragState({ x: 0, y: 0, active: false, returning: false });
       return;
     }
@@ -61,8 +106,14 @@ export function useDismissDrag(
     setDragState({ x: 0, y: 0, active: false, returning: true });
   }
 
-  function handlePointerCancel() {
+  function handlePointerCancel(event: PointerEvent<HTMLElement>) {
+    if (!isActivePointer(event)) {
+      return;
+    }
+
+    clearPointer(event);
     onInteractionChange(false);
+    onIndicatorChange?.(undefined);
     setDragState({ x: 0, y: 0, active: false, returning: true });
   }
 

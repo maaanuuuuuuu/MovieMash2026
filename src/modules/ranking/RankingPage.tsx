@@ -16,11 +16,14 @@ import {
   listComparisonRecords,
   listRankingStates,
   markRankingItemNotSeen,
+  restoreRankingItem,
 } from '../persistence/rankingRepository';
 import { getStabilityTier } from '../rankingEngine/stability';
 import { FightHistoryModal } from './FightHistoryModal';
+import { InterestedMovieList } from './InterestedMovieList';
 import { RankingRow } from './RankingRow';
 import { createFallbackRankingStates, getFilteredRankingRows, rankingRemovalMessage } from './RankingPage.utils';
+import { getSavedRows, restoreMessage } from './SavedMoviesPage.utils';
 
 type RankingPageProps = {
   filter: FilmFilter;
@@ -32,16 +35,13 @@ export function RankingPage({ filter }: RankingPageProps) {
   const filterItemIds = useMemo(() => items.map((item) => item.id), [items]);
   const fallbackStates = useMemo(() => createFallbackRankingStates(allItemIds), [allItemIds]);
   const filterItemIdSet = useMemo(() => new Set(filterItemIds), [filterItemIds]);
-  const states = useLiveQuery(
-    () => listRankingStates(GLOBAL_FILM_SCOPE_ID, allItemIds),
-    [allItemIds],
-    fallbackStates,
-  );
+  const states = useLiveQuery(() => listRankingStates(GLOBAL_FILM_SCOPE_ID, allItemIds), [allItemIds], fallbackStates);
   const records = useLiveQuery(() => listComparisonRecords(GLOBAL_FILM_SCOPE_ID), [], []);
   const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
   const [rankingMessage, setRankingMessage] = useState<string | undefined>();
   const [locallyRemovedItemIds, setLocallyRemovedItemIds] = useState<Set<string>>(() => new Set());
   const rankedRows = getFilteredRankingRows(states, filterItemIdSet, locallyRemovedItemIds);
+  const interestedRows = getSavedRows(states, filterItemIdSet, 'interested');
   const selectedItem = selectedItemId ? filmItemById.get(selectedItemId) : undefined;
   const canRemoveFromRanking = rankedRows.length > MINIMUM_ACTIVE_ITEMS;
 
@@ -60,6 +60,22 @@ export function RankingPage({ filter }: RankingPageProps) {
     }
 
     return false;
+  }
+
+  async function handleRestore(itemId: string, itemLabel: string) {
+    const result = await restoreRankingItem(GLOBAL_FILM_SCOPE_ID, itemId);
+
+    if (result.applied) {
+      setLocallyRemovedItemIds((current) => {
+        const next = new Set(current);
+        next.delete(itemId);
+        return next;
+      });
+      setRankingMessage(restoreMessage(itemLabel));
+      return;
+    }
+
+    setRankingMessage('Could not restore this movie');
   }
 
   return (
@@ -88,6 +104,14 @@ export function RankingPage({ filter }: RankingPageProps) {
           <Bookmark aria-hidden="true" size={22} />
         </Link>
       </header>
+
+      <InterestedMovieList
+        rows={interestedRows}
+        itemById={filmItemById}
+        onRestore={(itemId, itemLabel) => {
+          void handleRestore(itemId, itemLabel);
+        }}
+      />
 
       <ol className="ranking-list" aria-label="Ordered ranking">
         {rankedRows.map(({ state, globalRank }) => {
