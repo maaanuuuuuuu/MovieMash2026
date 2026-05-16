@@ -1,0 +1,24 @@
+@media (max-width: 679px) {
+  .ranking-row__title {
+    display: -webkit-box;
+    line-height: 1.15;
+    white-space: normal;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
+
+@media (max-width: 390px) {
+  .ranking-row {
+    grid-template-columns: none;
+  }
+
+  .ranking-row__button {
+    grid-template-columns: 28px 40px minmax(0, 1fr);
+  }
+
+  .ranking-row__tier {
+    grid-column: 3;
+    justify-self: start;
+  }
+}

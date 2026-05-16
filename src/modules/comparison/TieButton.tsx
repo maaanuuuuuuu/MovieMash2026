@@ -1,3 +1,5 @@
+import './TieButton.css';
+
 type TieButtonProps = {
   onTie: () => void;
 };

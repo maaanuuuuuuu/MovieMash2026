@@ -1,4 +1,5 @@
 import { useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { type DismissDirection, getVerticalDirection, startsInsideCenterZone } from './useDismissDrag.utils';
 
 type DragState = {
   x: number;
@@ -7,35 +8,8 @@ type DragState = {
   returning: boolean;
 };
 
-export type DismissDirection = 'up' | 'down';
-
 const DISMISS_DISTANCE = 132;
 const CLICK_CANCEL_DISTANCE = 8;
-const DRAG_START_ZONE_INSET_RATIO = 0.18;
-const INTENT_DISTANCE = 16;
-
-function startsInsideCenterZone(event: PointerEvent<HTMLElement>) {
-  const rect = event.currentTarget.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
-  const horizontalInset = rect.width * DRAG_START_ZONE_INSET_RATIO;
-  const verticalInset = rect.height * DRAG_START_ZONE_INSET_RATIO;
-
-  return (
-    x >= horizontalInset &&
-    x <= rect.width - horizontalInset &&
-    y >= verticalInset &&
-    y <= rect.height - verticalInset
-  );
-}
-
-function getVerticalDirection(x: number, y: number): DismissDirection | undefined {
-  if (Math.abs(y) <= INTENT_DISTANCE || Math.abs(y) <= Math.abs(x)) {
-    return undefined;
-  }
-
-  return y < 0 ? 'up' : 'down';
-}
 
 export function useDismissDrag(
   onDismiss: (direction: DismissDirection) => void,

@@ -1,4 +1,5 @@
 import type { FlowFeedback } from './useComparisonFlow';
+import './ConfirmationBurst.css';
 
 type ConfirmationBurstProps = {
   feedback?: FlowFeedback;

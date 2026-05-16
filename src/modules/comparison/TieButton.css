@@ -1,0 +1,38 @@
+.tie-button {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  width: 58px;
+  height: 58px;
+  border: 2px solid rgba(23, 33, 27, 0.22);
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 14px 35px rgba(23, 33, 27, 0.25);
+  cursor: pointer;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+@media (min-width: 680px) {
+  .tie-button {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (max-width: 679px) {
+  .tie-button {
+    top: clamp(110px, calc((100vw - 48px) * 0.375 + 8px), 160px);
+  }
+}
+
+@media (max-width: 390px) {
+  .tie-button {
+    width: 52px;
+    height: 52px;
+    font-size: 0.82rem;
+  }
+}

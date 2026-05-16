@@ -2,6 +2,7 @@ import { ArrowLeft, Bookmark } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import './RankingPage.css';
 import type { NotSeenDisposition } from '../../domain/item';
 import {
   GLOBAL_FILM_SCOPE_ID,
@@ -16,9 +17,10 @@ import {
   listRankingStates,
   markRankingItemNotSeen,
 } from '../persistence/rankingRepository';
-import { getOrderedRanking, getStabilityTier } from '../rankingEngine/stability';
+import { getStabilityTier } from '../rankingEngine/stability';
 import { FightHistoryModal } from './FightHistoryModal';
 import { RankingRow } from './RankingRow';
+import { createFallbackRankingStates, getFilteredRankingRows, rankingRemovalMessage } from './RankingPage.utils';
 
 type RankingPageProps = {
   filter: FilmFilter;
@@ -28,22 +30,7 @@ export function RankingPage({ filter }: RankingPageProps) {
   const items = filmItemsByFilterId[filter.id];
   const allItemIds = useMemo(() => filmItems.map((item) => item.id), []);
   const filterItemIds = useMemo(() => items.map((item) => item.id), [items]);
-  const fallbackStates = useMemo(() => {
-    return allItemIds.map((itemId) => ({
-      itemId,
-      rating: 1000,
-      appearances: 0,
-      wins: 0,
-      losses: 0,
-      ties: 0,
-      active: true,
-      notSeen: false,
-      notSeenDisposition: null,
-      catalogId: GLOBAL_FILM_SCOPE_ID,
-      createdAt: 0,
-      updatedAt: 0,
-    }));
-  }, [allItemIds]);
+  const fallbackStates = useMemo(() => createFallbackRankingStates(allItemIds), [allItemIds]);
   const filterItemIdSet = useMemo(() => new Set(filterItemIds), [filterItemIds]);
   const states = useLiveQuery(
     () => listRankingStates(GLOBAL_FILM_SCOPE_ID, allItemIds),
@@ -54,10 +41,7 @@ export function RankingPage({ filter }: RankingPageProps) {
   const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
   const [rankingMessage, setRankingMessage] = useState<string | undefined>();
   const [locallyRemovedItemIds, setLocallyRemovedItemIds] = useState<Set<string>>(() => new Set());
-  const rankedRows = getOrderedRanking(states)
-    .filter((state) => !locallyRemovedItemIds.has(state.itemId))
-    .map((state, index) => ({ state, globalRank: index + 1 }))
-    .filter((row) => filterItemIdSet.has(row.state.itemId));
+  const rankedRows = getFilteredRankingRows(states, filterItemIdSet, locallyRemovedItemIds);
   const selectedItem = selectedItemId ? filmItemById.get(selectedItemId) : undefined;
   const canRemoveFromRanking = rankedRows.length > MINIMUM_ACTIVE_ITEMS;
 
@@ -67,9 +51,7 @@ export function RankingPage({ filter }: RankingPageProps) {
 
     if (result.applied) {
       setLocallyRemovedItemIds((current) => new Set(current).add(itemId));
-      setRankingMessage(
-        disposition === 'interested' ? `${itemLabel} saved as interested` : `${itemLabel} removed`,
-      );
+      setRankingMessage(rankingRemovalMessage(itemLabel, disposition));
       return true;
     }
 

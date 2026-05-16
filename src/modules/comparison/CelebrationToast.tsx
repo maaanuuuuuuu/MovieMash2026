@@ -1,5 +1,6 @@
 import { Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import './CelebrationToast.css';
 
 type CelebrationToastProps = {
   visible: boolean;

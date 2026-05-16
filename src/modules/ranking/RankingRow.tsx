@@ -1,6 +1,16 @@
 import { type PointerEvent, useRef, useState } from 'react';
 import type { NotSeenDisposition, RankingItemState, StabilityTier } from '../../domain/item';
 import type { FilmItem } from '../content/types';
+import './RankingRow.css';
+import './RankingRow.responsive.css';
+import {
+  getRankingRowButtonClassName,
+  getRankingRowHintClassName,
+  getRankingRowStyle,
+  getRankingSwipeLabel,
+  getSwipeDisposition,
+  isRankingSwipeReady,
+} from './RankingRow.utils';
 
 type RankingRowProps = {
   item: FilmItem;
@@ -22,16 +32,9 @@ export function RankingRow({ item, state, rank, tier, canMarkNotSeen, onOpenHist
   const [dragX, setDragX] = useState(0);
   const [isRemoving, setIsRemoving] = useState(false);
   const [isPointerDown, setIsPointerDown] = useState(false);
-  const swipeDisposition: NotSeenDisposition | undefined =
-    dragX < -8 ? 'interested' : dragX > 8 ? 'removed' : undefined;
-  const isDismissReady =
-    swipeDisposition === 'interested'
-      ? dragX <= -SWIPE_THRESHOLD_PX
-      : swipeDisposition === 'removed'
-        ? dragX >= SWIPE_THRESHOLD_PX
-        : false;
+  const swipeDisposition = getSwipeDisposition(dragX);
+  const isDismissReady = isRankingSwipeReady(dragX, SWIPE_THRESHOLD_PX);
   const isSwipeHintVisible = Math.abs(dragX) > 8;
-  const rowStyle = dragX === 0 ? undefined : { transform: `translateX(${dragX}px)` };
 
   function isActivePointer(event: PointerEvent<HTMLButtonElement>) {
     return pointerIdRef.current !== undefined && pointerIdRef.current === event.pointerId;
@@ -106,36 +109,16 @@ export function RankingRow({ item, state, rank, tier, canMarkNotSeen, onOpenHist
   return (
     <li className="ranking-row">
       <div
-        className={[
-          'ranking-row__swipe-hint',
-          isSwipeHintVisible ? 'ranking-row__swipe-hint--visible' : '',
-          swipeDisposition ? `ranking-row__swipe-hint--${swipeDisposition}` : '',
-          isDismissReady ? 'ranking-row__swipe-hint--ready' : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
+        className={getRankingRowHintClassName(isSwipeHintVisible, swipeDisposition, isDismissReady)}
         aria-hidden="true"
       >
-        <span>
-          {canMarkNotSeen
-            ? swipeDisposition === 'interested'
-              ? 'Interested'
-              : 'Remove'
-            : 'Last 10 stay'}
-        </span>
+        <span>{getRankingSwipeLabel(canMarkNotSeen, swipeDisposition)}</span>
       </div>
       <button
         ref={buttonRef}
         type="button"
-        className={[
-          'ranking-row__button',
-          isPointerDown ? 'ranking-row__button--dragging' : '',
-          swipeDisposition ? `ranking-row__button--${swipeDisposition}` : '',
-          isDismissReady ? 'ranking-row__button--dismiss-ready' : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-        style={rowStyle}
+        className={getRankingRowButtonClassName(isPointerDown, swipeDisposition, isDismissReady)}
+        style={getRankingRowStyle(dragX)}
         onClick={handleClick}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

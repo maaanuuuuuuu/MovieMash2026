@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import './DevDatabaseTransfer.css';
 import {
   PAGES_APP_URL,
   TRANSFER_IMPORTED_TYPE,

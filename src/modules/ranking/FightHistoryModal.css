@@ -1,0 +1,96 @@
+.fight-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: end center;
+  padding: 18px;
+  background: rgba(23, 33, 27, 0.38);
+}
+
+.fight-modal-backdrop__dismiss {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.fight-modal {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 620px);
+  max-height: min(76svh, 680px);
+  overflow: auto;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+.fight-modal__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.fight-modal h2 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  line-height: 1.05;
+}
+
+.fight-modal__close {
+  min-height: 44px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef3ed;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 10px 14px;
+}
+
+.fight-modal__empty {
+  margin: 0;
+  color: var(--muted);
+}
+
+.fight-modal__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.fight-modal__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.fight-modal__row span {
+  min-width: 0;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.fight-modal__row strong {
+  color: var(--green);
+  font-size: 0.98rem;
+}
+
+.fight-modal__row .fight-modal__points--negative {
+  color: var(--coral);
+}
+
+.fight-modal__row small {
+  grid-column: 1 / -1;
+  color: var(--muted);
+}

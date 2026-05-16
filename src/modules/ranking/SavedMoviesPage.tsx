@@ -3,21 +3,14 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { NotSeenDisposition } from '../../domain/item';
+import './SavedMoviesPage.css';
 import { GLOBAL_FILM_SCOPE_ID, filmItemById, filmItems, filmItemsByFilterId, type FilmFilter } from '../content/filmSource';
 import { listRankingStates, restoreRankingItem } from '../persistence/rankingRepository';
+import { countSavedRows, getSavedRows, restoreMessage, savedViews } from './SavedMoviesPage.utils';
 
 type SavedMoviesPageProps = {
   filter: FilmFilter;
 };
-
-const savedViews: { id: NotSeenDisposition; label: string }[] = [
-  { id: 'interested', label: 'Interested' },
-  { id: 'removed', label: 'Removed' },
-];
-
-function messageForRestore(label: string) {
-  return `${label} restored`;
-}
 
 export function SavedMoviesPage({ filter }: SavedMoviesPageProps) {
   const [activeView, setActiveView] = useState<NotSeenDisposition>('interested');
@@ -27,16 +20,13 @@ export function SavedMoviesPage({ filter }: SavedMoviesPageProps) {
   const filterItemIds = useMemo(() => items.map((item) => item.id), [items]);
   const filterItemIdSet = useMemo(() => new Set(filterItemIds), [filterItemIds]);
   const states = useLiveQuery(() => listRankingStates(GLOBAL_FILM_SCOPE_ID, allItemIds), [allItemIds], []);
-  const savedRows = states
-    .filter((state) => filterItemIdSet.has(state.itemId))
-    .filter((state) => state.notSeenDisposition === activeView)
-    .sort((first, second) => second.updatedAt - first.updatedAt || first.itemId.localeCompare(second.itemId));
+  const savedRows = getSavedRows(states, filterItemIdSet, activeView);
 
   async function handleRestore(itemId: string, itemLabel: string) {
     const result = await restoreRankingItem(GLOBAL_FILM_SCOPE_ID, itemId);
 
     if (result.applied) {
-      setMessage(messageForRestore(itemLabel));
+      setMessage(restoreMessage(itemLabel));
       return;
     }
 
@@ -63,9 +53,7 @@ export function SavedMoviesPage({ filter }: SavedMoviesPageProps) {
 
       <div className="saved-page__tabs" role="tablist" aria-label="Saved movie state">
         {savedViews.map((view) => {
-          const count = states.filter(
-            (state) => filterItemIdSet.has(state.itemId) && state.notSeenDisposition === view.id,
-          ).length;
+          const count = countSavedRows(states, filterItemIdSet, view.id);
 
           return (
             <button

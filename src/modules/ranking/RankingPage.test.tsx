@@ -6,6 +6,7 @@ import type { RankingItemState } from '../../domain/item';
 import { GLOBAL_FILM_SCOPE_ID, actionFilmFilter, filmItems, filmItemsByFilterId } from '../content/filmSource';
 import { db, resetDatabase } from '../persistence/db';
 import { RankingPage } from './RankingPage';
+import { SavedMoviesPage } from './SavedMoviesPage';
 
 function state(catalogId: string, itemId: string, rating: number, index: number): RankingItemState {
   return {
@@ -21,6 +22,15 @@ function state(catalogId: string, itemId: string, rating: number, index: number)
     notSeenDisposition: null,
     createdAt: index,
     updatedAt: index,
+  };
+}
+
+function savedState(itemId: string, index: number): RankingItemState {
+  return {
+    ...state(GLOBAL_FILM_SCOPE_ID, itemId, 1000, index),
+    active: false,
+    notSeen: true,
+    notSeenDisposition: 'interested',
   };
 }
 
@@ -98,5 +108,27 @@ describe('filtered ranking page', () => {
     );
 
     expect(screen.getByLabelText('Back to comparisons')).toHaveAttribute('href', '#/action');
+  });
+
+  it('shows only saved movies from the active filter', async () => {
+    const actionItems = filmItemsByFilterId.action;
+    const actionIds = new Set(actionItems.map((item) => item.id));
+    const actionItem = actionItems[0];
+    const outsideItem = filmItems.find((item) => !actionIds.has(item.id));
+
+    if (!outsideItem) {
+      throw new Error('Expected at least one item outside the action filter.');
+    }
+
+    await db.catalogRankingStates.bulkPut([savedState(actionItem.id, 2), savedState(outsideItem.id, 1)]);
+
+    render(
+      <HashRouter>
+        <SavedMoviesPage filter={actionFilmFilter} />
+      </HashRouter>,
+    );
+
+    expect(await screen.findByText(actionItem.label)).toBeInTheDocument();
+    expect(screen.queryByText(outsideItem.label)).not.toBeInTheDocument();
   });
 });

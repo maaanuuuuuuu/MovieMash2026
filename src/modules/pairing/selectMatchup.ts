@@ -61,6 +61,7 @@ function sampleCandidates(items: RankingItemState[], random: RandomSource) {
   return sample;
 }
 
+// Score lower when ratings are close, and higher when a pair was shown recently.
 function scoreCandidate(anchor: RankingItemState, candidate: RankingItemState, recentPairs?: Set<string>) {
   const ratingDistance = Math.abs(anchor.rating - candidate.rating);
   const freshnessBonus = Math.min(anchor.appearances, candidate.appearances) * 2;
@@ -69,6 +70,7 @@ function scoreCandidate(anchor: RankingItemState, candidate: RankingItemState, r
   return ratingDistance + freshnessBonus + recentPenalty;
 }
 
+// Sample a small group so matchup selection stays fast on larger catalogs.
 function pickBestPartner(anchor: RankingItemState, pool: RankingItemState[], random: RandomSource, recentPairs?: Set<string>) {
   const candidates = sampleCandidates(
     pool.filter((state) => state.itemId !== anchor.itemId),
@@ -146,6 +148,7 @@ export function buildMatchupQueue(
   const recentPairs = new Set<string>();
   const workingStates = states.map((state) => ({ ...state }));
 
+  // Simulate appearances while building the queue so preview pairs stay varied.
   while (queue.length < size) {
     const matchup = selectMatchup(workingStates, { random, recentPairs });
 

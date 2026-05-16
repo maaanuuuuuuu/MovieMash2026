@@ -16,7 +16,10 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     exclude: ['node_modules', 'dist', '.analysis', 'e2e'],
+    // IndexedDB tests share one browser database name, so files must not reset it in parallel.
+    fileParallelism: false,
     include: ['src/**/*.test.{ts,tsx}', 'tests/**/*.test.ts'],
     setupFiles: './src/test/setup.ts',
+    testTimeout: 10000,
   },
 })

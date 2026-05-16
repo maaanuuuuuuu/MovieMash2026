@@ -1,5 +1,6 @@
 import { ListOrdered } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import './FloatingRankingButton.css';
 
 type FloatingRankingButtonProps = {
   visible: boolean;

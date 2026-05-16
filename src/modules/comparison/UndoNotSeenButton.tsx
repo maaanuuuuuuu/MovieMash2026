@@ -1,4 +1,5 @@
 import { Undo2 } from 'lucide-react';
+import './UndoNotSeenButton.css';
 
 type UndoNotSeenButtonProps = {
   visible: boolean;

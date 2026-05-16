@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import './ComparisonScreen.css';
 import { ConfirmationBurst } from './ConfirmationBurst';
 import { CelebrationToast } from './CelebrationToast';
 import { FloatingRankingButton } from './FloatingRankingButton';

@@ -1,0 +1,125 @@
+.saved-page {
+  width: min(100%, 760px);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: 22px 14px 36px;
+}
+
+.saved-page__header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.saved-page h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  line-height: 1;
+}
+
+.saved-page__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.saved-page__tab {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.66);
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.saved-page__tab span {
+  min-width: 24px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #eef3ed;
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.saved-page__tab--active {
+  border-color: rgba(31, 122, 76, 0.36);
+  background: var(--green);
+  color: #fff;
+}
+
+.saved-page__empty {
+  margin: 28px 0 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+.saved-page__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.saved-page__row {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 8px 10px;
+  border: 1px solid rgba(23, 33, 27, 0.13);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(23, 33, 27, 0.08);
+}
+
+.saved-page__poster {
+  width: 46px;
+  height: 58px;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
+.saved-page__main {
+  min-width: 0;
+  display: grid;
+}
+
+.saved-page__title {
+  overflow: hidden;
+  color: var(--ink);
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved-page__meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.saved-page__restore {
+  min-height: 40px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 900;
+}

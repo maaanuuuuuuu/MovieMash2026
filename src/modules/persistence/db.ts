@@ -37,7 +37,7 @@ export type SnapshotComparisonRecord = Omit<ComparisonRecord, 'notSeenDispositio
 };
 
 export type DatabaseSnapshot = {
-  version: 2 | 3;
+  version: 2 | 3 | 4;
   exportedAt: number;
   rankingStates: SnapshotRankingItemState[];
   comparisons: SnapshotComparisonRecord[];
