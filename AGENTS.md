@@ -3,6 +3,7 @@
 This file provides frontend-specific guidance to Codex when working with this codebase.
 
 Use [PromptV1.md](C:/Users/USER/Desktop/devs/MovieMash2026/PromptV1.md) as the product source of truth for v1 behavior.
+Use [docs/functional-spec.md](C:/Users/USER/Desktop/devs/MovieMash2026/docs/functional-spec.md) as the current functional documentation for implemented behavior. Update it in the same change whenever a feature, route, data model, persistence rule, ranking rule, filter, or user-facing behavior changes.
 
 ## Common Commands
 

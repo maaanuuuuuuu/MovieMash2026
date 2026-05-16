@@ -1,7 +1,5 @@
-import { actionFilms } from '../../data/actionFilms';
-import { comedyFilms } from '../../data/comedyFilms';
 import { frozenFilms } from '../../data/films';
-import type { Film, FilmItem } from './types';
+import type { Film, FilmGenre, FilmItem } from './types';
 
 const basePath = import.meta.env.BASE_URL;
 
@@ -28,14 +26,17 @@ function toFilmItems(films: Film[]): FilmItem[] {
     imageSrc: `${basePath}${film.posterPath}`,
     posterPath: film.posterPath,
     year: film.year,
+    genres: film.genres,
   }));
 }
 
-function uniqueFilms(films: Film[]) {
-  return [...new Map(films.map((film) => [film.id, film])).values()];
+function filmsWithGenre(genre: FilmGenre) {
+  return frozenFilms.filter((film) => film.genres.includes(genre));
 }
 
-export const allFilms = uniqueFilms([...frozenFilms, ...actionFilms, ...comedyFilms]);
+export const allFilms = frozenFilms;
+export const actionFilms = filmsWithGenre('action');
+export const comedyFilms = filmsWithGenre('comedy');
 
 export const allFilmFilter: FilmFilter = {
   id: 'all',

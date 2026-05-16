@@ -18,14 +18,14 @@ test('genre ranking filters render scoped lists', async ({ page }) => {
   await page.goto('/#/action/ranking');
   await expect(page.getByRole('heading', { name: 'Your ranking' })).toBeVisible();
   await expect(page.getByText('Action filter')).toBeVisible();
-  await expect(page.getByRole('listitem')).toHaveCount(41);
+  await expect(page.getByRole('listitem')).toHaveCount(119);
   await page.getByLabel('Back to comparisons').click();
   await expect(page.getByRole('heading', { name: 'Action movies' })).toBeVisible();
 
   await page.goto('/#/comedy/ranking');
   await expect(page.getByRole('heading', { name: 'Your ranking' })).toBeVisible();
   await expect(page.getByText('Comedy filter')).toBeVisible();
-  await expect(page.getByRole('listitem')).toHaveCount(78);
+  await expect(page.getByRole('listitem')).toHaveCount(98);
   await page.getByLabel('Back to comparisons').click();
   await expect(page.getByRole('heading', { name: 'Comedy movies' })).toBeVisible();
 });

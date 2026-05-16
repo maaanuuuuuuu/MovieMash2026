@@ -2,6 +2,8 @@
 
 Mobile-first pairwise ranking app for fast film taste decisions.
 
+Functional documentation for the current app lives in [`docs/functional-spec.md`](docs/functional-spec.md).
+
 ## Commands
 
 - `npm install`: install dependencies.
@@ -21,7 +23,7 @@ Mobile-first pairwise ranking app for fast film taste decisions.
 - Adaptive Elo-style ranking and short matchup queue.
 - IndexedDB persistence through Dexie.
 - Separate ranking page with `new`, `settling`, and `stable` tiers.
-- Local frozen film catalog with 100 offline TMDb poster assets.
+- Global frozen film catalog with genre metadata and offline poster assets.
 - Production service worker for app shell, dataset, and poster caching.
 
 Movie metadata and poster assets are sourced from TMDb during development. This product uses TMDb data but is not endorsed or certified by TMDb.

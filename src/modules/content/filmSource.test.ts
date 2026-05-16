@@ -22,6 +22,16 @@ describe('film filter sources', () => {
     }
   });
 
+  it('builds genre filters from film metadata', () => {
+    expect(filmItemsByFilterId.action.every((item) => item.genres.includes('action'))).toBe(true);
+    expect(filmItemsByFilterId.comedy.every((item) => item.genres.includes('comedy'))).toBe(true);
+    expect(filmItemsByFilterId.comedy.find((item) => item.id === 'monsters-inc')?.genres).toEqual([
+      'animation',
+      'comedy',
+      'family',
+    ]);
+  });
+
   it('includes every film poster in the offline asset list', () => {
     const offlineUrls = new Set(offlineFilmAssetUrls);
 
