@@ -90,7 +90,10 @@ Actions utilisateur :
 
 - Cliquer une carte choisit ce film comme gagnant.
 - Cliquer le bouton central enregistre une égalité.
-- Glisser une carte assez loin la marque comme non vue.
+- Glisser depuis la zone centrale du poster démarre un retrait. Le seuil de retrait est volontairement plus haut qu'un petit mouvement accidentel.
+- Après un retrait, un bouton d'annulation apparaît en bas à gauche pendant 10 secondes.
+- Cliquer ce bouton annule le retrait et revient au duel qui vient d'être swipé.
+- Si l'utilisateur joue le duel suivant ou attend 10 secondes, le bouton disparaît et le retrait est enregistré.
 - Après chaque action, la file de duels avance immédiatement.
 
 Le bouton flottant vers le ranking est secondaire. Il se cache pendant une interaction et réapparaît après une période d'inactivité.
@@ -101,7 +104,7 @@ La file spéculative contient au maximum 4 duels. Elle est recalculée après le
 
 L'interface est pensée mobile portrait en premier.
 
-Sur l'écran de match, les cartes prennent l'espace vertical disponible dans le viewport. Sur mobile et tablette étroite, une zone basse est réservée pour que le bouton flottant vers le ranking ne masque pas le titre ou l'année des films.
+Sur l'écran de match, les cartes prennent l'espace vertical disponible dans le viewport. Sur téléphone, elles sont dimensionnées autour du contenu, avec des posters affichés dans un cadre d'affiche `2:3` en image complète pour éviter les crops latéraux. Sur mobile et tablette étroite, une zone basse est réservée pour que le bouton flottant vers le ranking ne masque pas le titre ou l'année des films.
 
 Les contrôles tactiles principaux doivent rester confortables. Les onglets de filtre et les boutons de modale ont une hauteur minimale adaptée au toucher.
 
@@ -109,7 +112,7 @@ Dans la page de classement, les titres longs peuvent prendre deux lignes sur mob
 
 ## Films non vus
 
-Marquer un film comme non vu le désactive dans le ranking global.
+Marquer un film comme non vu le désactive dans le ranking global seulement après la fenêtre d'annulation de 10 secondes.
 
 La protection des 10 derniers films est évaluée dans le filtre courant :
 
@@ -117,7 +120,7 @@ La protection des 10 derniers films est évaluée dans le filtre courant :
 - dans `Action`, il faut garder au moins 10 films `action` actifs ;
 - dans `Comedy`, il faut garder au moins 10 films `comedy` actifs.
 
-Même si cette protection est évaluée dans le filtre courant, le retrait appliqué est global. Un film marqué non vu dans `Action` disparaît aussi de `All` et de toute autre vue où il était présent.
+Même si cette protection est évaluée dans le filtre courant, le retrait appliqué est global après validation. Un film marqué non vu dans `Action` disparaît aussi de `All` et de toute autre vue où il était présent.
 
 ## Page de classement
 

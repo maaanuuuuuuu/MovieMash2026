@@ -7,8 +7,24 @@ type DragState = {
   returning: boolean;
 };
 
-const DISMISS_DISTANCE = 105;
+const DISMISS_DISTANCE = 132;
 const CLICK_CANCEL_DISTANCE = 8;
+const DRAG_START_ZONE_INSET_RATIO = 0.18;
+
+function startsInsideCenterZone(event: PointerEvent<HTMLElement>) {
+  const rect = event.currentTarget.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  const horizontalInset = rect.width * DRAG_START_ZONE_INSET_RATIO;
+  const verticalInset = rect.height * DRAG_START_ZONE_INSET_RATIO;
+
+  return (
+    x >= horizontalInset &&
+    x <= rect.width - horizontalInset &&
+    y >= verticalInset &&
+    y <= rect.height - verticalInset
+  );
+}
 
 export function useDismissDrag(onDismiss: () => void, onInteractionChange: (active: boolean) => void) {
   const originRef = useRef({ x: 0, y: 0 });
@@ -18,6 +34,10 @@ export function useDismissDrag(onDismiss: () => void, onInteractionChange: (acti
   const dismissReady = distance > DISMISS_DISTANCE;
 
   function handlePointerDown(event: PointerEvent<HTMLElement>) {
+    if (!startsInsideCenterZone(event)) {
+      return;
+    }
+
     originRef.current = { x: event.clientX, y: event.clientY };
     movedRef.current = false;
     event.currentTarget.setPointerCapture?.(event.pointerId);

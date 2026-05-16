@@ -22,8 +22,15 @@ export type FlowFeedback = {
   label: string;
 };
 
+type PendingNotSeen = {
+  id: number;
+  matchup: Matchup;
+  outcome: Extract<ComparisonOutcome, { type: 'notSeen' }>;
+};
+
 const CELEBRATION_META_KEY = 'celebrationShown';
 const MATCHUP_QUEUE_SIZE = 4;
+const NOT_SEEN_UNDO_WINDOW_MS = 10000;
 
 function otherItemId(matchup: Matchup, itemId: ItemId) {
   return matchup.leftId === itemId ? matchup.rightId : matchup.leftId;
@@ -47,6 +54,9 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
   const [feedback, setFeedback] = useState<FlowFeedback | undefined>();
   const [celebrationVisible, setCelebrationVisible] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
+  const [pendingNotSeen, setPendingNotSeenState] = useState<PendingNotSeen | undefined>();
+  const pendingNotSeenRef = useRef<PendingNotSeen | undefined>(undefined);
+  const pendingNotSeenTimeoutRef = useRef<number | undefined>(undefined);
 
   const activeStates = states.filter((state) => state.active);
   const currentMatchup = queue[0];
@@ -101,6 +111,15 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     };
   }, [states]);
 
+  // Clear the pending undo timer if the comparison flow unmounts.
+  useEffect(() => {
+    return () => {
+      if (pendingNotSeenTimeoutRef.current !== undefined) {
+        window.clearTimeout(pendingNotSeenTimeoutRef.current);
+      }
+    };
+  }, []);
+
   async function maybeShowCelebration(nextStates: RankingItemState[]) {
     if (!hasReachedCelebrationThreshold(nextStates)) {
       return;
@@ -118,7 +137,54 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     setFeedback({ id: Date.now(), kind, label });
   }
 
+  function clearPendingNotSeenTimeout() {
+    if (pendingNotSeenTimeoutRef.current !== undefined) {
+      window.clearTimeout(pendingNotSeenTimeoutRef.current);
+      pendingNotSeenTimeoutRef.current = undefined;
+    }
+  }
+
+  function setPendingNotSeen(nextPending: PendingNotSeen | undefined) {
+    pendingNotSeenRef.current = nextPending;
+    setPendingNotSeenState(nextPending);
+  }
+
+  async function flushPendingNotSeen() {
+    const pending = pendingNotSeenRef.current;
+
+    if (!pending) {
+      return;
+    }
+
+    clearPendingNotSeenTimeout();
+    setPendingNotSeen(undefined);
+    const result = await persistOutcome(rankingScopeId, pending.outcome, itemIds);
+    console.log(
+      result.applied
+        ? outcomeLogMessage(pending.outcome)
+        : `${outcomeLogMessage(pending.outcome)} blocked: ${result.reason}`,
+    );
+
+    if (result.applied) {
+      await maybeShowCelebration(result.states);
+      return;
+    }
+
+    if (result.reason === 'minimumActiveItems') {
+      showFeedback('blocked', 'Last 10 stay');
+    }
+  }
+
+  function schedulePendingNotSeen(pending: PendingNotSeen) {
+    setPendingNotSeen(pending);
+    clearPendingNotSeenTimeout();
+    pendingNotSeenTimeoutRef.current = window.setTimeout(() => {
+      void flushPendingNotSeen();
+    }, NOT_SEEN_UNDO_WINDOW_MS);
+  }
+
   async function commitOutcome(outcome: ComparisonOutcome, kind: FeedbackKind, label: string) {
+    await flushPendingNotSeen();
     const nextQueue = queueRef.current.slice(1);
     queueRef.current = nextQueue;
     setQueue(nextQueue);
@@ -184,11 +250,49 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
       return;
     }
 
-    void commitOutcome(
-      { type: 'notSeen', itemId, otherId: otherItemId(currentMatchup, itemId) },
-      'notSeen',
-      'Gone',
-    );
+    void flushPendingNotSeen().then(() => {
+      const pendingMatchup = currentMatchup;
+      const remainingQueue = queueRef.current
+        .slice(1)
+        .filter((matchup) => matchup.leftId !== itemId && matchup.rightId !== itemId);
+      const refillQueue = buildMatchupQueue(
+        activeStates.filter((state) => state.itemId !== itemId),
+        MATCHUP_QUEUE_SIZE,
+      ).filter(
+        (matchup) =>
+          matchup.leftId !== itemId &&
+          matchup.rightId !== itemId &&
+          !remainingQueue.some((queuedMatchup) => matchupKey(queuedMatchup) === matchupKey(matchup)),
+      );
+      const nextQueue = [...remainingQueue, ...refillQueue].slice(0, MATCHUP_QUEUE_SIZE);
+      const pending: PendingNotSeen = {
+        id: Date.now(),
+        matchup: pendingMatchup,
+        outcome: { type: 'notSeen', itemId, otherId: otherItemId(pendingMatchup, itemId) },
+      };
+
+      queueRef.current = nextQueue;
+      setQueue(nextQueue);
+      schedulePendingNotSeen(pending);
+      showFeedback('notSeen', 'Gone');
+    });
+  }
+
+  function undoNotSeen() {
+    const pending = pendingNotSeenRef.current;
+
+    if (!pending) {
+      return;
+    }
+
+    clearPendingNotSeenTimeout();
+    setPendingNotSeen(undefined);
+    const restoredQueue = [
+      pending.matchup,
+      ...queueRef.current.filter((matchup) => matchupKey(matchup) !== matchupKey(pending.matchup)),
+    ].slice(0, MATCHUP_QUEUE_SIZE);
+    queueRef.current = restoredQueue;
+    setQueue(restoredQueue);
   }
 
   return {
@@ -200,6 +304,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     activeCount: activeStates.length,
     comparisonCount: comparisons.length,
     feedback,
+    pendingNotSeen,
     celebrationVisible,
     isInteracting,
     canMarkNotSeen,
@@ -207,6 +312,7 @@ export function useComparisonFlow(rankingScopeId: string, items: FilmItem[]) {
     chooseRight,
     tie,
     markNotSeen,
+    undoNotSeen,
     setCelebrationVisible,
     setIsInteracting,
   };

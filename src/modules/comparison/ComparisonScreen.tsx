@@ -4,6 +4,7 @@ import { CelebrationToast } from './CelebrationToast';
 import { FloatingRankingButton } from './FloatingRankingButton';
 import { ItemCard } from './ItemCard';
 import { TieButton } from './TieButton';
+import { UndoNotSeenButton } from './UndoNotSeenButton';
 import type { ComparisonFlow } from './useComparisonFlow';
 import { useIdleVisibility } from './useIdleVisibility';
 import { filmFilters, type FilmFilter } from '../content/filmSource';
@@ -74,6 +75,7 @@ export function ComparisonScreen({ flow, filter }: ComparisonScreenProps) {
 
       <ConfirmationBurst feedback={flow.feedback} />
       <CelebrationToast visible={flow.celebrationVisible} onClose={() => flow.setCelebrationVisible(false)} />
+      <UndoNotSeenButton visible={flow.pendingNotSeen !== undefined} onUndo={flow.undoNotSeen} />
       <FloatingRankingButton visible={rankingButtonVisible} to={filter.rankingPath} />
     </main>
   );

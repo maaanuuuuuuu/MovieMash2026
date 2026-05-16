@@ -51,9 +51,8 @@ export function ItemCard({
         style={drag.style}
         onClick={handleClick}
         aria-label={`Choose ${item.label}`}
-        {...drag.pointerHandlers}
       >
-        <span className="item-card__poster-wrap">
+        <span className="item-card__poster-wrap" {...drag.pointerHandlers}>
           <img className="item-card__poster" src={item.imageSrc} alt="" draggable="false" />
         </span>
         <span className="item-card__text">
