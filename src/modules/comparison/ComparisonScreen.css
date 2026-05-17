@@ -39,15 +39,19 @@
   justify-content: center;
   gap: 8px;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.94rem;
+  font-weight: 800;
 }
 
 .comparison-status span {
   min-width: 78px;
-  padding: 5px 9px;
+  min-height: 38px;
+  padding: 6px 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.58);
+  display: grid;
+  place-items: center;
   text-align: center;
 }
 
