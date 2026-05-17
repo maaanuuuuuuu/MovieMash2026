@@ -94,7 +94,7 @@ describe('main app flow', () => {
     await user.click(screen.getByRole('link', { name: 'Action' }));
 
     expect(await screen.findByRole('heading', { name: 'Action movies' })).toBeInTheDocument();
-    expect(screen.getByText(`${filmItemsByFilterId.action.length} total`)).toBeInTheDocument();
+    expect(await screen.findByText(`${filmItemsByFilterId.action.length} total`)).toBeInTheDocument();
 
     const firstChoices = (await screen.findAllByRole('button', { name: /^Choose / })).map((choice) =>
       choice.getAttribute('aria-label'),
@@ -118,19 +118,28 @@ describe('main app flow', () => {
     );
   });
 
-  it('opens the comedy ranking filter directly and returns to comedy comparisons', async () => {
+  it('opens the science fiction ranking filter directly and returns to science fiction comparisons', async () => {
     const user = userEvent.setup();
-    window.location.hash = '#/comedy/ranking';
+    window.location.hash = '#/science-fiction/ranking';
     render(<App />);
 
     expect(await screen.findByRole('heading', { name: 'Your ranking' })).toBeInTheDocument();
-    expect(screen.getByText('Comedy filter')).toBeInTheDocument();
-    expect(screen.getAllByRole('listitem')).toHaveLength(filmItemsByFilterId.comedy.length);
+    expect(screen.getByText('Science Fiction filter')).toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(filmItemsByFilterId['science-fiction'].length);
 
     await user.click(screen.getByLabelText('Back to comparisons'));
 
-    expect(await screen.findByRole('heading', { name: 'Comedy movies' })).toBeInTheDocument();
-    expect(screen.getByText(`${filmItemsByFilterId.comedy.length} total`)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Science Fiction movies' })).toBeInTheDocument();
+    expect(await screen.findByText(`${filmItemsByFilterId['science-fiction'].length} total`)).toBeInTheDocument();
+  });
+
+  it('opens the science fiction saved filter directly', async () => {
+    window.location.hash = '#/science-fiction/saved';
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'Saved movies' })).toBeInTheDocument();
+    expect(screen.getByText('Science Fiction filter')).toBeInTheDocument();
+    expect(screen.getByLabelText('Back to ranking')).toHaveAttribute('href', '#/science-fiction/ranking');
   });
 
   it('shows a stable top milestone once for the current filter', async () => {

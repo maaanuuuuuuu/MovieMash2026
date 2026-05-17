@@ -1,25 +1,33 @@
 .film-filter-switch {
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
   margin: 0 auto;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
   gap: 6px;
   padding: 5px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.62);
+  scrollbar-width: none;
+}
+
+.film-filter-switch::-webkit-scrollbar {
+  display: none;
 }
 
 .film-filter-switch__link {
-  min-width: 76px;
+  flex: 0 0 auto;
+  min-width: 72px;
   min-height: 44px;
-  padding: 0 12px;
+  padding: 0 10px;
   border-radius: 999px;
   color: var(--muted);
   display: grid;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 900;
   place-items: center;
   text-align: center;
@@ -43,7 +51,7 @@
 
 @media (max-width: 390px) {
   .film-filter-switch__link {
-    min-width: 68px;
-    padding-inline: 9px;
+    min-width: 64px;
+    padding-inline: 8px;
   }
 }

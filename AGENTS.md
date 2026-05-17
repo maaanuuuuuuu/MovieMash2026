@@ -58,6 +58,7 @@ Keep core ranking, pairing, and persistence code generic. Film-specific fields s
 - Ranking access must stay visually secondary through a floating icon-only button.
 - Hide the ranking button while the user is actively interacting. Fade it back in after 5 seconds of inactivity.
 - Use local frozen data and local poster assets in production. Do not add a production runtime dependency on TMDb or any other external API.
+- When changing `src/data/films.ts`, film genres, or exposed genre filters, verify that the exposed genre filters, excluding `All`, cover every film at least once. If coverage fails, propose and document a revised genre filter set before finishing the change.
 - Store user state in IndexedDB through Dexie. Do not add accounts, sync, backend storage, or onboarding for v1.
 - Add offline support for the app shell, frozen dataset, and poster assets.
 - Do not generate exhaustive item pairs. Use the adaptive pairing strategy from `PromptV1.md`.

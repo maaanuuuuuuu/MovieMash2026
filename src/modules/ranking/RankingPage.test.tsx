@@ -122,7 +122,11 @@ describe('filtered ranking page', () => {
     expect(within(filterNav).getByRole('link', { name: 'All' })).toHaveAttribute('href', '#/ranking');
     expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveAttribute('href', '#/action/ranking');
     expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveClass('film-filter-switch__link--active');
-    expect(within(filterNav).getByRole('link', { name: 'Comedy' })).toHaveAttribute('href', '#/comedy/ranking');
+    expect(within(filterNav).getByRole('link', { name: 'Science Fiction' })).toHaveAttribute(
+      'href',
+      '#/science-fiction/ranking',
+    );
+    expect(within(filterNav).getByRole('link', { name: 'Western' })).toHaveAttribute('href', '#/western/ranking');
   });
 
   it('does not show interested movies above the ranking list', async () => {
@@ -176,6 +180,10 @@ describe('filtered ranking page', () => {
     expect(within(filterNav).getByRole('link', { name: 'All' })).toHaveAttribute('href', '#/saved');
     expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveAttribute('href', '#/action/saved');
     expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveClass('film-filter-switch__link--active');
-    expect(within(filterNav).getByRole('link', { name: 'Comedy' })).toHaveAttribute('href', '#/comedy/saved');
+    expect(within(filterNav).getByRole('link', { name: 'Science Fiction' })).toHaveAttribute(
+      'href',
+      '#/science-fiction/saved',
+    );
+    expect(within(filterNav).getByRole('link', { name: 'Western' })).toHaveAttribute('href', '#/western/saved');
   });
 });

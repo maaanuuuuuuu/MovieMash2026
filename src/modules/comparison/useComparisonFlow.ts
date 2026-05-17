@@ -24,7 +24,7 @@ export function useComparisonFlow(rankingScopeId: string, milestoneScopeId: stri
   const [celebrationMilestone, setCelebrationMilestone] = useState<StableTopMilestone | undefined>();
   const [isInteracting, setIsInteracting] = useState(false);
   const activeStates = useMemo(() => states.filter((state) => state.active), [states]);
-  const { queue, replaceQueue, advanceQueue, restoreMatchup } = useMatchupQueue(activeStates);
+  const { queue, replaceQueue, advanceQueue, restoreMatchup } = useMatchupQueue(activeStates, milestoneScopeId);
   const {
     pendingNotSeen,
     pendingNotSeenRef,

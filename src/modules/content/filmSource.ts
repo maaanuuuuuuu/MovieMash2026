@@ -5,7 +5,21 @@ const basePath = import.meta.env.BASE_URL;
 
 export const GLOBAL_FILM_SCOPE_ID = 'default';
 
-export type FilmFilterId = 'all' | 'action' | 'comedy';
+export const COVERING_FILM_FILTER_GENRES = [
+  'action',
+  'adventure',
+  'animation',
+  'comedy',
+  'drama',
+  'horror',
+  'science-fiction',
+  'thriller',
+  'war',
+  'western',
+] as const satisfies readonly FilmGenre[];
+
+export type CoveringFilmFilterGenre = (typeof COVERING_FILM_FILTER_GENRES)[number];
+export type FilmFilterId = 'all' | CoveringFilmFilterGenre;
 
 export type FilmFilter = {
   id: FilmFilterId;
@@ -35,9 +49,39 @@ function filmsWithGenre(genre: FilmGenre) {
   return frozenFilms.filter((film) => film.genres.includes(genre));
 }
 
+function getGenreLabel(genre: CoveringFilmFilterGenre) {
+  if (genre === 'science-fiction') {
+    return 'Science Fiction';
+  }
+
+  return genre
+    .split('-')
+    .map((word) => `${word[0]?.toUpperCase() ?? ''}${word.slice(1)}`)
+    .join(' ');
+}
+
+function createGenreFilter(genre: CoveringFilmFilterGenre): FilmFilter {
+  const label = getGenreLabel(genre);
+  const comparisonPath = `/${genre}`;
+
+  return {
+    id: genre,
+    title: `${label} movies`,
+    shortLabel: label,
+    eyebrow: `${label} filter`,
+    comparisonPath,
+    rankingPath: `${comparisonPath}/ranking`,
+    savedPath: `${comparisonPath}/saved`,
+    films: filmsWithGenre(genre),
+  };
+}
+
 export const allFilms = frozenFilms;
-export const actionFilms = filmsWithGenre('action');
-export const comedyFilms = filmsWithGenre('comedy');
+export const genreFilmsByFilterId = Object.fromEntries(
+  COVERING_FILM_FILTER_GENRES.map((genre) => [genre, filmsWithGenre(genre)]),
+) as Record<CoveringFilmFilterGenre, Film[]>;
+export const actionFilms = genreFilmsByFilterId.action;
+export const comedyFilms = genreFilmsByFilterId.comedy;
 
 export const allFilmFilter: FilmFilter = {
   id: 'all',
@@ -50,39 +94,33 @@ export const allFilmFilter: FilmFilter = {
   films: allFilms,
 };
 
-export const actionFilmFilter: FilmFilter = {
-  id: 'action',
-  title: 'Action movies',
-  shortLabel: 'Action',
-  eyebrow: 'Action filter',
-  comparisonPath: '/action',
-  rankingPath: '/action/ranking',
-  savedPath: '/action/saved',
-  films: actionFilms,
-};
+export const genreFilmFilters = COVERING_FILM_FILTER_GENRES.map(createGenreFilter);
 
-export const comedyFilmFilter: FilmFilter = {
-  id: 'comedy',
-  title: 'Comedy movies',
-  shortLabel: 'Comedy',
-  eyebrow: 'Comedy filter',
-  comparisonPath: '/comedy',
-  rankingPath: '/comedy/ranking',
-  savedPath: '/comedy/saved',
-  films: comedyFilms,
-};
+function getGenreFilmFilter(genre: CoveringFilmFilterGenre) {
+  const filter = genreFilmFilters.find((candidate) => candidate.id === genre);
 
-export const filmFilters = [allFilmFilter, actionFilmFilter, comedyFilmFilter] as const;
+  if (!filter) {
+    throw new Error(`Missing film filter for genre ${genre}`);
+  }
+
+  return filter;
+}
+
+export const actionFilmFilter = getGenreFilmFilter('action');
+export const comedyFilmFilter = getGenreFilmFilter('comedy');
+export const filmFilters = [allFilmFilter, ...genreFilmFilters];
 
 export const filmItems = toFilmItems(allFilms);
-export const actionFilmItems = toFilmItems(actionFilms);
-export const comedyFilmItems = toFilmItems(comedyFilms);
 export const allFilmItems = filmItems;
+export const genreFilmItemsByFilterId = Object.fromEntries(
+  COVERING_FILM_FILTER_GENRES.map((genre) => [genre, toFilmItems(genreFilmsByFilterId[genre])]),
+) as Record<CoveringFilmFilterGenre, FilmItem[]>;
+export const actionFilmItems = genreFilmItemsByFilterId.action;
+export const comedyFilmItems = genreFilmItemsByFilterId.comedy;
 
 export const filmItemsByFilterId = {
   all: filmItems,
-  action: actionFilmItems,
-  comedy: comedyFilmItems,
+  ...genreFilmItemsByFilterId,
 } satisfies Record<FilmFilterId, FilmItem[]>;
 
 export const filmItemById = new Map(allFilmItems.map((item) => [item.id, item]));
