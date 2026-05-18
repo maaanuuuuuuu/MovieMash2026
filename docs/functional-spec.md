@@ -31,9 +31,9 @@ L'application utilise un `HashRouter`, ce qui donne des routes avec `#` sur GitH
 
 Les routes de genre exposées sont `action`, `adventure`, `animation`, `comedy`, `drama`, `horror`, `science-fiction`, `thriller`, `war`, et `western`.
 
-Les onglets de filtre ne changent pas de base de données. Ils changent seulement le filtre de vue et de sélection des duels.
+Le sélecteur de filtre ne change pas de base de données. Il change seulement le filtre de vue et de sélection des duels.
 
-La navigation de filtre est visible sur l'écran de match, la page de classement et la page de restauration. Changer de filtre depuis une liste garde le même type de vue.
+Le filtre actif est visible sur l'écran de match, la page de classement et la page de restauration. Un bouton ouvre un panneau avec `All` et les 10 genres exposés. Chaque option affiche aussi le nombre de films du filtre. Changer de filtre depuis une liste garde le même type de vue.
 
 ## Catalogue de films
 
@@ -90,7 +90,7 @@ L'historique d'un film dans la liste lit aussi l'historique global. Un film cons
 
 L'écran de match affiche :
 
-- la navigation de filtre `All` et les 10 genres exposés ;
+- le sélecteur de filtre avec `All` et les 10 genres exposés ;
 - le contexte du filtre courant ;
 - deux cartes de films ;
 - une action d'égalité ;
@@ -125,7 +125,7 @@ L'interface est pensée mobile portrait en premier.
 
 Sur l'écran de match, les cartes prennent l'espace vertical disponible dans le viewport. Sur téléphone, elles sont dimensionnées autour du contenu, avec des posters affichés dans un cadre d'affiche `2:3` en image complète pour éviter les crops latéraux. Sur mobile et tablette étroite, une zone basse est réservée pour que le bouton flottant vers le ranking ne masque pas le titre ou l'année des films.
 
-Les contrôles tactiles principaux doivent rester confortables. Les onglets de filtre et les boutons de modale ont une hauteur minimale adaptée au toucher.
+Les contrôles tactiles principaux doivent rester confortables. Le bouton de filtre, les options du panneau de filtre et les boutons de modale ont une hauteur minimale adaptée au toucher.
 
 Dans la page de classement, les titres longs peuvent prendre deux lignes sur mobile. Sur tablette et desktop, ils restent sur une ligne avec troncature si nécessaire.
 
@@ -147,7 +147,7 @@ Les deux états désactivent le film dans le ranking global. Même si la protect
 
 ## Page de classement
 
-La page de classement affiche aussi la navigation de filtre `All` et les 10 genres exposés.
+La page de classement affiche aussi le sélecteur de filtre `All` et les 10 genres exposés.
 
 La page de classement trie les films actifs par score décroissant.
 
@@ -168,7 +168,7 @@ Glisser une ligne de ranking vers la gauche marque le film `interested`. Glisser
 
 ## Page de restauration
 
-La page de restauration affiche aussi la navigation de filtre `All` et les 10 genres exposés.
+La page de restauration affiche aussi le sélecteur de filtre `All` et les 10 genres exposés.
 
 La page `saved` affiche deux vues :
 

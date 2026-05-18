@@ -17,6 +17,11 @@ async function seedStableTop(filterId: FilmFilterId, count: number) {
   await db.catalogRankingStates.bulkPut(states);
 }
 
+async function chooseGenreFilter(user: ReturnType<typeof userEvent.setup>, label: string) {
+  await user.click(screen.getByRole('button', { name: /Change genre filter/ }));
+  await user.click(screen.getByRole('link', { name: new RegExp(`^${label}\\b`) }));
+}
+
 describe('main app flow', () => {
   beforeEach(async () => {
     window.location.hash = '';
@@ -91,7 +96,7 @@ describe('main app flow', () => {
     render(<App />);
 
     await screen.findAllByRole('button', { name: /^Choose / });
-    await user.click(screen.getByRole('link', { name: 'Action' }));
+    await chooseGenreFilter(user, 'Action');
 
     expect(await screen.findByRole('heading', { name: 'Action movies' })).toBeInTheDocument();
     expect(await screen.findByText(`${filmItemsByFilterId.action.length} total`)).toBeInTheDocument();

@@ -1,58 +1,252 @@
 .film-filter-switch {
-  width: 100%;
+  width: min(100%, 520px);
   max-width: 100%;
   margin: 0 auto;
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  gap: 7px;
-  padding: 6px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.62);
-  scrollbar-width: none;
 }
 
-.film-filter-switch::-webkit-scrollbar {
-  display: none;
-}
-
-.film-filter-switch__link {
-  flex: 0 0 auto;
-  min-width: 84px;
-  min-height: 50px;
-  padding: 0 13px;
+.film-filter-switch__trigger {
+  width: 100%;
+  min-height: 52px;
+  padding: 6px 8px 6px 12px;
+  border: 1px solid rgba(23, 33, 27, 0.14);
   border-radius: 999px;
-  color: var(--muted);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 10px 34px rgba(23, 33, 27, 0.1);
+  color: var(--ink);
+  cursor: pointer;
   display: grid;
-  font-size: 0.94rem;
-  font-weight: 900;
-  line-height: 1.05;
-  place-items: center;
-  text-align: center;
-  text-decoration: none;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 9px;
+  text-align: left;
   transition:
-    background var(--fast),
-    color var(--fast),
+    border-color var(--fast),
+    box-shadow var(--fast),
     transform var(--fast);
 }
 
-.film-filter-switch__link:hover {
-  color: var(--ink);
+.film-filter-switch__trigger:hover {
+  border-color: rgba(31, 122, 76, 0.34);
+  box-shadow: 0 12px 36px rgba(23, 33, 27, 0.14);
   transform: translateY(-1px);
 }
 
-.film-filter-switch__link--active {
+.film-filter-switch__trigger-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.film-filter-switch__current {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.film-filter-switch__current-label {
+  color: var(--green);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.film-filter-switch__current-value {
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.film-filter-switch__current-count {
+  min-height: 30px;
+  padding: 0 9px;
+  border: 1px solid rgba(23, 33, 27, 0.1);
+  border-radius: 999px;
+  background: #eef4ed;
+  color: var(--muted);
+  display: grid;
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1;
+  place-items: center;
+  white-space: nowrap;
+}
+
+.film-filter-switch__chevron {
+  color: var(--muted);
+  transition: transform var(--fast);
+}
+
+.film-filter-switch__chevron--open {
+  transform: rotate(180deg);
+}
+
+.film-filter-switch__backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(23, 33, 27, 0.24);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+}
+
+.film-filter-switch__panel {
+  position: fixed;
+  z-index: 90;
+  left: 50%;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  width: min(calc(100vw - 20px), 520px);
+  max-height: min(72svh, 560px);
+  padding: 12px;
+  border: 1px solid rgba(23, 33, 27, 0.13);
+  border-radius: 12px;
+  background: rgba(250, 252, 248, 0.96);
+  box-shadow: 0 22px 70px rgba(23, 33, 27, 0.26);
+  overflow-y: auto;
+  transform: translateX(-50%);
+  animation: filter-panel-in var(--spring);
+}
+
+.film-filter-switch__panel-header {
+  min-height: 38px;
+  padding: 0 4px 8px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.film-filter-switch__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.film-filter-switch__option {
+  min-width: 0;
+  min-height: 58px;
+  padding: 9px 10px;
+  border: 1px solid rgba(23, 33, 27, 0.12);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-decoration: none;
+  transition:
+    border-color var(--fast),
+    box-shadow var(--fast),
+    transform var(--fast);
+}
+
+.film-filter-switch__option:hover {
+  border-color: rgba(31, 122, 76, 0.34);
+  box-shadow: 0 8px 22px rgba(23, 33, 27, 0.11);
+  transform: translateY(-1px);
+}
+
+.film-filter-switch__option--active {
+  border-color: var(--ink);
   background: var(--ink);
   color: #fff;
 }
 
+.film-filter-switch__option-main {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.film-filter-switch__option-label {
+  overflow-wrap: anywhere;
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.film-filter-switch__option-count {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.film-filter-switch__option--active .film-filter-switch__option-count {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+@keyframes filter-panel-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (min-width: 680px) {
+  .film-filter-switch__panel {
+    top: 82px;
+    bottom: auto;
+    width: min(calc(100vw - 56px), 620px);
+  }
+
+  .film-filter-switch__options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .film-filter-switch__panel {
+    width: min(calc(100vw - 72px), 760px);
+  }
+
+  .film-filter-switch__options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 390px) {
-  .film-filter-switch__link {
-    min-width: 78px;
-    padding-inline: 10px;
-    font-size: 0.92rem;
+  .film-filter-switch__trigger {
+    gap: 7px;
+    padding-left: 8px;
+  }
+
+  .film-filter-switch__trigger-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .film-filter-switch__current-value {
+    font-size: 0.94rem;
+  }
+
+  .film-filter-switch__current-count {
+    padding-inline: 8px;
+    font-size: 0.71rem;
+  }
+}
+
+@media (max-width: 340px) {
+  .film-filter-switch__current-count {
+    display: none;
   }
 }

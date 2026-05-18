@@ -34,6 +34,14 @@ function savedState(itemId: string, index: number): RankingItemState {
   };
 }
 
+async function openFilterMenu(user: ReturnType<typeof userEvent.setup>) {
+  const filterNav = screen.getByRole('navigation', { name: 'Genre filter' });
+
+  await user.click(within(filterNav).getByRole('button', { name: /Change genre filter/ }));
+
+  return screen.getByRole('group', { name: 'Choose a genre filter' });
+}
+
 describe('filtered ranking page', () => {
   beforeEach(async () => {
     await resetDatabase();
@@ -110,23 +118,27 @@ describe('filtered ranking page', () => {
     expect(screen.getByLabelText('Back to comparisons')).toHaveAttribute('href', '#/action');
   });
 
-  it('shows genre filters on the ranking page and keeps the ranking route', () => {
+  it('shows genre filters on the ranking page and keeps the ranking route', async () => {
+    const user = userEvent.setup();
+
     render(
       <HashRouter>
         <RankingPage filter={actionFilmFilter} />
       </HashRouter>,
     );
 
-    const filterNav = screen.getByRole('navigation', { name: 'Genre filter' });
+    const filterMenu = await openFilterMenu(user);
+    const allLink = within(filterMenu).getByRole('link', { name: /^All\b/ });
+    const actionLink = within(filterMenu).getByRole('link', { name: /^Action\b/ });
+    const scienceFictionLink = within(filterMenu).getByRole('link', { name: /^Science Fiction\b/ });
+    const westernLink = within(filterMenu).getByRole('link', { name: /^Western\b/ });
 
-    expect(within(filterNav).getByRole('link', { name: 'All' })).toHaveAttribute('href', '#/ranking');
-    expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveAttribute('href', '#/action/ranking');
-    expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveClass('film-filter-switch__link--active');
-    expect(within(filterNav).getByRole('link', { name: 'Science Fiction' })).toHaveAttribute(
-      'href',
-      '#/science-fiction/ranking',
-    );
-    expect(within(filterNav).getByRole('link', { name: 'Western' })).toHaveAttribute('href', '#/western/ranking');
+    expect(allLink).toHaveAttribute('href', '#/ranking');
+    expect(actionLink).toHaveAttribute('href', '#/action/ranking');
+    expect(actionLink).toHaveAttribute('aria-current', 'page');
+    expect(actionLink).toHaveClass('film-filter-switch__option--active');
+    expect(scienceFictionLink).toHaveAttribute('href', '#/science-fiction/ranking');
+    expect(westernLink).toHaveAttribute('href', '#/western/ranking');
   });
 
   it('does not show interested movies above the ranking list', async () => {
@@ -168,22 +180,26 @@ describe('filtered ranking page', () => {
     expect(screen.queryByText(outsideItem.label)).not.toBeInTheDocument();
   });
 
-  it('shows genre filters on the saved page and keeps the saved route', () => {
+  it('shows genre filters on the saved page and keeps the saved route', async () => {
+    const user = userEvent.setup();
+
     render(
       <HashRouter>
         <SavedMoviesPage filter={actionFilmFilter} />
       </HashRouter>,
     );
 
-    const filterNav = screen.getByRole('navigation', { name: 'Genre filter' });
+    const filterMenu = await openFilterMenu(user);
+    const allLink = within(filterMenu).getByRole('link', { name: /^All\b/ });
+    const actionLink = within(filterMenu).getByRole('link', { name: /^Action\b/ });
+    const scienceFictionLink = within(filterMenu).getByRole('link', { name: /^Science Fiction\b/ });
+    const westernLink = within(filterMenu).getByRole('link', { name: /^Western\b/ });
 
-    expect(within(filterNav).getByRole('link', { name: 'All' })).toHaveAttribute('href', '#/saved');
-    expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveAttribute('href', '#/action/saved');
-    expect(within(filterNav).getByRole('link', { name: 'Action' })).toHaveClass('film-filter-switch__link--active');
-    expect(within(filterNav).getByRole('link', { name: 'Science Fiction' })).toHaveAttribute(
-      'href',
-      '#/science-fiction/saved',
-    );
-    expect(within(filterNav).getByRole('link', { name: 'Western' })).toHaveAttribute('href', '#/western/saved');
+    expect(allLink).toHaveAttribute('href', '#/saved');
+    expect(actionLink).toHaveAttribute('href', '#/action/saved');
+    expect(actionLink).toHaveAttribute('aria-current', 'page');
+    expect(actionLink).toHaveClass('film-filter-switch__option--active');
+    expect(scienceFictionLink).toHaveAttribute('href', '#/science-fiction/saved');
+    expect(westernLink).toHaveAttribute('href', '#/western/saved');
   });
 });
