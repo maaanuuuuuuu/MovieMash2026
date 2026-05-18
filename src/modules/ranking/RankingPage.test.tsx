@@ -39,7 +39,7 @@ async function openFilterMenu(user: ReturnType<typeof userEvent.setup>) {
 
   await user.click(within(filterNav).getByRole('button', { name: /Change genre filter/ }));
 
-  return screen.getByRole('group', { name: 'Choose a genre filter' });
+  return screen.getByRole('dialog', { name: 'Filter movies' });
 }
 
 describe('filtered ranking page', () => {
@@ -139,6 +139,22 @@ describe('filtered ranking page', () => {
     expect(actionLink).toHaveClass('film-filter-switch__option--active');
     expect(scienceFictionLink).toHaveAttribute('href', '#/science-fiction/ranking');
     expect(westernLink).toHaveAttribute('href', '#/western/ranking');
+  });
+
+  it('closes the genre filter panel from its close button', async () => {
+    const user = userEvent.setup();
+
+    render(
+      <HashRouter>
+        <RankingPage filter={actionFilmFilter} />
+      </HashRouter>,
+    );
+
+    const filterMenu = await openFilterMenu(user);
+    await user.click(within(filterMenu).getByRole('button', { name: 'Close genre filters' }));
+
+    expect(screen.queryByRole('dialog', { name: 'Filter movies' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Change genre filter/ })).toHaveFocus();
   });
 
   it('does not show interested movies above the ranking list', async () => {

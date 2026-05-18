@@ -125,7 +125,7 @@ L'interface est pensée mobile portrait en premier.
 
 Sur l'écran de match, les cartes prennent l'espace vertical disponible dans le viewport. Sur téléphone, elles sont dimensionnées autour du contenu, avec des posters affichés dans un cadre d'affiche `2:3` en image complète pour éviter les crops latéraux. Sur mobile et tablette étroite, une zone basse est réservée pour que le bouton flottant vers le ranking ne masque pas le titre ou l'année des films.
 
-Les contrôles tactiles principaux doivent rester confortables. Le bouton de filtre, les options du panneau de filtre et les boutons de modale ont une hauteur minimale adaptée au toucher.
+Les contrôles tactiles principaux doivent rester confortables. Le bouton de filtre, les options du panneau de filtre et les boutons de modale ont une hauteur minimale adaptée au toucher. Sur téléphone et sur les appareils tactiles, le panneau de filtre s'ouvre comme une feuille basse avec une liste en une colonne. Sur desktop avec souris ou trackpad, il peut s'ouvrir comme un panneau compact en grille.
 
 Dans la page de classement, les titres longs peuvent prendre deux lignes sur mobile. Sur tablette et desktop, ils restent sur une ligne avec troncature si nécessaire.
 

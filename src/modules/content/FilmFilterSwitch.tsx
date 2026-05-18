@@ -1,4 +1,4 @@
-import { Check, ChevronDown, ListFilter } from 'lucide-react';
+import { Check, ChevronDown, ListFilter, X } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './FilmFilterSwitch.css';
@@ -31,6 +31,7 @@ function getMovieCountLabel(count: number) {
 export function FilmFilterSwitch({ activeFilter, view }: FilmFilterSwitchProps) {
   const [isOpen, setIsOpen] = useState(false);
   const panelId = useId();
+  const panelTitleId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Let keyboard users close the open filter menu without moving focus away.
@@ -84,13 +85,30 @@ export function FilmFilterSwitch({ activeFilter, view }: FilmFilterSwitchProps) 
           <button
             type="button"
             className="film-filter-switch__backdrop"
-            aria-label="Close genre filters"
+            aria-label="Close filter overlay"
             onClick={() => setIsOpen(false)}
           />
-          <div id={panelId} className="film-filter-switch__panel" role="group" aria-label="Choose a genre filter">
+          <div
+            id={panelId}
+            className="film-filter-switch__panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={panelTitleId}
+          >
             <div className="film-filter-switch__panel-header">
-              <span>Filter movies</span>
+              <h2 id={panelTitleId}>Filter movies</h2>
               <span>{activeFilter.shortLabel}</span>
+              <button
+                type="button"
+                className="film-filter-switch__close"
+                aria-label="Close genre filters"
+                onClick={() => {
+                  setIsOpen(false);
+                  triggerRef.current?.focus();
+                }}
+              >
+                <X aria-hidden="true" size={18} />
+              </button>
             </div>
             <div className="film-filter-switch__options">
               {filmFilters.map((availableFilter) => {
