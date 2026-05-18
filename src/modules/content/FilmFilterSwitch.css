@@ -6,8 +6,8 @@
 
 .film-filter-switch__trigger {
   width: 100%;
-  min-height: 52px;
-  padding: 6px 8px 6px 12px;
+  min-height: 56px;
+  padding: 7px 9px 7px 13px;
   border: 1px solid rgba(23, 33, 27, 0.14);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.78);
@@ -58,7 +58,7 @@
 
 .film-filter-switch__current-value {
   overflow: hidden;
-  font-size: 1rem;
+  font-size: 1.06rem;
   font-weight: 900;
   line-height: 1.05;
   text-overflow: ellipsis;
@@ -67,13 +67,13 @@
 
 .film-filter-switch__current-count {
   min-height: 30px;
-  padding: 0 9px;
+  padding: 0 10px;
   border: 1px solid rgba(23, 33, 27, 0.1);
   border-radius: 999px;
   background: #eef4ed;
   color: var(--muted);
   display: grid;
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   font-weight: 900;
   line-height: 1;
   place-items: center;
@@ -108,7 +108,7 @@
   left: 0;
   width: 100%;
   max-height: min(82svh, 620px);
-  padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
   border: 1px solid rgba(23, 33, 27, 0.13);
   border-bottom: 0;
   border-radius: 18px 18px 0 0;
@@ -160,13 +160,13 @@
 .film-filter-switch__options {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
+  gap: 10px;
 }
 
 .film-filter-switch__option {
   min-width: 0;
-  min-height: 60px;
-  padding: 11px 12px;
+  min-height: 74px;
+  padding: 15px 16px;
   border: 1px solid rgba(23, 33, 27, 0.12);
   border-radius: 8px;
   background: #fff;
@@ -197,19 +197,19 @@
 .film-filter-switch__option-main {
   min-width: 0;
   display: grid;
-  gap: 4px;
+  gap: 6px;
 }
 
 .film-filter-switch__option-label {
   overflow-wrap: anywhere;
-  font-size: 1rem;
+  font-size: 1.12rem;
   font-weight: 900;
   line-height: 1.05;
 }
 
 .film-filter-switch__option-count {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 900;
   line-height: 1;
 }
@@ -278,6 +278,10 @@
     padding: 9px 10px;
   }
 
+  .film-filter-switch__option-main {
+    gap: 4px;
+  }
+
   .film-filter-switch__option-label {
     font-size: 0.92rem;
   }
@@ -309,12 +313,12 @@
   }
 
   .film-filter-switch__current-value {
-    font-size: 0.94rem;
+    font-size: 1rem;
   }
 
   .film-filter-switch__current-count {
     padding-inline: 8px;
-    font-size: 0.71rem;
+    font-size: 0.78rem;
   }
 }
 
