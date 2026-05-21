@@ -79,3 +79,13 @@
     font-size: 0.76rem;
   }
 }
+
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  .match-swipe-zone {
+    left: 8px;
+    right: 8px;
+    min-height: 82px;
+    gap: 12px;
+    font-size: 1.08rem;
+  }
+}

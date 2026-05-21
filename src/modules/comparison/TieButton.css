@@ -37,3 +37,21 @@
     font-size: 1.64rem;
   }
 }
+
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  .tie-button {
+    top: clamp(130px, calc((100vw - 48px) * 0.375 + 18px), 186px);
+    width: 126px;
+    height: 126px;
+    font-size: 1.72rem;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) and (min-width: 680px) {
+  .tie-button {
+    top: 50%;
+    width: 166px;
+    height: 166px;
+    font-size: 2.24rem;
+  }
+}

@@ -90,3 +90,33 @@
   line-height: 1.2;
   text-align: right;
 }
+
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  .firebase-account {
+    top: max(12px, env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+  }
+
+  .firebase-account__button {
+    width: 64px;
+    height: 64px;
+  }
+
+  .firebase-account__avatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  .firebase-account__dot {
+    width: 15px;
+    height: 15px;
+    right: 3px;
+    bottom: 3px;
+  }
+
+  .firebase-account__error {
+    width: min(320px, calc(100vw - 24px));
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+}

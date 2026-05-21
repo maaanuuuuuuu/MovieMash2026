@@ -22,3 +22,22 @@
     justify-self: start;
   }
 }
+
+@media (max-width: 390px), (hover: none) and (pointer: coarse) and (max-width: 679px) {
+  .ranking-row__button {
+    grid-template-columns: 36px 54px minmax(0, 1fr);
+    min-height: 88px;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .ranking-row__poster {
+    width: 54px;
+    height: 70px;
+  }
+
+  .ranking-row__tier {
+    grid-column: 3;
+    justify-self: start;
+  }
+}

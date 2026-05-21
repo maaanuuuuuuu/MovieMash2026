@@ -152,3 +152,77 @@
 .ranking-row__tier--stable {
   background: #bfe8c4;
 }
+
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  .ranking-row__swipe-hint {
+    padding-inline: 24px;
+    font-size: 0.96rem;
+  }
+
+  .ranking-row__button {
+    grid-template-columns: 40px 58px minmax(0, 1fr) auto;
+    min-height: 88px;
+    padding: 10px 12px;
+    gap: 12px;
+  }
+
+  .ranking-row__rank {
+    font-size: 1.08rem;
+  }
+
+  .ranking-row__poster {
+    width: 58px;
+    height: 74px;
+  }
+
+  .ranking-row__main {
+    gap: 4px;
+  }
+
+  .ranking-row__title {
+    font-size: 1.15rem;
+    line-height: 1.12;
+  }
+
+  .ranking-row__meta {
+    font-size: 0.96rem;
+  }
+
+  .ranking-row__tier {
+    width: 72px;
+    padding: 7px 0;
+    font-size: 0.84rem;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) and (min-width: 680px) {
+  .ranking-row__button {
+    grid-template-columns: 56px 78px minmax(0, 1fr) auto;
+    min-height: 116px;
+    padding: 14px 16px;
+    gap: 16px;
+  }
+
+  .ranking-row__rank {
+    font-size: 1.36rem;
+  }
+
+  .ranking-row__poster {
+    width: 78px;
+    height: 100px;
+  }
+
+  .ranking-row__title {
+    font-size: 1.5rem;
+  }
+
+  .ranking-row__meta {
+    font-size: 1.18rem;
+  }
+
+  .ranking-row__tier {
+    width: 92px;
+    padding: 9px 0;
+    font-size: 1rem;
+  }
+}

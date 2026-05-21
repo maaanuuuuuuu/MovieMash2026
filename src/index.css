@@ -72,6 +72,18 @@ img {
   text-transform: uppercase;
 }
 
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  :root {
+    font-size: 18px;
+  }
+
+  .eyebrow {
+    margin-bottom: 6px;
+    font-size: 1.06rem;
+    line-height: 1.05;
+  }
+}
+
 @keyframes burst {
   0% {
     opacity: 0;

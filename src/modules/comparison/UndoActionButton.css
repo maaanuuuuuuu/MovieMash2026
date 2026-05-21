@@ -34,3 +34,30 @@
     height: 58px;
   }
 }
+
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  .undo-action-button {
+    left: 16px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    width: 132px;
+    height: 132px;
+  }
+
+  .undo-action-button svg {
+    width: 58px;
+    height: 58px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) and (min-width: 680px) {
+  .undo-action-button {
+    bottom: calc(22px + env(safe-area-inset-bottom));
+    width: 164px;
+    height: 164px;
+  }
+
+  .undo-action-button svg {
+    width: 74px;
+    height: 74px;
+  }
+}

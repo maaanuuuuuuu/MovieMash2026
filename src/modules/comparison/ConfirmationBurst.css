@@ -31,3 +31,11 @@
 .confirmation-burst--blocked {
   background: var(--coral);
 }
+
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  .confirmation-burst {
+    min-width: 164px;
+    padding: 16px 24px;
+    font-size: 1.35rem;
+  }
+}

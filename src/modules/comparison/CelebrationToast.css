@@ -47,3 +47,26 @@
   background: #eef3ed;
   color: var(--ink);
 }
+
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  .celebration-toast {
+    left: 14px;
+    right: 14px;
+    gap: 14px;
+    padding: 20px;
+    font-size: 1.16rem;
+  }
+
+  .celebration-toast__actions {
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .celebration-toast a,
+  .celebration-toast button {
+    min-height: 56px;
+    padding: 12px 18px;
+    font-size: 1.05rem;
+    font-weight: 900;
+  }
+}

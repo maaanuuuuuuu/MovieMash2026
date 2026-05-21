@@ -101,3 +101,58 @@
     gap: 7px;
   }
 }
+
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  .comparison-screen {
+    width: 100%;
+    padding: 24px 12px calc(154px + env(safe-area-inset-bottom));
+    gap: 16px;
+  }
+
+  .comparison-header {
+    gap: 10px;
+  }
+
+  .comparison-header h1 {
+    font-size: 2.65rem;
+    line-height: 0.95;
+  }
+
+  .comparison-status {
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 1rem;
+  }
+
+  .comparison-status span {
+    min-width: 0;
+    min-height: 48px;
+    padding: 8px 11px;
+  }
+
+  .comparison-stage {
+    align-items: start;
+    gap: 12px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) and (min-width: 680px) {
+  .comparison-screen {
+    padding-top: 30px;
+    gap: 24px;
+  }
+
+  .comparison-header h1 {
+    font-size: 3.45rem;
+  }
+
+  .comparison-status {
+    gap: 12px;
+    font-size: 1.32rem;
+  }
+
+  .comparison-status span {
+    min-height: 66px;
+    padding: 12px 18px;
+  }
+}

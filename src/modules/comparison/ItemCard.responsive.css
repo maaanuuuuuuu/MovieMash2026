@@ -37,3 +37,60 @@
     font-size: 0.92rem;
   }
 }
+
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  .item-card-stack {
+    height: min(100%, clamp(360px, calc((100vw - 36px) * 0.75 + 104px), 480px));
+  }
+
+  .item-card,
+  .preview-item-card {
+    padding: 9px;
+    gap: 10px;
+    grid-template-rows: auto auto;
+  }
+
+  .item-card__poster-wrap {
+    aspect-ratio: 2 / 3;
+  }
+
+  .item-card__poster {
+    object-fit: contain;
+  }
+
+  .item-card__title {
+    font-size: 1.32rem;
+    line-height: 1.08;
+  }
+
+  .item-card__year {
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .item-card__swipe-hint {
+    min-width: 124px;
+    padding: 10px 14px;
+    font-size: 0.96rem;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) and (min-width: 680px) {
+  .item-card-stack {
+    height: min(100%, 680px);
+  }
+
+  .item-card,
+  .preview-item-card {
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .item-card__title {
+    font-size: 2.1rem;
+  }
+
+  .item-card__year {
+    font-size: 1.36rem;
+  }
+}
