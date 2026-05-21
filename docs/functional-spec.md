@@ -253,6 +253,8 @@ Le déploiement GitHub Pages doit recevoir les variables `VITE_FIREBASE_API_KEY`
 
 Un bouton icon-only en haut à droite permet de se connecter avec Google via Firebase Auth. Quand l'utilisateur est connecté, ce bouton affiche son avatar Google quand il est disponible. Cliquer ce bouton quand l'utilisateur est connecté le déconnecte.
 
+Si Google sign-in échoue, le bouton affiche un état d'erreur et un court message visible. Par exemple, si le domaine GitHub Pages n'est pas autorisé dans Firebase Auth, le message indique que ce domaine n'est pas autorisé.
+
 Firestore stocke l'état cloud dans :
 
 - `users/{uid}` : petit document de profil technique avec `schemaVersion`, `createdAt` quand il est créé, et `updatedAt`.

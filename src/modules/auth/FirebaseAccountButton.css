@@ -75,3 +75,18 @@
   white-space: nowrap;
   clip: rect(0, 0, 0, 0);
 }
+
+.firebase-account__error {
+  width: min(260px, calc(100vw - 24px));
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(232, 93, 71, 0.36);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 28px rgba(23, 33, 27, 0.16);
+  color: var(--coral);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.2;
+  text-align: right;
+}

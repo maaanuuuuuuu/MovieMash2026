@@ -21,6 +21,24 @@ function getSyncTone(syncState: FirebaseSyncState, hasActionError: boolean) {
   return 'idle';
 }
 
+function getFirebaseActionErrorMessage(error: unknown) {
+  const code = typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined;
+
+  if (code === 'auth/unauthorized-domain') {
+    return 'This domain is not allowed in Firebase.';
+  }
+
+  if (code === 'auth/popup-blocked') {
+    return 'The browser blocked Google sign-in.';
+  }
+
+  if (code === 'auth/popup-closed-by-user') {
+    return 'Google sign-in was closed.';
+  }
+
+  return error instanceof Error ? error.message : 'Google sign-in failed.';
+}
+
 export function FirebaseAccountButton() {
   const session = useAuthSession();
   const syncState = useFirebaseSync(session);
@@ -36,7 +54,7 @@ export function FirebaseAccountButton() {
   const syncMessage = actionError ?? (signedInUser ? syncState.message : 'Local only');
   const title = signedInUser
     ? `${signedInUser.displayName ?? signedInUser.email ?? 'Google account'}: ${syncMessage}`
-    : label;
+    : actionError ?? label;
   const tone = signedInUser ? getSyncTone(syncState, Boolean(actionError)) : actionError ? 'error' : 'idle';
 
   async function handleClick() {
@@ -50,7 +68,7 @@ export function FirebaseAccountButton() {
 
       await signInWithGoogle();
     } catch (error) {
-      setActionError(error instanceof Error ? error.message : 'Google sign-in failed');
+      setActionError(getFirebaseActionErrorMessage(error));
     }
   }
 
@@ -80,6 +98,11 @@ export function FirebaseAccountButton() {
       <span className="firebase-account__status" aria-live="polite">
         {syncMessage}
       </span>
+      {actionError ? (
+        <p className="firebase-account__error" role="status">
+          {actionError}
+        </p>
+      ) : null}
     </div>
   );
 }
