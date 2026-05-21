@@ -322,6 +322,15 @@
   }
 }
 
+@media (max-width: 679px) {
+  .film-filter-switch {
+    width: calc(100% - 62px);
+    margin-left: 0;
+    margin-right: auto;
+    justify-self: start;
+  }
+}
+
 @media (max-width: 340px) {
   .film-filter-switch__current-count {
     display: none;

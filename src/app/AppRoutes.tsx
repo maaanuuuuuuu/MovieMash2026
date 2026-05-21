@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { filmFilters } from '../modules/content/filmSource';
 import { RankingPage } from '../modules/ranking/RankingPage';
@@ -6,6 +7,12 @@ import { BranchPreviewSelector } from './BranchPreviewSelector';
 import { DevDatabaseTransfer } from './DevDatabaseTransfer';
 import { isLocalDevOrigin } from './devDatabaseTransferProtocol';
 import { FilteredComparisonRoute } from './FilteredComparisonRoute';
+
+const FirebaseAccountButton = lazy(async () => {
+  const module = await import('../modules/auth/FirebaseAccountButton');
+
+  return { default: module.FirebaseAccountButton };
+});
 
 export function AppRoutes() {
   const showDevDatabaseTransfer = import.meta.env.DEV && isLocalDevOrigin(window.location.origin);
@@ -28,6 +35,9 @@ export function AppRoutes() {
         ))}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <Suspense fallback={null}>
+        <FirebaseAccountButton />
+      </Suspense>
       <BranchPreviewSelector />
       {showDevDatabaseTransfer ? <DevDatabaseTransfer /> : null}
     </HashRouter>

@@ -243,11 +243,35 @@ Comportement des anciennes bases :
 - L'application actuelle ne lit pas ces anciens scopes séparés.
 - Une vraie fusion des anciens scores `action`/`comedy` vers `default` demanderait une migration dédiée.
 
+## Comptes Google et sauvegarde cloud V2
+
+La sauvegarde cloud est optionnelle. Sans connexion Google, le comportement reste local-first et identique au mode IndexedDB existant.
+
+Si la configuration Firebase web est absente, le bouton de compte ne s'affiche pas et l'application reste locale.
+
+Un bouton icon-only en haut à droite permet de se connecter avec Google via Firebase Auth. Quand l'utilisateur est connecté, ce bouton affiche son avatar Google quand il est disponible. Cliquer ce bouton quand l'utilisateur est connecté le déconnecte.
+
+Firestore stocke l'état cloud dans :
+
+- `users/{uid}` : petit document de profil technique avec `schemaVersion`, `createdAt` quand il est créé, et `updatedAt`.
+- `users/{uid}/state/current` : document de sauvegarde avec `schemaVersion`, `appSchemaVersion`, `updatedAt`, la raison de l'écriture, et le snapshot IndexedDB complet.
+
+La source de vérité au moment de la connexion est simple :
+
+- si `users/{uid}/state/current` n'existe pas, la base IndexedDB locale du navigateur courant initialise Firestore ;
+- si `users/{uid}/state/current` existe, l'état Firestore remplace entièrement la base IndexedDB locale du navigateur courant.
+
+Il n'y a pas de merge entre une partie locale existante et une partie cloud existante. Le cloud gagne toujours après la première sauvegarde cloud.
+
+Après l'initialisation, l'application sauvegarde le snapshot IndexedDB courant vers Firestore toutes les 30 secondes pendant que l'utilisateur est connecté. Elle tente aussi une sauvegarde quand l'onglet passe en arrière-plan.
+
+Les règles Firestore autorisent un utilisateur connecté à lire et écrire uniquement sous `users/{uid}` quand `request.auth.uid == uid`.
+
 ## Import et export de base
 
 En développement local, un bouton `Dump DB to Pages` peut exporter la base locale et l'envoyer vers l'application GitHub Pages ouverte par la fenêtre.
 
-Ce transfert est limité aux origines prévues par le protocole de dev. Il ne remplace pas une synchronisation utilisateur. L'application n'a pas de compte, pas de backend et pas de sync multi-appareil.
+Ce transfert est limité aux origines prévues par le protocole de dev. Il ne remplace pas la sauvegarde cloud Firebase.
 
 ## Offline et déploiement
 
@@ -270,9 +294,8 @@ La CI peut aussi publier des previews sur la branche `gh-pages`. Le sélecteur d
 
 L'application actuelle ne fait pas :
 
-- de comptes utilisateurs ;
-- de synchronisation serveur ;
 - de merge automatique des anciens rankings séparés ;
+- de merge entre un état local existant et un état cloud existant ;
 - d'appel runtime à TMDb ;
 - de filtres de genre configurables par l'utilisateur ;
 - d'affichage direct des genres sur les cartes ;
