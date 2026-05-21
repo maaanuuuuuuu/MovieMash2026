@@ -249,6 +249,8 @@ La sauvegarde cloud est optionnelle. Sans connexion Google, le comportement rest
 
 Si la configuration Firebase web est absente, le bouton de compte ne s'affiche pas et l'application reste locale.
 
+Le déploiement GitHub Pages doit recevoir les variables `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID` et `VITE_FIREBASE_APP_ID` via les variables ou secrets GitHub Actions. Sinon le workflow de déploiement échoue pour éviter de publier une version sans connexion Google.
+
 Un bouton icon-only en haut à droite permet de se connecter avec Google via Firebase Auth. Quand l'utilisateur est connecté, ce bouton affiche son avatar Google quand il est disponible. Cliquer ce bouton quand l'utilisateur est connecté le déconnecte.
 
 Firestore stocke l'état cloud dans :
@@ -266,12 +268,6 @@ Il n'y a pas de merge entre une partie locale existante et une partie cloud exis
 Après l'initialisation, l'application sauvegarde le snapshot IndexedDB courant vers Firestore toutes les 30 secondes pendant que l'utilisateur est connecté. Elle tente aussi une sauvegarde quand l'onglet passe en arrière-plan.
 
 Les règles Firestore autorisent un utilisateur connecté à lire et écrire uniquement sous `users/{uid}` quand `request.auth.uid == uid`.
-
-## Import et export de base
-
-En développement local, un bouton `Dump DB to Pages` peut exporter la base locale et l'envoyer vers l'application GitHub Pages ouverte par la fenêtre.
-
-Ce transfert est limité aux origines prévues par le protocole de dev. Il ne remplace pas la sauvegarde cloud Firebase.
 
 ## Offline et déploiement
 

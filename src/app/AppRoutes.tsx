@@ -4,8 +4,6 @@ import { filmFilters } from '../modules/content/filmSource';
 import { RankingPage } from '../modules/ranking/RankingPage';
 import { SavedMoviesPage } from '../modules/ranking/SavedMoviesPage';
 import { BranchPreviewSelector } from './BranchPreviewSelector';
-import { DevDatabaseTransfer } from './DevDatabaseTransfer';
-import { isLocalDevOrigin } from './devDatabaseTransferProtocol';
 import { FilteredComparisonRoute } from './FilteredComparisonRoute';
 
 const FirebaseAccountButton = lazy(async () => {
@@ -15,8 +13,6 @@ const FirebaseAccountButton = lazy(async () => {
 });
 
 export function AppRoutes() {
-  const showDevDatabaseTransfer = import.meta.env.DEV && isLocalDevOrigin(window.location.origin);
-
   return (
     <HashRouter>
       <Routes>
@@ -39,7 +35,6 @@ export function AppRoutes() {
         <FirebaseAccountButton />
       </Suspense>
       <BranchPreviewSelector />
-      {showDevDatabaseTransfer ? <DevDatabaseTransfer /> : null}
     </HashRouter>
   );
 }
