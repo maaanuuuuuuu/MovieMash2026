@@ -91,6 +91,17 @@ describe('main app flow', () => {
     expect(screen.getAllByRole('listitem').length).toBeGreaterThan(0);
   });
 
+  it('opens the secondary list idea page from comparisons', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await screen.findAllByRole('button', { name: /^Choose / });
+    await user.click(screen.getByRole('link', { name: /Suggest a list/ }));
+
+    expect(await screen.findByRole('heading', { name: 'Suggest a list idea' })).toBeInTheDocument();
+    expect(screen.getByText('Sign-in is not available in this build.')).toBeInTheDocument();
+  });
+
   it('uses action as a global ranking filter', async () => {
     const user = userEvent.setup();
     render(<App />);

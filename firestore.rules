@@ -2,6 +2,13 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /listIdeas/{submissionId} {
+      allow create: if isSignedIn() && isValidListIdeaCreate();
+      allow read: if isAdmin();
+      allow update: if isAdmin() && isValidListIdeaUpdate();
+      allow delete: if false;
+    }
+
     match /users/{userId} {
       allow read, write: if isOwner(userId);
 
@@ -10,8 +17,69 @@ service cloud.firestore {
       }
     }
 
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
     function isOwner(userId) {
-      return request.auth != null && request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'desir.emmanuel@gmail.com';
+    }
+
+    function isValidListIdeaStatus(status) {
+      return status == 'pending' || status == 'approved' || status == 'rejected';
+    }
+
+    function isRequiredIdeaText(value, maxSize) {
+      return value is string && value.size() > 0 && value.size() <= maxSize;
+    }
+
+    function isOptionalIdeaText(value, maxSize) {
+      return value is string && value.size() <= maxSize;
+    }
+
+    function isValidListIdeaCreate() {
+      return request.resource.data.keys().hasOnly([
+        'schemaVersion',
+        'createdAt',
+        'updatedAt',
+        'createdByUid',
+        'createdByEmail',
+        'title',
+        'category',
+        'examples',
+        'notes',
+        'status',
+      ])
+        && request.resource.data.schemaVersion == 1
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.createdByUid == request.auth.uid
+        && request.resource.data.createdByEmail == request.auth.token.email
+        && isRequiredIdeaText(request.resource.data.title, 80)
+        && isRequiredIdeaText(request.resource.data.category, 60)
+        && isOptionalIdeaText(request.resource.data.examples, 400)
+        && isOptionalIdeaText(request.resource.data.notes, 600)
+        && request.resource.data.status == 'pending';
+    }
+
+    function isValidListIdeaUpdate() {
+      return request.resource.data.diff(resource.data).changedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.schemaVersion == resource.data.schemaVersion
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdByUid == resource.data.createdByUid
+        && request.resource.data.createdByEmail == resource.data.createdByEmail
+        && request.resource.data.title == resource.data.title
+        && request.resource.data.category == resource.data.category
+        && request.resource.data.examples == resource.data.examples
+        && request.resource.data.notes == resource.data.notes
+        && isValidListIdeaStatus(request.resource.data.status);
     }
   }
 }
