@@ -26,6 +26,7 @@ L'application utilise un `HashRouter`, ce qui donne des routes avec `#` sur GitH
 | `#/ranking` | Liste | Classement global complet. |
 | `#/saved` | Liste | Films globaux marqués `interested` ou `removed`, avec restauration. |
 | `#/competition` | Match | Ligue fixe sur le top 20 global courant tant qu'une ligue existe. |
+| `#/tournament` | Match | Tournoi à élimination directe sur le top 16 global courant tant qu'un tournoi existe. |
 | `#/shared-ranking?top=...` | Liste | Snapshot lecture seule d'un top 20 partage, avec bouton pour essayer l'app. |
 | `#/suggestions/new` | Formulaire | Soumission d'une idée de nouvelle liste. |
 | `#/suggestions/review` | Admin | Revue des idées soumises et changement de statut. |
@@ -45,6 +46,8 @@ Le sélecteur de filtre ne change pas de base de données. Il change seulement l
 Le filtre actif est visible sur l'écran de match, la page de classement et la page de restauration. Un bouton ouvre un panneau avec `All`, les 10 genres exposés, puis les 8 décennies exposées. Chaque option affiche aussi le nombre de films du filtre. Changer de filtre depuis une liste garde le même type de vue.
 
 Ce panneau contient aussi une entrée `Competition league`. Elle ouvre `#/competition`. Si une ligue est déjà en cours, cette même entrée la reprend au lieu d'en créer une nouvelle.
+
+Le même panneau contient une entrée `Tournament`. Elle ouvre `#/tournament`. Si un tournoi est déjà en cours, cette même entrée reprend ce bracket au lieu d'en créer un nouveau.
 
 ## Catalogue de films
 
@@ -161,6 +164,28 @@ Si l'utilisateur quitte la page puis revient sur `#/competition`, l'application 
 Quand la ligue finit, la page affiche le top 3 du classement global courant. Un bouton permet alors de relancer une nouvelle ligue, qui reprend à ce moment-là le nouveau top 20 global actif.
 
 Le mode compétition ne propose pas de geste `not seen` ni de bouton d'annulation. Il sert seulement à enchaîner les duels de la ligue fixe.
+
+## Mode tournoi
+
+Le mode tournoi vit sur `#/tournament`.
+
+Quand l'utilisateur ouvre ce mode sans tournoi existant, l'application fige les 16 meilleurs films actifs du classement global `All` à cet instant. Les films `interested` et `removed` ne peuvent pas entrer dans cette sélection. Le niveau de stabilité n'entre pas dans cette sélection.
+
+Le bracket suit une élimination directe seedée :
+
+- huitièmes de finale avec le top 16 gelé ;
+- quarts de finale ;
+- demi-finales ;
+- petite finale pour la 3e place ;
+- finale.
+
+Chaque match est un seul vrai duel et modifie le ranking global normal.
+
+Si l'utilisateur quitte la page puis revient sur `#/tournament`, l'application reprend le même tournoi tant qu'il reste des matches.
+
+Le mode tournoi ne propose ni égalité, ni geste `not seen`, ni bouton d'annulation. L'utilisateur doit choisir un gagnant à chaque match.
+
+Quand le tournoi finit, la page affiche le podium du tournoi. Un bouton permet alors de relancer un nouveau tournoi, qui reprend à ce moment-là le nouveau top 16 global actif.
 
 ## Responsivité
 
@@ -302,6 +327,8 @@ Base actuelle :
 - table `meta` : petits drapeaux applicatifs, comme les notifications de top stable déjà affichées.
 
 La table `meta` stocke aussi l'état éventuel de la ligue de compétition, avec ses participants figés et ses duels restants.
+
+Elle stocke aussi l'état éventuel du tournoi, avec son top 16 figé et les matches déjà joués.
 
 Le code initialise seulement le scope `default`. Si de nouveaux films sont ajoutés au catalogue, leurs états manquants sont créés avec 1000 points sans effacer l'historique existant.
 

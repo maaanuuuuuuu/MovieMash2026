@@ -143,6 +143,48 @@ describe('main app flow', () => {
     expect(resumedLeagueChoices.map((choice) => choice.getAttribute('aria-label'))).toEqual(firstLeagueLabels);
   });
 
+  it('starts the tournament from the filter switch', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await screen.findAllByRole('button', { name: /^Choose / });
+    await user.click(screen.getByRole('button', { name: /Change movie filter/ }));
+    await user.click(screen.getByRole('link', { name: /Start tournament/i }));
+
+    expect(await screen.findByRole('heading', { name: 'Round of 16' })).toBeInTheDocument();
+    expect(await screen.findByText('16 total')).toBeInTheDocument();
+    expect(screen.getByText('16 left')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Mark this pair as a tie' })).not.toBeInTheDocument();
+
+    await user.click((await screen.findAllByRole('button', { name: /^Choose / }))[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('1 done')).toBeInTheDocument();
+    });
+    expect(screen.getByText('15 left')).toBeInTheDocument();
+  });
+
+  it('resumes the same tournament after leaving the route', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await screen.findAllByRole('button', { name: /^Choose / });
+    await user.click(screen.getByRole('button', { name: /Change movie filter/ }));
+    await user.click(screen.getByRole('link', { name: /Start tournament/i }));
+
+    const firstTournamentChoices = await screen.findAllByRole('button', { name: /^Choose / });
+    const firstTournamentLabels = firstTournamentChoices.map((choice) => choice.getAttribute('aria-label'));
+
+    await user.click(screen.getByLabelText('Open ranking'));
+    expect(await screen.findByRole('heading', { name: 'Your ranking' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Change movie filter/ }));
+    await user.click(screen.getByRole('link', { name: /Resume tournament/i }));
+
+    const resumedTournamentChoices = await screen.findAllByRole('button', { name: /^Choose / });
+    expect(resumedTournamentChoices.map((choice) => choice.getAttribute('aria-label'))).toEqual(firstTournamentLabels);
+  });
+
   it('uses action as a global ranking filter', async () => {
     const user = userEvent.setup();
     render(<App />);
