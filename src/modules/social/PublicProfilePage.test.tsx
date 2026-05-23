@@ -50,7 +50,7 @@ describe('public profile page', () => {
       userId: 'friend-1',
       displayName: 'Friend',
       photoURL: null,
-      topItemIds: ['alien', 'following'],
+      topItemIds: ['aliens', 'following'],
       updatedAtMs: null,
     });
     mocks.readFollowingState.mockResolvedValue(false);
