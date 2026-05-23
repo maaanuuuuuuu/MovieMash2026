@@ -22,6 +22,7 @@ import { getStabilityTier } from '../rankingEngine/stability';
 import { FightHistoryModal } from './FightHistoryModal';
 import { RankingRow } from './RankingRow';
 import { createFallbackRankingStates, getFilteredRankingRows, rankingRemovalMessage } from './RankingPage.utils';
+import { ShareRankingButton } from './ShareRankingButton';
 
 type RankingPageProps = {
   filter: FilmFilter;
@@ -39,6 +40,7 @@ export function RankingPage({ filter }: RankingPageProps) {
   const [rankingMessage, setRankingMessage] = useState<string | undefined>();
   const [locallyRemovedItemIds, setLocallyRemovedItemIds] = useState<Set<string>>(() => new Set());
   const rankedRows = getFilteredRankingRows(states, filterItemIdSet, locallyRemovedItemIds);
+  const topItemIds = rankedRows.slice(0, 20).map(({ state }) => state.itemId);
   const selectedItem = selectedItemId ? filmItemById.get(selectedItemId) : undefined;
   const canRemoveFromRanking = rankedRows.length > MINIMUM_ACTIVE_ITEMS;
 
@@ -77,14 +79,17 @@ export function RankingPage({ filter }: RankingPageProps) {
           <p className="ranking-page__hint">Swipe left to save for later, right to remove.</p>
           {rankingMessage ? <p className="ranking-page__message">{rankingMessage}</p> : null}
         </div>
-        <Link
-          to={filter.savedPath}
-          className="ranking-page__saved"
-          aria-label="Open saved movies"
-          title="Open saved movies"
-        >
-          <Bookmark aria-hidden="true" size={22} />
-        </Link>
+        <div className="ranking-page__actions">
+          <ShareRankingButton filter={filter} topItemIds={topItemIds} />
+          <Link
+            to={filter.savedPath}
+            className="ranking-page__saved"
+            aria-label="Open saved movies"
+            title="Open saved movies"
+          >
+            <Bookmark aria-hidden="true" size={22} />
+          </Link>
+        </div>
       </header>
 
       <ol className="ranking-list" aria-label="Ordered ranking">

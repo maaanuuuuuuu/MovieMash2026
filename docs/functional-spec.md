@@ -26,6 +26,7 @@ L'application utilise un `HashRouter`, ce qui donne des routes avec `#` sur GitH
 | `#/ranking` | Liste | Classement global complet. |
 | `#/saved` | Liste | Films globaux marqués `interested` ou `removed`, avec restauration. |
 | `#/competition` | Match | Ligue fixe sur le top 20 global courant tant qu'une ligue existe. |
+| `#/shared-ranking?top=...` | Liste | Snapshot lecture seule d'un top 20 partage, avec bouton pour essayer l'app. |
 | `#/suggestions/new` | Formulaire | Soumission d'une idée de nouvelle liste. |
 | `#/suggestions/review` | Admin | Revue des idées soumises et changement de statut. |
 | `#/<genre>` | Match | Seuls les films avec ce genre peuvent être proposés. |
@@ -207,7 +208,31 @@ Cliquer une ligne ouvre l'historique des duels du film. Les entrées affichent l
 
 La page de classement a un bouton icon-only vers la page des films sauvegardés. Les films `interested` et `removed` ne sont pas affichés au-dessus du ranking.
 
+La page de classement a aussi une action `Share top 20`. Elle prend les 20 premiers films visibles du filtre courant, génère un lien de partage local-first, puis ouvre le partage natif du navigateur quand il existe. Sinon, elle copie le lien dans le presse-papiers.
+
 Glisser une ligne de ranking vers la gauche marque le film `interested`. Glisser une ligne vers la droite marque le film `removed`. Les deux gestes utilisent la même protection des 10 derniers films.
+
+## Page de ranking partagée
+
+La page `#/shared-ranking?top=...` affiche une vue lecture seule d'un top partagé.
+
+Le payload du lien contient seulement :
+
+- le filtre source ;
+- l'ordre des `itemId` du top ;
+- une version de format.
+
+Cette page lit les films depuis le catalogue gelé déjà embarqué dans l'application. Elle n'utilise ni backend, ni compte, ni stockage distant.
+
+La page affiche :
+
+- le filtre d'origine ;
+- un titre `Shared top N` ;
+- la liste ordonnée du snapshot partagé ;
+- un bouton `Try the app` vers l'écran de match du même filtre ;
+- un bouton `Open ranking` vers la page de ranking locale du même filtre.
+
+Si le lien est manquant, cassé, ou pointe vers un filtre supprimé, la page affiche un message simple et garde le bouton `Try the app`.
 
 ## Page de restauration
 
