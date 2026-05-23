@@ -11,6 +11,7 @@ import type { ComparisonFlow } from './useComparisonFlow';
 import { useIdleVisibility } from './useIdleVisibility';
 import { FilmFilterSwitch } from '../content/FilmFilterSwitch';
 import type { FilmFilter } from '../content/filmSource';
+import { SuggestListIdeaButton } from '../listIdeas/SuggestListIdeaButton';
 
 type ComparisonScreenProps = {
   flow: ComparisonFlow;
@@ -38,6 +39,7 @@ export function ComparisonScreen({ flow, filter }: ComparisonScreenProps) {
         <FilmFilterSwitch activeFilter={filter} view="comparison" />
         <p className="eyebrow">{filter.eyebrow}</p>
         <h1>{filter.title}</h1>
+        <SuggestListIdeaButton />
       </header>
 
       {isLoading ? (

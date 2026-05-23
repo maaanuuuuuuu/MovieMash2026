@@ -25,6 +25,8 @@ L'application utilise un `HashRouter`, ce qui donne des routes avec `#` sur GitH
 | `#/` | Match | Tous les films actifs peuvent être proposés. |
 | `#/ranking` | Liste | Classement global complet. |
 | `#/saved` | Liste | Films globaux marqués `interested` ou `removed`, avec restauration. |
+| `#/suggestions/new` | Formulaire | Soumission d'une idée de nouvelle liste. |
+| `#/suggestions/review` | Admin | Revue des idées soumises et changement de statut. |
 | `#/<genre>` | Match | Seuls les films avec ce genre peuvent être proposés. |
 | `#/<genre>/ranking` | Liste | Vue filtrée du classement global sur les films de ce genre. |
 | `#/<genre>/saved` | Liste | Films de ce genre marqués `interested` ou `removed`, avec restauration. |
@@ -92,6 +94,7 @@ L'écran de match affiche :
 
 - le sélecteur de filtre avec `All` et les 10 genres exposés ;
 - le contexte du filtre courant ;
+- une action secondaire `Suggest a list` sous le titre ;
 - deux cartes de films ;
 - une action d'égalité ;
 - un bouton flottant icon-only vers la liste ;
@@ -270,6 +273,45 @@ Il n'y a pas de merge entre une partie locale existante et une partie cloud exis
 Après l'initialisation, l'application sauvegarde le snapshot IndexedDB courant vers Firestore toutes les 30 secondes pendant que l'utilisateur est connecté. Elle tente aussi une sauvegarde quand l'onglet passe en arrière-plan.
 
 Les règles Firestore autorisent un utilisateur connecté à lire et écrire uniquement sous `users/{uid}` quand `request.auth.uid == uid`.
+
+## Suggestions de nouvelles listes
+
+Depuis l'écran de match, un bouton secondaire `Suggest a list` ouvre `#/suggestions/new`.
+
+Cette page demande une connexion Google avant l'envoi. Si Firebase n'est pas configuré dans le build courant, la page l'indique clairement et n'affiche pas de formulaire actif.
+
+Le formulaire demande :
+
+- un `title` obligatoire ;
+- une `category` obligatoire en texte libre ;
+- des `examples` optionnels ;
+- des `notes` optionnelles.
+
+Une soumission réussie affiche un message de succès et vide le formulaire. Une erreur d'envoi affiche un message visible.
+
+Firestore stocke ces idées dans `listIdeas/{submissionId}` avec :
+
+- `schemaVersion` ;
+- `createdAt` ;
+- `updatedAt` ;
+- `createdByUid` ;
+- `createdByEmail` ;
+- `title` ;
+- `category` ;
+- `examples` ;
+- `notes` ;
+- `status`.
+
+Le statut initial est `pending`. L'écran de revue admin peut ensuite passer une idée à `approved` ou `rejected`.
+
+La revue admin est disponible sur `#/suggestions/review`. Dans le code actuel, seul l'email Google `desir.emmanuel@gmail.com` est reconnu comme admin.
+
+Les règles Firestore sur `listIdeas` appliquent les contraintes suivantes :
+
+- tout utilisateur connecté peut créer une idée pour son propre `uid` ;
+- les lectures de la collection complète sont réservées à l'admin allowlisté ;
+- les mises à jour sont réservées à l'admin et limitées au `status` et à `updatedAt` ;
+- la suppression n'est pas autorisée.
 
 ## Offline et déploiement
 
