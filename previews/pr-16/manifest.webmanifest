@@ -1,0 +1,16 @@
+{
+  "name": "MovieMash",
+  "short_name": "MovieMash",
+  "description": "A fast local pairwise ranking app for films.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f8f1",
+  "theme_color": "#1f7a4c",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
