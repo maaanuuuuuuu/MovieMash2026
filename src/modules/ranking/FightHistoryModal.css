@@ -59,6 +59,33 @@
   color: var(--muted);
 }
 
+.fight-modal__social-proof {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(223, 242, 220, 0.96), rgba(248, 244, 221, 0.96));
+}
+
+.fight-modal__social-proof-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.fight-modal__social-proof-line,
+.fight-modal__social-proof-loading {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.fight-modal__social-proof-loading {
+  margin-bottom: 16px;
+  color: var(--muted);
+}
+
 .fight-modal__list {
   list-style: none;
   margin: 0;
@@ -122,6 +149,8 @@
   }
 
   .fight-modal__empty,
+  .fight-modal__social-proof-line,
+  .fight-modal__social-proof-loading,
   .fight-modal__row {
     font-size: 1.12rem;
   }

@@ -1,7 +1,9 @@
 import {
+  collection,
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   serverTimestamp,
   setDoc,
   type DocumentData,
@@ -52,6 +54,7 @@ function toPublicProfileRecord(userId: string, data: DocumentData): PublicProfil
     displayName: readString(data, 'displayName') || 'MovieMash user',
     photoURL: readNullableString(data, 'photoURL'),
     topItemIds: readStringArray(data, 'topItemIds').slice(0, 20),
+    top50ItemIds: readStringArray(data, 'top50ItemIds').slice(0, 50),
     updatedAtMs: readTimestampMillis(data, 'updatedAt'),
   };
 }
@@ -100,4 +103,15 @@ export async function readFollowingState(user: AuthUser, targetUserId: string) {
   const firestore = getRequiredFirestore();
   const followDocument = await getDoc(doc(firestore, 'users', user.uid, 'following', targetUserId));
   return followDocument.exists();
+}
+
+export async function readFollowedPublicProfiles(user: AuthUser) {
+  const firestore = getRequiredFirestore();
+  const followingSnapshots = await getDocs(collection(firestore, 'users', user.uid, 'following'));
+  const targetUserIds = followingSnapshots.docs
+    .map((snapshot) => snapshot.id)
+    .filter((targetUserId) => targetUserId !== user.uid);
+
+  const followedProfiles = await Promise.all(targetUserIds.map((targetUserId) => readPublicProfile(targetUserId)));
+  return followedProfiles.filter((profile): profile is PublicProfileRecord => profile !== undefined);
 }

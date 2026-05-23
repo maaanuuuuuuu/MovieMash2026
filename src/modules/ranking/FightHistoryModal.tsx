@@ -7,10 +7,19 @@ type FightHistoryModalProps = {
   item: FilmItem;
   records: ComparisonRecord[];
   itemById: Map<string, FilmItem>;
+  socialProofLines: string[];
+  socialProofLoading: boolean;
   onClose: () => void;
 };
 
-export function FightHistoryModal({ item, records, itemById, onClose }: FightHistoryModalProps) {
+export function FightHistoryModal({
+  item,
+  records,
+  itemById,
+  socialProofLines,
+  socialProofLoading,
+  onClose,
+}: FightHistoryModalProps) {
   const fights = records
     .map((record) => getFightHistoryEntry(record, item, itemById))
     .filter((entry) => entry !== undefined)
@@ -33,6 +42,20 @@ export function FightHistoryModal({ item, records, itemById, onClose }: FightHis
             Close
           </button>
         </header>
+        {socialProofLines.length > 0 ? (
+          <section className="fight-modal__social-proof" aria-label="Friend interest signals">
+            <p className="eyebrow">Friends ranked this high</p>
+            <ul className="fight-modal__social-proof-list">
+              {socialProofLines.map((line) => (
+                <li key={line} className="fight-modal__social-proof-line">
+                  {line}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : socialProofLoading ? (
+          <p className="fight-modal__social-proof-loading">Checking followed rankings...</p>
+        ) : null}
 
         {fights.length === 0 ? (
           <p className="fight-modal__empty">No logged fights with point changes yet.</p>
