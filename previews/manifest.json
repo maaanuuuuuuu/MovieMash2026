@@ -6,8 +6,18 @@
       "branch": "main",
       "kind": "main",
       "url": "https://maaanuuuuuuu.github.io/MovieMash2026/",
-      "updatedAt": "2026-05-23T14:16:32.967Z",
+      "updatedAt": "2026-05-23T14:41:45.865Z",
       "sha": "80dc741a0b2998f5c5861f0f359b5e5227593064"
+    },
+    {
+      "id": "pr-28",
+      "name": "PR #28 - codex/issue-8-friend-interest-signals",
+      "branch": "codex/issue-8-friend-interest-signals",
+      "kind": "pull_request",
+      "url": "https://maaanuuuuuuu.github.io/MovieMash2026/previews/pr-28/",
+      "updatedAt": "2026-05-23T14:41:45.869Z",
+      "sha": "fa40cb5e193486021426452e387918ddd3315929",
+      "prNumber": 28
     },
     {
       "id": "pr-24",
