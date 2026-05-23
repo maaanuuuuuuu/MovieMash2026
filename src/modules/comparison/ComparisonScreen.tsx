@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { BetaFeedbackBanner } from '../../common/BetaFeedbackBanner';
 import './ComparisonScreen.css';
 import { ConfirmationBurst } from './ConfirmationBurst';
 import { CelebrationToast } from './CelebrationToast';
@@ -39,6 +40,7 @@ export function ComparisonScreen({ flow, filter }: ComparisonScreenProps) {
         <FilmFilterSwitch activeFilter={filter} view="comparison" />
         <p className="eyebrow">{filter.eyebrow}</p>
         <h1>{filter.title}</h1>
+        <BetaFeedbackBanner />
         <SuggestListIdeaButton />
       </header>
 

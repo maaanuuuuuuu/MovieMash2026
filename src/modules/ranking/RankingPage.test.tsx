@@ -128,6 +128,19 @@ describe('filtered ranking page', () => {
     expect(screen.getByRole('button', { name: 'Share top 20' })).toBeInTheDocument();
   });
 
+  it('shows the beta feedback invite on the ranking page', () => {
+    render(
+      <HashRouter>
+        <RankingPage filter={actionFilmFilter} />
+      </HashRouter>,
+    );
+
+    const issuesLink = screen.getByRole('link', { name: 'Report a bug or share an idea on GitHub Issues' });
+
+    expect(screen.getByText('MovieMash is in beta.')).toBeInTheDocument();
+    expect(issuesLink).toHaveAttribute('href', 'https://github.com/maaanuuuuuuu/MovieMash2026/issues/new/choose');
+  });
+
   it('shows genre filters on the ranking page and keeps the ranking route', async () => {
     const user = userEvent.setup();
 

@@ -77,6 +77,11 @@
   font-weight: 800;
 }
 
+.ranking-page__header .beta-feedback-banner {
+  margin-top: 12px;
+  max-width: 32rem;
+}
+
 .ranking-list {
   list-style: none;
   margin: 0;
