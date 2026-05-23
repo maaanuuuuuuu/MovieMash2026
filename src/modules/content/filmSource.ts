@@ -19,7 +19,11 @@ export const COVERING_FILM_FILTER_GENRES = [
 ] as const satisfies readonly FilmGenre[];
 
 export type CoveringFilmFilterGenre = (typeof COVERING_FILM_FILTER_GENRES)[number];
-export type FilmFilterId = 'all' | CoveringFilmFilterGenre;
+export const EXPOSED_DECADE_FILTER_STARTS = [1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020] as const;
+
+export type ExposedDecadeFilterStart = (typeof EXPOSED_DECADE_FILTER_STARTS)[number];
+export type DecadeFilmFilterId = `${ExposedDecadeFilterStart}s`;
+export type FilmFilterId = 'all' | CoveringFilmFilterGenre | DecadeFilmFilterId;
 
 export type FilmFilter = {
   id: FilmFilterId;
@@ -49,6 +53,10 @@ function filmsWithGenre(genre: FilmGenre) {
   return frozenFilms.filter((film) => film.genres.includes(genre));
 }
 
+function filmsWithDecadeStart(decadeStart: ExposedDecadeFilterStart) {
+  return frozenFilms.filter((film) => Math.floor(film.year / 10) * 10 === decadeStart);
+}
+
 function getGenreLabel(genre: CoveringFilmFilterGenre) {
   if (genre === 'science-fiction') {
     return 'Science Fiction';
@@ -76,6 +84,22 @@ function createGenreFilter(genre: CoveringFilmFilterGenre): FilmFilter {
   };
 }
 
+function createDecadeFilter(decadeStart: ExposedDecadeFilterStart): FilmFilter {
+  const label = `${decadeStart}s` as DecadeFilmFilterId;
+  const comparisonPath = `/${label}`;
+
+  return {
+    id: label,
+    title: `${label} movies`,
+    shortLabel: label,
+    eyebrow: `${label} filter`,
+    comparisonPath,
+    rankingPath: `${comparisonPath}/ranking`,
+    savedPath: `${comparisonPath}/saved`,
+    films: filmsWithDecadeStart(decadeStart),
+  };
+}
+
 export const allFilms = frozenFilms;
 export const genreFilmsByFilterId = Object.fromEntries(
   COVERING_FILM_FILTER_GENRES.map((genre) => [genre, filmsWithGenre(genre)]),
@@ -95,6 +119,7 @@ export const allFilmFilter: FilmFilter = {
 };
 
 export const genreFilmFilters = COVERING_FILM_FILTER_GENRES.map(createGenreFilter);
+export const decadeFilmFilters = EXPOSED_DECADE_FILTER_STARTS.map(createDecadeFilter);
 
 function getGenreFilmFilter(genre: CoveringFilmFilterGenre) {
   const filter = genreFilmFilters.find((candidate) => candidate.id === genre);
@@ -108,19 +133,27 @@ function getGenreFilmFilter(genre: CoveringFilmFilterGenre) {
 
 export const actionFilmFilter = getGenreFilmFilter('action');
 export const comedyFilmFilter = getGenreFilmFilter('comedy');
-export const filmFilters = [allFilmFilter, ...genreFilmFilters];
+export const filmFilters = [allFilmFilter, ...genreFilmFilters, ...decadeFilmFilters];
 
 export const filmItems = toFilmItems(allFilms);
 export const allFilmItems = filmItems;
 export const genreFilmItemsByFilterId = Object.fromEntries(
   COVERING_FILM_FILTER_GENRES.map((genre) => [genre, toFilmItems(genreFilmsByFilterId[genre])]),
 ) as Record<CoveringFilmFilterGenre, FilmItem[]>;
+export const decadeFilmItemsByFilterId = Object.fromEntries(
+  EXPOSED_DECADE_FILTER_STARTS.map((decadeStart) => {
+    const filterId = `${decadeStart}s` as DecadeFilmFilterId;
+
+    return [filterId, toFilmItems(filmsWithDecadeStart(decadeStart))];
+  }),
+) as Record<DecadeFilmFilterId, FilmItem[]>;
 export const actionFilmItems = genreFilmItemsByFilterId.action;
 export const comedyFilmItems = genreFilmItemsByFilterId.comedy;
 
 export const filmItemsByFilterId = {
   all: filmItems,
   ...genreFilmItemsByFilterId,
+  ...decadeFilmItemsByFilterId,
 } satisfies Record<FilmFilterId, FilmItem[]>;
 
 export const filmItemById = new Map(allFilmItems.map((item) => [item.id, item]));

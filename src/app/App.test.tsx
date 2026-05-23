@@ -18,7 +18,7 @@ async function seedStableTop(filterId: FilmFilterId, count: number) {
 }
 
 async function chooseGenreFilter(user: ReturnType<typeof userEvent.setup>, label: string) {
-  await user.click(screen.getByRole('button', { name: /Change genre filter/ }));
+  await user.click(screen.getByRole('button', { name: /Change movie filter/ }));
   await user.click(screen.getByRole('link', { name: new RegExp(`^${label}\\b`) }));
 }
 
@@ -156,6 +156,21 @@ describe('main app flow', () => {
     expect(await screen.findByRole('heading', { name: 'Saved movies' })).toBeInTheDocument();
     expect(screen.getByText('Science Fiction filter')).toBeInTheDocument();
     expect(screen.getByLabelText('Back to ranking')).toHaveAttribute('href', '#/science-fiction/ranking');
+  });
+
+  it('opens the decade ranking filter directly and returns to decade comparisons', async () => {
+    const user = userEvent.setup();
+    window.location.hash = '#/1990s/ranking';
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'Your ranking' })).toBeInTheDocument();
+    expect(screen.getByText('1990s filter')).toBeInTheDocument();
+    expect(screen.getAllByRole('listitem')).toHaveLength(filmItemsByFilterId['1990s'].length);
+
+    await user.click(screen.getByLabelText('Back to comparisons'));
+
+    expect(await screen.findByRole('heading', { name: '1990s movies' })).toBeInTheDocument();
+    expect(await screen.findByText(`${filmItemsByFilterId['1990s'].length} total`)).toBeInTheDocument();
   });
 
   it('shows a stable top milestone once for the current filter', async () => {

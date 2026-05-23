@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   allFilmItems,
   COVERING_FILM_FILTER_GENRES,
+  EXPOSED_DECADE_FILTER_STARTS,
+  decadeFilmFilters,
   filmFilters,
   filmItems,
   filmItemsByFilterId,
@@ -16,9 +18,9 @@ describe('film filter sources', () => {
 
       expect(items).toHaveLength(filter.films.length);
       expect(new Set(itemIds).size).toBe(items.length);
-      expect(filter.comparisonPath).toMatch(/^\/($|[a-z-]+$)/);
-      expect(filter.rankingPath).toMatch(/^\/([a-z-]+\/)?ranking$/);
-      expect(filter.savedPath).toMatch(/^\/([a-z-]+\/)?saved$/);
+      expect(filter.comparisonPath).toMatch(/^\/($|[a-z0-9-]+$)/);
+      expect(filter.rankingPath).toMatch(/^\/([a-z0-9-]+\/)?ranking$/);
+      expect(filter.savedPath).toMatch(/^\/([a-z0-9-]+\/)?saved$/);
     }
   });
 
@@ -45,6 +47,17 @@ describe('film filter sources', () => {
     ]);
   });
 
+  it('builds decade filters from film years', () => {
+    for (const decadeStart of EXPOSED_DECADE_FILTER_STARTS) {
+      const filterId = `${decadeStart}s` as const;
+
+      expect(filmItemsByFilterId[filterId].length).toBeGreaterThan(0);
+      expect(
+        filmItemsByFilterId[filterId].every((item) => Math.floor(item.year / 10) * 10 === decadeStart),
+      ).toBe(true);
+    }
+  });
+
   it('covers every film with the exposed genre filters', () => {
     const coveredIds = new Set(COVERING_FILM_FILTER_GENRES.flatMap((genre) => filmItemsByFilterId[genre].map((item) => item.id)));
     const uncoveredFilms = allFilmItems
@@ -62,6 +75,17 @@ describe('film filter sources', () => {
       comparisonPath: '/science-fiction',
       rankingPath: '/science-fiction/ranking',
       savedPath: '/science-fiction/saved',
+    });
+  });
+
+  it('keeps decade filter routes stable', () => {
+    const decadeFilter = decadeFilmFilters.find((filter) => filter.id === '1990s');
+
+    expect(decadeFilter).toMatchObject({
+      shortLabel: '1990s',
+      comparisonPath: '/1990s',
+      rankingPath: '/1990s/ranking',
+      savedPath: '/1990s/saved',
     });
   });
 

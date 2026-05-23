@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { HashRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { RankingItemState } from '../../domain/item';
-import { GLOBAL_FILM_SCOPE_ID, actionFilmFilter, filmItems, filmItemsByFilterId } from '../content/filmSource';
+import { GLOBAL_FILM_SCOPE_ID, actionFilmFilter, filmFilters, filmItems, filmItemsByFilterId } from '../content/filmSource';
 import { db, resetDatabase } from '../persistence/db';
 import { RankingPage } from './RankingPage';
 import { SavedMoviesPage } from './SavedMoviesPage';
@@ -35,9 +35,9 @@ function savedState(itemId: string, index: number): RankingItemState {
 }
 
 async function openFilterMenu(user: ReturnType<typeof userEvent.setup>) {
-  const filterNav = screen.getByRole('navigation', { name: 'Genre filter' });
+  const filterNav = screen.getByRole('navigation', { name: 'Movie filter' });
 
-  await user.click(within(filterNav).getByRole('button', { name: /Change genre filter/ }));
+  await user.click(within(filterNav).getByRole('button', { name: /Change movie filter/ }));
 
   return screen.getByRole('dialog', { name: 'Filter movies' });
 }
@@ -130,6 +130,7 @@ describe('filtered ranking page', () => {
     const filterMenu = await openFilterMenu(user);
     const allLink = within(filterMenu).getByRole('link', { name: /^All\b/ });
     const actionLink = within(filterMenu).getByRole('link', { name: /^Action\b/ });
+    const ninetiesLink = within(filterMenu).getByRole('link', { name: /^1990s\b/ });
     const scienceFictionLink = within(filterMenu).getByRole('link', { name: /^Science Fiction\b/ });
     const westernLink = within(filterMenu).getByRole('link', { name: /^Western\b/ });
 
@@ -137,11 +138,12 @@ describe('filtered ranking page', () => {
     expect(actionLink).toHaveAttribute('href', '#/action/ranking');
     expect(actionLink).toHaveAttribute('aria-current', 'page');
     expect(actionLink).toHaveClass('film-filter-switch__option--active');
+    expect(ninetiesLink).toHaveAttribute('href', '#/1990s/ranking');
     expect(scienceFictionLink).toHaveAttribute('href', '#/science-fiction/ranking');
     expect(westernLink).toHaveAttribute('href', '#/western/ranking');
   });
 
-  it('closes the genre filter panel from its close button', async () => {
+  it('closes the movie filter panel from its close button', async () => {
     const user = userEvent.setup();
 
     render(
@@ -151,10 +153,10 @@ describe('filtered ranking page', () => {
     );
 
     const filterMenu = await openFilterMenu(user);
-    await user.click(within(filterMenu).getByRole('button', { name: 'Close genre filters' }));
+    await user.click(within(filterMenu).getByRole('button', { name: 'Close movie filters' }));
 
     expect(screen.queryByRole('dialog', { name: 'Filter movies' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Change genre filter/ })).toHaveFocus();
+    expect(screen.getByRole('button', { name: /Change movie filter/ })).toHaveFocus();
   });
 
   it('does not show interested movies above the ranking list', async () => {
@@ -208,6 +210,7 @@ describe('filtered ranking page', () => {
     const filterMenu = await openFilterMenu(user);
     const allLink = within(filterMenu).getByRole('link', { name: /^All\b/ });
     const actionLink = within(filterMenu).getByRole('link', { name: /^Action\b/ });
+    const ninetiesLink = within(filterMenu).getByRole('link', { name: /^1990s\b/ });
     const scienceFictionLink = within(filterMenu).getByRole('link', { name: /^Science Fiction\b/ });
     const westernLink = within(filterMenu).getByRole('link', { name: /^Western\b/ });
 
@@ -215,7 +218,31 @@ describe('filtered ranking page', () => {
     expect(actionLink).toHaveAttribute('href', '#/action/saved');
     expect(actionLink).toHaveAttribute('aria-current', 'page');
     expect(actionLink).toHaveClass('film-filter-switch__option--active');
+    expect(ninetiesLink).toHaveAttribute('href', '#/1990s/saved');
     expect(scienceFictionLink).toHaveAttribute('href', '#/science-fiction/saved');
     expect(westernLink).toHaveAttribute('href', '#/western/saved');
+  });
+
+  it('opens a decade filter from the ranking menu and keeps decade routes', async () => {
+    const user = userEvent.setup();
+    const decadeFilter = filmFilters.find((filter) => filter.id === '1990s');
+
+    if (!decadeFilter) {
+      throw new Error('Expected a 1990s filter.');
+    }
+
+    render(
+      <HashRouter>
+        <RankingPage filter={decadeFilter} />
+      </HashRouter>,
+    );
+
+    const filterMenu = await openFilterMenu(user);
+    const activeLink = within(filterMenu).getByRole('link', { name: /^1990s\b/ });
+    const allLink = within(filterMenu).getByRole('link', { name: /^All\b/ });
+
+    expect(activeLink).toHaveAttribute('href', '#/1990s/ranking');
+    expect(activeLink).toHaveAttribute('aria-current', 'page');
+    expect(allLink).toHaveAttribute('href', '#/ranking');
   });
 });
