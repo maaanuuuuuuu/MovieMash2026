@@ -6,8 +6,18 @@
       "branch": "main",
       "kind": "main",
       "url": "https://maaanuuuuuuu.github.io/MovieMash2026/",
-      "updatedAt": "2026-05-23T10:07:35.962Z",
+      "updatedAt": "2026-05-23T11:51:46.195Z",
       "sha": "1f9621d5ba48ccf414d95ed5c4bc3baa3a09e0e5"
+    },
+    {
+      "id": "pr-18",
+      "name": "PR #18 - codex/issue-11-competition-mode",
+      "branch": "codex/issue-11-competition-mode",
+      "kind": "pull_request",
+      "url": "https://maaanuuuuuuu.github.io/MovieMash2026/previews/pr-18/",
+      "updatedAt": "2026-05-23T11:51:46.248Z",
+      "sha": "2fe5e041f8632ba866db8706f6122dcb8739405f",
+      "prNumber": 18
     },
     {
       "id": "pr-17",
