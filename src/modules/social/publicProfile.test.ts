@@ -17,7 +17,7 @@ function createSnapshot(): DatabaseSnapshot {
     rankingStates: [
       {
         catalogId: 'default',
-        itemId: 'alien',
+        itemId: 'aliens',
         rating: 1700,
         appearances: 8,
         wins: 6,
@@ -79,7 +79,7 @@ function createSnapshot(): DatabaseSnapshot {
 
 describe('public profile helpers', () => {
   it('builds a public top 20 from active default states only', () => {
-    expect(getPublicProfileTopItemIds(createSnapshot())).toEqual(['alien', 'following']);
+    expect(getPublicProfileTopItemIds(createSnapshot())).toEqual(['aliens', 'following']);
   });
 
   it('creates a public profile document with a trimmed display name', () => {
@@ -87,7 +87,7 @@ describe('public profile helpers', () => {
       schemaVersion: 1,
       displayName: 'Manu',
       photoURL: 'https://example.com/avatar.png',
-      topItemIds: ['alien', 'following'],
+      topItemIds: ['aliens', 'following'],
     });
   });
 
@@ -96,10 +96,10 @@ describe('public profile helpers', () => {
       userId: 'friend-1',
       displayName: 'Friend',
       photoURL: null,
-      topItemIds: ['alien', 'following'],
+      topItemIds: ['aliens', 'following'],
       updatedAtMs: null,
     });
 
-    expect(topItems.map((item) => item.id)).toEqual(['alien', 'following']);
+    expect(topItems.map((item) => item.id)).toEqual(['aliens', 'following']);
   });
 });
