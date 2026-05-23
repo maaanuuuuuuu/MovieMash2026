@@ -1,10 +1,12 @@
-import { Check, ChevronDown, ListFilter, X } from 'lucide-react';
+import { Check, ChevronDown, ListFilter, Swords, X } from 'lucide-react';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { getCompetitionLeague } from '../competition/competitionRepository';
 import './FilmFilterSwitch.css';
 import { filmFilters, type FilmFilter } from './filmSource';
 
-export type FilmFilterSwitchView = 'comparison' | 'ranking' | 'saved';
+export type FilmFilterSwitchView = 'comparison' | 'ranking' | 'saved' | 'competition';
 
 type FilmFilterSwitchProps = {
   activeFilter: FilmFilter;
@@ -19,6 +21,8 @@ function getFilterPath(filter: FilmFilter, view: FilmFilterSwitchView) {
       return filter.rankingPath;
     case 'saved':
       return filter.savedPath;
+    case 'competition':
+      return filter.comparisonPath;
     default:
       return view satisfies never;
   }
@@ -30,9 +34,17 @@ function getMovieCountLabel(count: number) {
 
 export function FilmFilterSwitch({ activeFilter, view }: FilmFilterSwitchProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const competitionLeague = useLiveQuery(() => getCompetitionLeague(), [], null);
   const panelId = useId();
   const panelTitleId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const competitionLabel =
+    competitionLeague && !competitionLeague.completedAt ? 'Resume competition league' : 'Start competition league';
+  const competitionDetail =
+    competitionLeague && !competitionLeague.completedAt
+      ? `${competitionLeague.remainingMatchups.length} matches left`
+      : 'Freeze the current All top 20';
+  const isCompetitionActive = view === 'competition';
 
   // Let keyboard users close the open filter menu without moving focus away.
   useEffect(() => {
@@ -111,6 +123,25 @@ export function FilmFilterSwitch({ activeFilter, view }: FilmFilterSwitchProps) 
               </button>
             </div>
             <div className="film-filter-switch__options">
+              <Link
+                to="/competition"
+                aria-current={isCompetitionActive ? 'page' : undefined}
+                className={
+                  isCompetitionActive
+                    ? 'film-filter-switch__competition film-filter-switch__competition--active'
+                    : 'film-filter-switch__competition'
+                }
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="film-filter-switch__competition-icon">
+                  <Swords aria-hidden="true" size={18} />
+                </span>
+                <span className="film-filter-switch__competition-main">
+                  <span className="film-filter-switch__option-label">{competitionLabel}</span>
+                  <span className="film-filter-switch__option-count">{competitionDetail}</span>
+                </span>
+                {isCompetitionActive ? <Check aria-hidden="true" size={18} /> : null}
+              </Link>
               {filmFilters.map((availableFilter) => {
                 const isActive = availableFilter.id === activeFilter.id;
 

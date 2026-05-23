@@ -102,6 +102,47 @@ describe('main app flow', () => {
     expect(screen.getByText('Sign-in is not available in this build.')).toBeInTheDocument();
   });
 
+  it('starts the competition league from the filter switch', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await screen.findAllByRole('button', { name: /^Choose / });
+    await user.click(screen.getByRole('button', { name: /Change movie filter/ }));
+    await user.click(screen.getByRole('link', { name: /Start competition league/i }));
+
+    expect(await screen.findByRole('heading', { name: 'League in progress' })).toBeInTheDocument();
+    expect(await screen.findByText('190 left')).toBeInTheDocument();
+    expect(screen.getByText('190 total')).toBeInTheDocument();
+
+    await user.click((await screen.findAllByRole('button', { name: /^Choose / }))[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('1 done')).toBeInTheDocument();
+    });
+    expect(screen.getByText('189 left')).toBeInTheDocument();
+  });
+
+  it('resumes the same competition after leaving the route', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await screen.findAllByRole('button', { name: /^Choose / });
+    await user.click(screen.getByRole('button', { name: /Change movie filter/ }));
+    await user.click(screen.getByRole('link', { name: /Start competition league/i }));
+
+    const firstLeagueChoices = await screen.findAllByRole('button', { name: /^Choose / });
+    const firstLeagueLabels = firstLeagueChoices.map((choice) => choice.getAttribute('aria-label'));
+
+    await user.click(screen.getByLabelText('Open ranking'));
+    expect(await screen.findByRole('heading', { name: 'Your ranking' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Change movie filter/ }));
+    await user.click(screen.getByRole('link', { name: /Resume competition league/i }));
+
+    const resumedLeagueChoices = await screen.findAllByRole('button', { name: /^Choose / });
+    expect(resumedLeagueChoices.map((choice) => choice.getAttribute('aria-label'))).toEqual(firstLeagueLabels);
+  });
+
   it('uses action as a global ranking filter', async () => {
     const user = userEvent.setup();
     render(<App />);

@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { CompetitionPage } from '../modules/competition/CompetitionPage';
 import { filmFilters } from '../modules/content/filmSource';
 import { ListIdeaReviewPage } from '../modules/listIdeas/ListIdeaReviewPage';
 import { SuggestListIdeaPage } from '../modules/listIdeas/SuggestListIdeaPage';
@@ -31,6 +32,7 @@ export function AppRoutes() {
         {filmFilters.map((filter) => (
           <Route key={filter.savedPath} path={filter.savedPath} element={<SavedMoviesPage filter={filter} />} />
         ))}
+        <Route path="/competition" element={<CompetitionPage />} />
         <Route path="/suggestions/new" element={<SuggestListIdeaPage />} />
         <Route path="/suggestions/review" element={<ListIdeaReviewPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

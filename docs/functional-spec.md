@@ -25,6 +25,7 @@ L'application utilise un `HashRouter`, ce qui donne des routes avec `#` sur GitH
 | `#/` | Match | Tous les films actifs peuvent être proposés. |
 | `#/ranking` | Liste | Classement global complet. |
 | `#/saved` | Liste | Films globaux marqués `interested` ou `removed`, avec restauration. |
+| `#/competition` | Match | Ligue fixe sur le top 20 global courant tant qu'une ligue existe. |
 | `#/suggestions/new` | Formulaire | Soumission d'une idée de nouvelle liste. |
 | `#/suggestions/review` | Admin | Revue des idées soumises et changement de statut. |
 | `#/<genre>` | Match | Seuls les films avec ce genre peuvent être proposés. |
@@ -41,6 +42,8 @@ Les routes de décennie exposées sont `1950s`, `1960s`, `1970s`, `1980s`, `1990
 Le sélecteur de filtre ne change pas de base de données. Il change seulement le filtre de vue et de sélection des duels.
 
 Le filtre actif est visible sur l'écran de match, la page de classement et la page de restauration. Un bouton ouvre un panneau avec `All`, les 10 genres exposés, puis les 8 décennies exposées. Chaque option affiche aussi le nombre de films du filtre. Changer de filtre depuis une liste garde le même type de vue.
+
+Ce panneau contient aussi une entrée `Competition league`. Elle ouvre `#/competition`. Si une ligue est déjà en cours, cette même entrée la reprend au lieu d'en créer une nouvelle.
 
 ## Catalogue de films
 
@@ -116,6 +119,8 @@ L'écran de match affiche :
 - un feedback court après un choix, une égalité, un `interested` ou un `removed` ;
 - une célébration de stabilité affichée une seule fois.
 
+Depuis le panneau de filtre, l'utilisateur peut aussi ouvrir une ligue de compétition. Cette ligue ne vit que dans `All`.
+
 Actions utilisateur :
 
 - Cliquer une carte choisit ce film comme gagnant.
@@ -136,6 +141,25 @@ Actions utilisateur :
 Le bouton flottant vers le ranking est secondaire. Il se cache pendant une interaction et réapparaît après une période d'inactivité.
 
 La file spéculative contient au maximum 4 duels. Elle est recalculée après les changements IndexedDB.
+
+## Mode compétition
+
+Le mode compétition vit sur `#/competition`.
+
+Quand l'utilisateur ouvre ce mode sans ligue existante, l'application fige les 20 meilleurs films actifs du classement global `All` à cet instant. Cette sélection reste fixe jusqu'à la fin de la ligue, même si le classement global bouge ensuite.
+
+La ligue est un round-robin simple :
+
+- chaque paire de films sélectionnés joue une seule fois ;
+- la ligue contient donc 190 duels ;
+- les résultats modifient le ranking global normal ;
+- il n'existe pas de classement séparé propre à la ligue.
+
+Si l'utilisateur quitte la page puis revient sur `#/competition`, l'application reprend la même ligue tant qu'il reste des duels.
+
+Quand la ligue finit, la page affiche le top 3 du classement global courant. Un bouton permet alors de relancer une nouvelle ligue, qui reprend à ce moment-là le nouveau top 20 global actif.
+
+Le mode compétition ne propose pas de geste `not seen` ni de bouton d'annulation. Il sert seulement à enchaîner les duels de la ligue fixe.
 
 ## Responsivité
 
@@ -251,6 +275,8 @@ Base actuelle :
 - table `catalogRankingStates` : état de ranking par `catalogId` et `itemId`, avec `notSeenDisposition` pour `interested` ou `removed` ;
 - table `comparisons` : historique des choix, égalités et états non vus, avec les changements de score requis pour annuler le dernier vote ;
 - table `meta` : petits drapeaux applicatifs, comme les notifications de top stable déjà affichées.
+
+La table `meta` stocke aussi l'état éventuel de la ligue de compétition, avec ses participants figés et ses duels restants.
 
 Le code initialise seulement le scope `default`. Si de nouveaux films sont ajoutés au catalogue, leurs états manquants sont créés avec 1000 points sans effacer l'historique existant.
 

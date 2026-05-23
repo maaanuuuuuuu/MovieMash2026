@@ -1,0 +1,115 @@
+.competition-page__hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  font-weight: 700;
+}
+
+.competition-page__status {
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.competition-empty-state,
+.competition-summary {
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: 24px 22px;
+  border: 1px solid rgba(23, 33, 27, 0.12);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 18px 52px rgba(23, 33, 27, 0.12);
+}
+
+.competition-empty-state {
+  display: grid;
+  gap: 18px;
+  text-align: center;
+}
+
+.competition-page__back-link,
+.competition-summary__restart {
+  min-height: 52px;
+  padding: 0 18px;
+  border: 1px solid rgba(23, 33, 27, 0.12);
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.competition-summary {
+  display: grid;
+  gap: 18px;
+}
+
+.competition-summary__badge {
+  width: fit-content;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(31, 122, 76, 0.12);
+  color: var(--green);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.competition-summary h2,
+.competition-summary p {
+  margin: 0;
+}
+
+.competition-summary__podium {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  list-style: none;
+}
+
+.competition-summary__podium-item {
+  padding: 12px;
+  border-radius: 18px;
+  background: #f3f7f1;
+  display: grid;
+  grid-template-columns: auto 56px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.competition-summary__podium-item img {
+  width: 56px;
+  height: 84px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.competition-summary__podium-item span {
+  display: grid;
+  gap: 2px;
+}
+
+.competition-summary__rank {
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+@media (max-width: 679px), (hover: none) and (pointer: coarse) {
+  .competition-empty-state,
+  .competition-summary {
+    padding: 24px 18px;
+  }
+
+  .competition-page__back-link,
+  .competition-summary__restart {
+    min-height: 62px;
+    font-size: 1.04rem;
+  }
+}
