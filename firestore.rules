@@ -93,13 +93,16 @@ service cloud.firestore {
         'displayName',
         'photoURL',
         'topItemIds',
+        'top50ItemIds',
         'updatedAt',
       ])
-        && request.resource.data.schemaVersion == 1
+        && request.resource.data.schemaVersion == 2
         && isRequiredIdeaText(request.resource.data.displayName, 80)
         && (request.resource.data.photoURL == null || isOptionalIdeaText(request.resource.data.photoURL, 500))
         && request.resource.data.topItemIds is list
         && request.resource.data.topItemIds.size() <= 20
+        && request.resource.data.top50ItemIds is list
+        && request.resource.data.top50ItemIds.size() <= 50
         && request.resource.data.updatedAt == request.time;
     }
   }

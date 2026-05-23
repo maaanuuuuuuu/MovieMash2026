@@ -9,11 +9,13 @@ export type PublicProfileRecord = {
   displayName: string;
   photoURL: string | null;
   topItemIds: string[];
+  top50ItemIds: string[];
   updatedAtMs: number | null;
 };
 
-export const PUBLIC_PROFILE_SCHEMA_VERSION = 1;
+export const PUBLIC_PROFILE_SCHEMA_VERSION = 2;
 export const PUBLIC_PROFILE_TOP_SIZE = 20;
+export const PUBLIC_PROFILE_SOCIAL_PROOF_SIZE = 50;
 
 function isGlobalActiveState(state: SnapshotRankingItemState) {
   return state.catalogId === GLOBAL_FILM_SCOPE_ID && state.active;
@@ -24,12 +26,12 @@ export function getPublicProfileDisplayName(user: AuthUser) {
   return displayName && displayName.length > 0 ? displayName : 'MovieMash user';
 }
 
-export function getPublicProfileTopItemIds(snapshot: DatabaseSnapshot) {
+export function getPublicProfileTopItemIds(snapshot: DatabaseSnapshot, limit = PUBLIC_PROFILE_TOP_SIZE) {
   const rankingStates = snapshot.rankingStates
     .filter(isGlobalActiveState)
     .map((state) => ({ ...state, notSeenDisposition: state.notSeenDisposition ?? null }));
 
-  return getOrderedRanking(rankingStates).slice(0, PUBLIC_PROFILE_TOP_SIZE).map((state) => state.itemId);
+  return getOrderedRanking(rankingStates).slice(0, limit).map((state) => state.itemId);
 }
 
 export function createPublicProfileDocument(user: AuthUser, snapshot: DatabaseSnapshot) {
@@ -37,7 +39,8 @@ export function createPublicProfileDocument(user: AuthUser, snapshot: DatabaseSn
     schemaVersion: PUBLIC_PROFILE_SCHEMA_VERSION,
     displayName: getPublicProfileDisplayName(user),
     photoURL: user.photoURL ?? null,
-    topItemIds: getPublicProfileTopItemIds(snapshot),
+    topItemIds: getPublicProfileTopItemIds(snapshot, PUBLIC_PROFILE_TOP_SIZE),
+    top50ItemIds: getPublicProfileTopItemIds(snapshot, PUBLIC_PROFILE_SOCIAL_PROOF_SIZE),
   };
 }
 

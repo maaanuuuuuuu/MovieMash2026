@@ -24,6 +24,7 @@ import { FightHistoryModal } from './FightHistoryModal';
 import { RankingRow } from './RankingRow';
 import { createFallbackRankingStates, getFilteredRankingRows, rankingRemovalMessage } from './RankingPage.utils';
 import { ShareRankingButton } from './ShareRankingButton';
+import { useInterestedMovieSocialProof } from '../social/useInterestedMovieSocialProof';
 
 type RankingPageProps = {
   filter: FilmFilter;
@@ -43,6 +44,8 @@ export function RankingPage({ filter }: RankingPageProps) {
   const rankedRows = getFilteredRankingRows(states, filterItemIdSet, locallyRemovedItemIds);
   const topItemIds = rankedRows.slice(0, 20).map(({ state }) => state.itemId);
   const selectedItem = selectedItemId ? filmItemById.get(selectedItemId) : undefined;
+  const selectedState = selectedItemId ? states.find((state) => state.itemId === selectedItemId) : undefined;
+  const socialProofState = useInterestedMovieSocialProof(selectedState);
   const canRemoveFromRanking = rankedRows.length > MINIMUM_ACTIVE_ITEMS;
 
   async function handleMarkNotSeen(itemId: string, itemLabel: string, disposition: NotSeenDisposition) {
@@ -121,6 +124,8 @@ export function RankingPage({ filter }: RankingPageProps) {
           item={selectedItem}
           records={records}
           itemById={filmItemById}
+          socialProofLines={socialProofState.lines}
+          socialProofLoading={socialProofState.isLoading}
           onClose={() => setSelectedItemId(undefined)}
         />
       ) : null}

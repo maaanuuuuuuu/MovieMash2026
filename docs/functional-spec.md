@@ -210,6 +210,13 @@ Sous le titre, la page de classement affiche aussi une invite beta avec un lien 
 
 Cliquer une ligne ouvre l'historique des duels du film. Les entrées affichent le résultat, l'adversaire et le changement de points quand il existe. Les événements `notSeen` ne sont pas listés dans cet historique.
 
+Si le film est actuellement marqué `interested`, cette même modale peut aussi afficher jusqu'à deux lignes courtes de preuve sociale lues depuis Firestore :
+
+- une ligne `love this` pour les utilisateurs suivis qui ont ce film dans leur top 20 public ;
+- une ligne `really like this` pour les utilisateurs suivis qui ont ce film dans leur top 50 public sans déjà apparaître dans la ligne top 20.
+
+Chaque ligne montre au maximum trois noms. Cette preuve sociale n'apparaît que pour les utilisateurs connectés à Google.
+
 La page de classement a un bouton icon-only vers la page des films sauvegardés. Les films `interested` et `removed` ne sont pas affichés au-dessus du ranking.
 
 La page de classement a aussi une action `Share top 20`. Elle prend les 20 premiers films visibles du filtre courant, génère un lien de partage local-first, puis ouvre le partage natif du navigateur quand il existe. Sinon, elle copie le lien dans le presse-papiers.
@@ -363,10 +370,10 @@ Les règles Firestore autorisent un utilisateur connecté à lire et écrire uni
 
 Le cloud social ajoute aussi les documents suivants :
 
-- `publicProfiles/{uid}` : document public avec `schemaVersion`, `displayName`, `photoURL`, `topItemIds` et `updatedAt`.
+- `publicProfiles/{uid}` : document public avec `schemaVersion`, `displayName`, `photoURL`, `topItemIds`, `top50ItemIds` et `updatedAt`.
 - `users/{uid}/following/{targetUid}` : relation de follow privÃ©e au propriÃ©taire, avec `targetUserId`, `createdAt` et `updatedAt`.
 
-Chaque Ã©criture cloud met aussi Ã  jour `publicProfiles/{uid}` pour reflÃ©ter le top 20 courant sans exposer le snapshot privÃ© complet.
+Chaque Ã©criture cloud met aussi Ã  jour `publicProfiles/{uid}` pour reflÃ©ter le top 20 courant et le top 50 courant sans exposer le snapshot privÃ© complet.
 
 Les rÃ¨gles Firestore autorisent aussi un utilisateur connectÃ© Ã  lire `publicProfiles/{uid}`. Seul le propriÃ©taire peut Ã©crire son propre document public. Les donnÃ©es sous `users/{uid}` restent privÃ©es au propriÃ©taire.
 

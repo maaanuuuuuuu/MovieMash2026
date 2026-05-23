@@ -84,10 +84,11 @@ describe('public profile helpers', () => {
 
   it('creates a public profile document with a trimmed display name', () => {
     expect(createPublicProfileDocument(user, createSnapshot())).toEqual({
-      schemaVersion: 1,
+      schemaVersion: 2,
       displayName: 'Manu',
       photoURL: 'https://example.com/avatar.png',
       topItemIds: ['aliens', 'following'],
+      top50ItemIds: ['aliens', 'following'],
     });
   });
 
@@ -97,6 +98,7 @@ describe('public profile helpers', () => {
       displayName: 'Friend',
       photoURL: null,
       topItemIds: ['aliens', 'following'],
+      top50ItemIds: ['aliens', 'following'],
       updatedAtMs: null,
     });
 

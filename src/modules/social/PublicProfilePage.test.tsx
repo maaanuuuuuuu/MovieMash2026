@@ -51,6 +51,7 @@ describe('public profile page', () => {
       displayName: 'Friend',
       photoURL: null,
       topItemIds: ['aliens', 'following'],
+      top50ItemIds: ['aliens', 'following'],
       updatedAtMs: null,
     });
     mocks.readFollowingState.mockResolvedValue(false);
