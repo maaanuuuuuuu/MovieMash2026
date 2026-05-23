@@ -6,8 +6,18 @@
       "branch": "main",
       "kind": "main",
       "url": "https://maaanuuuuuuu.github.io/MovieMash2026/",
-      "updatedAt": "2026-05-23T13:42:50.882Z",
-      "sha": "b7ea2ffc98c06f5c9d7884e506fddf882ae3e182"
+      "updatedAt": "2026-05-23T14:14:55.249Z",
+      "sha": "1ccc03cd2c41d6d34b26dcaef1c4e93eaf6594db"
+    },
+    {
+      "id": "pr-24",
+      "name": "PR #24 - codex/issue-7-contacts",
+      "branch": "codex/issue-7-contacts",
+      "kind": "pull_request",
+      "url": "https://maaanuuuuuuu.github.io/MovieMash2026/previews/pr-24/",
+      "updatedAt": "2026-05-23T14:14:55.250Z",
+      "sha": "70e83c48338d1f75d575b03239f03517c46065ba",
+      "prNumber": 24
     },
     {
       "id": "pr-20",
