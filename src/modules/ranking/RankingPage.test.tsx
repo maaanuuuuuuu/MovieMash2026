@@ -118,6 +118,16 @@ describe('filtered ranking page', () => {
     expect(screen.getByLabelText('Back to comparisons')).toHaveAttribute('href', '#/action');
   });
 
+  it('offers a share button on the ranking page', () => {
+    render(
+      <HashRouter>
+        <RankingPage filter={actionFilmFilter} />
+      </HashRouter>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Share top 20' })).toBeInTheDocument();
+  });
+
   it('shows genre filters on the ranking page and keeps the ranking route', async () => {
     const user = userEvent.setup();
 

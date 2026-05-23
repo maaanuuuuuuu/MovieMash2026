@@ -6,6 +6,7 @@ import { ListIdeaReviewPage } from '../modules/listIdeas/ListIdeaReviewPage';
 import { SuggestListIdeaPage } from '../modules/listIdeas/SuggestListIdeaPage';
 import { RankingPage } from '../modules/ranking/RankingPage';
 import { SavedMoviesPage } from '../modules/ranking/SavedMoviesPage';
+import { SharedRankingPage } from '../modules/ranking/SharedRankingPage';
 import { BranchPreviewSelector } from './BranchPreviewSelector';
 import { FilteredComparisonRoute } from './FilteredComparisonRoute';
 
@@ -32,6 +33,7 @@ export function AppRoutes() {
         {filmFilters.map((filter) => (
           <Route key={filter.savedPath} path={filter.savedPath} element={<SavedMoviesPage filter={filter} />} />
         ))}
+        <Route path="/shared-ranking" element={<SharedRankingPage />} />
         <Route path="/competition" element={<CompetitionPage />} />
         <Route path="/suggestions/new" element={<SuggestListIdeaPage />} />
         <Route path="/suggestions/review" element={<ListIdeaReviewPage />} />

@@ -134,6 +134,7 @@ function getGenreFilmFilter(genre: CoveringFilmFilterGenre) {
 export const actionFilmFilter = getGenreFilmFilter('action');
 export const comedyFilmFilter = getGenreFilmFilter('comedy');
 export const filmFilters = [allFilmFilter, ...genreFilmFilters, ...decadeFilmFilters];
+export const filmFilterById = new Map(filmFilters.map((filter) => [filter.id, filter]));
 
 export const filmItems = toFilmItems(allFilms);
 export const allFilmItems = filmItems;
