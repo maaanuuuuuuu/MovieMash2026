@@ -114,6 +114,7 @@ L'écran de match affiche :
 
 - le sélecteur de filtre avec `All`, les 10 genres exposés, puis les 8 décennies exposées ;
 - le contexte du filtre courant ;
+- une invite beta avec un lien vers GitHub Issues pour signaler un bug ou proposer une idée ;
 - une action secondaire `Suggest a list` sous le titre ;
 - deux cartes de films ;
 - une action d'égalité ;
@@ -204,6 +205,8 @@ Chaque ligne affiche :
 - l'année ;
 - le score en points ;
 - le niveau de stabilité : `new`, `settling` ou `stable`.
+
+Sous le titre, la page de classement affiche aussi une invite beta avec un lien vers GitHub Issues pour signaler un bug ou proposer une id�e.
 
 Cliquer une ligne ouvre l'historique des duels du film. Les entrées affichent le résultat, l'adversaire et le changement de points quand il existe. Les événements `notSeen` ne sont pas listés dans cet historique.
 
@@ -434,3 +437,4 @@ L'application actuelle ne fait pas :
 - d'affichage direct des genres sur les cartes ;
 - de classement séparé par genre ;
 - de génération exhaustive de toutes les paires.
+

@@ -102,6 +102,17 @@ describe('main app flow', () => {
     expect(screen.getByText('Sign-in is not available in this build.')).toBeInTheDocument();
   });
 
+  it('shows the beta feedback invite on the comparison screen', async () => {
+    render(<App />);
+
+    await screen.findAllByRole('button', { name: /^Choose / });
+
+    const issuesLink = screen.getByRole('link', { name: 'Report a bug or share an idea on GitHub Issues' });
+    expect(screen.getByText('MovieMash is in beta.')).toBeInTheDocument();
+    expect(issuesLink).toHaveAttribute('href', 'https://github.com/maaanuuuuuuu/MovieMash2026/issues/new/choose');
+    expect(issuesLink).toHaveAttribute('target', '_blank');
+  });
+
   it('starts the competition league from the filter switch', async () => {
     const user = userEvent.setup();
     render(<App />);

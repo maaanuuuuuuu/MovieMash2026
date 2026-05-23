@@ -34,6 +34,10 @@
   line-height: 1;
 }
 
+.comparison-header .beta-feedback-banner {
+  width: min(100%, 34rem);
+}
+
 .comparison-status {
   display: flex;
   justify-content: center;

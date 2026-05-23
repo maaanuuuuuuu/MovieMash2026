@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './RankingPage.css';
+import { BetaFeedbackBanner } from '../../common/BetaFeedbackBanner';
 import type { NotSeenDisposition } from '../../domain/item';
 import {
   GLOBAL_FILM_SCOPE_ID,
@@ -78,6 +79,7 @@ export function RankingPage({ filter }: RankingPageProps) {
           <h1>Your ranking</h1>
           <p className="ranking-page__hint">Swipe left to save for later, right to remove.</p>
           {rankingMessage ? <p className="ranking-page__message">{rankingMessage}</p> : null}
+          <BetaFeedbackBanner />
         </div>
         <div className="ranking-page__actions">
           <ShareRankingButton filter={filter} topItemIds={topItemIds} />
