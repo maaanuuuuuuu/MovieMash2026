@@ -7,6 +7,8 @@ import { SuggestListIdeaPage } from '../modules/listIdeas/SuggestListIdeaPage';
 import { RankingPage } from '../modules/ranking/RankingPage';
 import { SavedMoviesPage } from '../modules/ranking/SavedMoviesPage';
 import { SharedRankingPage } from '../modules/ranking/SharedRankingPage';
+import { PublicProfilePage } from '../modules/social/PublicProfilePage';
+import { PROFILE_ROUTE_PATH } from '../modules/social/profilePath';
 import { BranchPreviewSelector } from './BranchPreviewSelector';
 import { FilteredComparisonRoute } from './FilteredComparisonRoute';
 
@@ -34,6 +36,7 @@ export function AppRoutes() {
           <Route key={filter.savedPath} path={filter.savedPath} element={<SavedMoviesPage filter={filter} />} />
         ))}
         <Route path="/shared-ranking" element={<SharedRankingPage />} />
+        <Route path={PROFILE_ROUTE_PATH} element={<PublicProfilePage />} />
         <Route path="/competition" element={<CompetitionPage />} />
         <Route path="/suggestions/new" element={<SuggestListIdeaPage />} />
         <Route path="/suggestions/review" element={<ListIdeaReviewPage />} />

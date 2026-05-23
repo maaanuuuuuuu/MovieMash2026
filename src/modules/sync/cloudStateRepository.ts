@@ -1,6 +1,8 @@
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import type { AuthUser } from '../auth/authRepository';
 import { getFirebaseClientServices } from '../auth/firebaseApp';
 import type { DatabaseSnapshot } from '../persistence/db';
+import { writePublicProfile } from '../social/socialRepository';
 
 export type CloudWriteReason = 'initial-upload' | 'autosave' | 'manual';
 
@@ -56,7 +58,7 @@ export async function readCloudDatabaseSnapshot(uid: string) {
 }
 
 export async function writeCloudDatabaseSnapshot(
-  uid: string,
+  user: AuthUser,
   snapshot: DatabaseSnapshot,
   reason: CloudWriteReason,
 ) {
@@ -67,12 +69,13 @@ export async function writeCloudDatabaseSnapshot(
       ? { schemaVersion: CLOUD_STATE_SCHEMA_VERSION, createdAt: updatedAt, updatedAt }
       : { schemaVersion: CLOUD_STATE_SCHEMA_VERSION, updatedAt };
 
-  await setDoc(doc(firestore, 'users', uid), userData, { merge: true });
-  await setDoc(doc(firestore, 'users', uid, 'state', 'current'), {
+  await setDoc(doc(firestore, 'users', user.uid), userData, { merge: true });
+  await setDoc(doc(firestore, 'users', user.uid, 'state', 'current'), {
     schemaVersion: CLOUD_STATE_SCHEMA_VERSION,
     appSchemaVersion: snapshot.version,
     updatedAt,
     reason,
     snapshot: toFirestoreSnapshot(snapshot),
   });
+  await writePublicProfile(user, snapshot);
 }

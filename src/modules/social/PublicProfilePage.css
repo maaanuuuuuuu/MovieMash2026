@@ -1,0 +1,132 @@
+.public-profile-page {
+  min-height: 100vh;
+  padding: 1.25rem 1rem 5.5rem;
+  background:
+    radial-gradient(circle at top, rgba(242, 180, 49, 0.18), transparent 28rem),
+    linear-gradient(180deg, rgba(14, 19, 36, 0.98), rgba(10, 14, 28, 1));
+}
+
+.public-profile-panel {
+  width: min(100%, 42rem);
+  margin: 0 auto;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  background: rgba(12, 17, 31, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+
+.public-profile-panel__back {
+  display: inline-flex;
+  margin-bottom: 1rem;
+  color: inherit;
+}
+
+.public-profile-panel__header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.public-profile-panel__identity {
+  display: flex;
+  gap: 0.875rem;
+  align-items: center;
+}
+
+.public-profile-panel__avatar,
+.public-profile-panel__avatar-fallback {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 999px;
+  border: 2px solid rgba(242, 180, 49, 0.4);
+}
+
+.public-profile-panel__avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(242, 180, 49, 0.16);
+  color: #f6d88a;
+}
+
+.public-profile-panel__eyebrow,
+.public-profile-panel__status,
+.public-profile-panel__empty {
+  color: rgba(228, 231, 240, 0.76);
+}
+
+.public-profile-panel__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.public-profile-panel__follow {
+  min-width: 8.5rem;
+  padding: 0.8rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f2b431, #f27f31);
+  color: #10162b;
+  font: inherit;
+  font-weight: 700;
+}
+
+.public-profile-panel__follow:disabled {
+  opacity: 0.7;
+}
+
+.public-profile-panel__copy {
+  margin: 1rem 0 0;
+}
+
+.public-profile-list {
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.public-profile-card {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 0.875rem;
+  align-items: center;
+  padding: 0.8rem 0.9rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.public-profile-card__rank {
+  min-width: 1.5rem;
+  font-weight: 700;
+  color: #f6d88a;
+}
+
+.public-profile-card__poster {
+  width: 3rem;
+  aspect-ratio: 2 / 3;
+  border-radius: 0.6rem;
+  object-fit: cover;
+}
+
+.public-profile-card__title {
+  display: block;
+  font-weight: 700;
+}
+
+.public-profile-card__meta {
+  color: rgba(228, 231, 240, 0.72);
+}
+
+@media (min-width: 768px) {
+  .public-profile-page {
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .public-profile-panel {
+    padding: 2rem;
+  }
+}

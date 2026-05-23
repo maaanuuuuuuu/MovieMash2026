@@ -27,6 +27,7 @@ L'application utilise un `HashRouter`, ce qui donne des routes avec `#` sur GitH
 | `#/saved` | Liste | Films globaux marqués `interested` ou `removed`, avec restauration. |
 | `#/competition` | Match | Ligue fixe sur le top 20 global courant tant qu'une ligue existe. |
 | `#/shared-ranking?top=...` | Liste | Snapshot lecture seule d'un top 20 partage, avec bouton pour essayer l'app. |
+| `#/profiles/:userId` | Liste | Profil public social lu depuis Firestore pour un utilisateur Google connectÃ©. |
 | `#/suggestions/new` | Formulaire | Soumission d'une idée de nouvelle liste. |
 | `#/suggestions/review` | Admin | Revue des idées soumises et changement de statut. |
 | `#/<genre>` | Match | Seuls les films avec ce genre peuvent être proposés. |
@@ -234,6 +235,22 @@ La page affiche :
 
 Si le lien est manquant, cassé, ou pointe vers un filtre supprimé, la page affiche un message simple et garde le bouton `Try the app`.
 
+## Page de profil public
+
+La page `#/profiles/:userId` ouvre un profil public social.
+
+Comportement actuel :
+
+- la page demande une connexion Google active ;
+- sans configuration Firebase dans le build, elle affiche que les profils publics ne sont pas disponibles ;
+- l'URL utilise directement le `uid` Firebase de l'utilisateur ciblÃ© ;
+- la page lit un document public Firestore sÃ©parÃ© du snapshot privÃ© de sauvegarde cloud ;
+- la page affiche le nom public, l'avatar public quand il existe, et le top 20 courant ;
+- le top 20 public utilise seulement les `itemId` du ranking global actif, puis relit les mÃ©tadonnÃ©es film depuis le catalogue gelÃ© local ;
+- si l'utilisateur connectÃ© consulte son propre profil, le bouton de follow n'est pas affichÃ© ;
+- si l'utilisateur connectÃ© consulte un autre profil, un bouton permet de `Follow` ou `Following` avec persistance Firestore ;
+- si le profil public n'existe pas encore, la page l'indique simplement.
+
 ## Page de restauration
 
 La page de restauration affiche aussi le sélecteur de filtre `All`, les 10 genres exposés, puis les 8 décennies exposées.
@@ -340,6 +357,15 @@ Il n'y a pas de merge entre une partie locale existante et une partie cloud exis
 Après l'initialisation, l'application sauvegarde le snapshot IndexedDB courant vers Firestore toutes les 30 secondes pendant que l'utilisateur est connecté. Elle tente aussi une sauvegarde quand l'onglet passe en arrière-plan.
 
 Les règles Firestore autorisent un utilisateur connecté à lire et écrire uniquement sous `users/{uid}` quand `request.auth.uid == uid`.
+
+Le cloud social ajoute aussi les documents suivants :
+
+- `publicProfiles/{uid}` : document public avec `schemaVersion`, `displayName`, `photoURL`, `topItemIds` et `updatedAt`.
+- `users/{uid}/following/{targetUid}` : relation de follow privÃ©e au propriÃ©taire, avec `targetUserId`, `createdAt` et `updatedAt`.
+
+Chaque Ã©criture cloud met aussi Ã  jour `publicProfiles/{uid}` pour reflÃ©ter le top 20 courant sans exposer le snapshot privÃ© complet.
+
+Les rÃ¨gles Firestore autorisent aussi un utilisateur connectÃ© Ã  lire `publicProfiles/{uid}`. Seul le propriÃ©taire peut Ã©crire son propre document public. Les donnÃ©es sous `users/{uid}` restent privÃ©es au propriÃ©taire.
 
 ## Suggestions de nouvelles listes
 

@@ -17,17 +17,19 @@ function idleState(): FirebaseSyncState {
 }
 
 export function useFirebaseSync(session: AuthSession) {
-  const signedInUid = useMemo(() => (session.status === 'signedIn' ? session.user.uid : undefined), [session]);
+  const signedInUser = useMemo(() => (session.status === 'signedIn' ? session.user : undefined), [session]);
+  const signedInUid = signedInUser?.uid;
   const [bootstrappedUid, setBootstrappedUid] = useState<string | undefined>();
   const [syncState, setSyncState] = useState<FirebaseSyncState>(() => idleState());
 
   // On sign-in, choose the one source of truth before normal autosave starts.
   useEffect(() => {
-    if (!signedInUid) {
+    if (!signedInUid || !signedInUser) {
       return undefined;
     }
 
     const uid = signedInUid;
+    const currentUser = signedInUser;
     let cancelled = false;
 
     async function bootstrap() {
@@ -41,7 +43,7 @@ export function useFirebaseSync(session: AuthSession) {
         }
 
         if (!cloudSnapshot) {
-          await syncLocalStateToCloud(uid, 'initial-upload');
+          await syncLocalStateToCloud(currentUser, 'initial-upload');
 
           if (!cancelled) {
             setBootstrappedUid(uid);
@@ -56,6 +58,7 @@ export function useFirebaseSync(session: AuthSession) {
         }
 
         await replaceLocalStateFromCloud(uid);
+        await syncLocalStateToCloud(currentUser, 'autosave');
 
         if (!cancelled) {
           setBootstrappedUid(uid);
@@ -81,20 +84,20 @@ export function useFirebaseSync(session: AuthSession) {
     return () => {
       cancelled = true;
     };
-  }, [signedInUid]);
+  }, [signedInUid, signedInUser]);
 
   // While signed in, back up the current IndexedDB snapshot on a simple timer and on tab hide.
   useEffect(() => {
-    if (!signedInUid || bootstrappedUid !== signedInUid) {
+    if (!signedInUid || !signedInUser || bootstrappedUid !== signedInUid) {
       return undefined;
     }
 
-    const uid = signedInUid;
+    const currentUser = signedInUser;
     let cancelled = false;
 
     async function autosave() {
       try {
-        await syncLocalStateToCloud(uid, 'autosave');
+        await syncLocalStateToCloud(currentUser, 'autosave');
 
         if (!cancelled) {
           setSyncState({ status: 'saved', message: 'Cloud save updated', lastSyncedAt: Date.now() });
@@ -125,7 +128,7 @@ export function useFirebaseSync(session: AuthSession) {
       window.clearInterval(intervalId);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [bootstrappedUid, signedInUid]);
+  }, [bootstrappedUid, signedInUid, signedInUser]);
 
   return syncState;
 }
