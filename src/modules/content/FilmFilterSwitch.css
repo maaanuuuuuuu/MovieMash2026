@@ -163,7 +163,7 @@
   gap: 10px;
 }
 
-.film-filter-switch__competition,
+.film-filter-switch__mode,
 .film-filter-switch__option {
   min-width: 0;
   min-height: 74px;
@@ -183,29 +183,38 @@
     transform var(--fast);
 }
 
-.film-filter-switch__competition:hover,
+.film-filter-switch__mode:hover,
 .film-filter-switch__option:hover {
   border-color: rgba(31, 122, 76, 0.34);
   box-shadow: 0 8px 22px rgba(23, 33, 27, 0.11);
   transform: translateY(-1px);
 }
 
-.film-filter-switch__competition--active,
+.film-filter-switch__mode--active,
 .film-filter-switch__option--active {
   border-color: var(--ink);
   background: var(--ink);
   color: #fff;
 }
 
-.film-filter-switch__competition {
+.film-filter-switch__mode {
   position: relative;
   overflow: hidden;
+}
+
+.film-filter-switch__mode--competition {
   background:
     linear-gradient(135deg, rgba(31, 122, 76, 0.14), rgba(255, 186, 73, 0.2)),
     #fff;
 }
 
-.film-filter-switch__competition::before {
+.film-filter-switch__mode--tournament {
+  background:
+    linear-gradient(135deg, rgba(138, 28, 28, 0.16), rgba(255, 186, 73, 0.22)),
+    #fff;
+}
+
+.film-filter-switch__mode::before {
   content: 'All only';
   position: absolute;
   top: 12px;
@@ -217,11 +226,11 @@
   text-transform: uppercase;
 }
 
-.film-filter-switch__competition--active::before {
+.film-filter-switch__mode--active::before {
   color: rgba(255, 255, 255, 0.78);
 }
 
-.film-filter-switch__competition-icon {
+.film-filter-switch__mode-icon {
   width: 42px;
   height: 42px;
   border-radius: 14px;
@@ -232,7 +241,7 @@
   flex: 0 0 auto;
 }
 
-.film-filter-switch__competition-main,
+.film-filter-switch__mode-main,
 .film-filter-switch__option-main {
   min-width: 0;
   display: grid;
@@ -257,7 +266,7 @@
   flex: 0 0 auto;
 }
 
-.film-filter-switch__competition--active .film-filter-switch__option-count,
+.film-filter-switch__mode--active .film-filter-switch__option-count,
 .film-filter-switch__option--active .film-filter-switch__option-count {
   color: rgba(255, 255, 255, 0.78);
 }
@@ -318,7 +327,7 @@
     padding: 9px 10px;
   }
 
-  .film-filter-switch__competition {
+  .film-filter-switch__mode {
     min-height: 58px;
     padding: 12px 14px;
     grid-column: 1 / -1;
@@ -328,7 +337,7 @@
     gap: 4px;
   }
 
-  .film-filter-switch__competition::before {
+  .film-filter-switch__mode::before {
     top: 10px;
     right: 12px;
   }
@@ -477,19 +486,19 @@
     gap: 12px;
   }
 
-  .film-filter-switch__competition {
+  .film-filter-switch__mode {
     min-height: 96px;
     padding: 18px;
     gap: 14px;
   }
 
-  .film-filter-switch__competition::before {
+  .film-filter-switch__mode::before {
     top: 16px;
     right: 18px;
     font-size: 0.84rem;
   }
 
-  .film-filter-switch__competition-icon {
+  .film-filter-switch__mode-icon {
     width: 52px;
     height: 52px;
   }
@@ -544,12 +553,12 @@
     padding: 22px 24px;
   }
 
-  .film-filter-switch__competition {
+  .film-filter-switch__mode {
     min-height: 116px;
     padding: 24px;
   }
 
-  .film-filter-switch__competition-icon {
+  .film-filter-switch__mode-icon {
     width: 62px;
     height: 62px;
   }

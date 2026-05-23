@@ -1,12 +1,13 @@
-import { Check, ChevronDown, ListFilter, Swords, X } from 'lucide-react';
+import { Brackets, Check, ChevronDown, ListFilter, Swords, X } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getCompetitionLeague } from '../competition/competitionRepository';
+import { getTournamentBracket } from '../tournament/tournamentRepository';
 import './FilmFilterSwitch.css';
 import { filmFilters, type FilmFilter } from './filmSource';
 
-export type FilmFilterSwitchView = 'comparison' | 'ranking' | 'saved' | 'competition';
+export type FilmFilterSwitchView = 'comparison' | 'ranking' | 'saved' | 'competition' | 'tournament';
 
 type FilmFilterSwitchProps = {
   activeFilter: FilmFilter;
@@ -22,6 +23,7 @@ function getFilterPath(filter: FilmFilter, view: FilmFilterSwitchView) {
     case 'saved':
       return filter.savedPath;
     case 'competition':
+    case 'tournament':
       return filter.comparisonPath;
     default:
       return view satisfies never;
@@ -35,6 +37,7 @@ function getMovieCountLabel(count: number) {
 export function FilmFilterSwitch({ activeFilter, view }: FilmFilterSwitchProps) {
   const [isOpen, setIsOpen] = useState(false);
   const competitionLeague = useLiveQuery(() => getCompetitionLeague(), [], null);
+  const tournamentBracket = useLiveQuery(() => getTournamentBracket(), [], null);
   const panelId = useId();
   const panelTitleId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -44,7 +47,14 @@ export function FilmFilterSwitch({ activeFilter, view }: FilmFilterSwitchProps) 
     competitionLeague && !competitionLeague.completedAt
       ? `${competitionLeague.remainingMatchups.length} matches left`
       : 'Freeze the current All top 20';
+  const tournamentLabel =
+    tournamentBracket && !tournamentBracket.completedAt ? 'Resume top 16 tournament' : 'Start top 16 tournament';
+  const tournamentDetail =
+    tournamentBracket && !tournamentBracket.completedAt
+      ? `${tournamentBracket.pendingMatchups.length} matches left`
+      : 'Direct elimination with a small final';
   const isCompetitionActive = view === 'competition';
+  const isTournamentActive = view === 'tournament';
 
   // Let keyboard users close the open filter menu without moving focus away.
   useEffect(() => {
@@ -128,19 +138,38 @@ export function FilmFilterSwitch({ activeFilter, view }: FilmFilterSwitchProps) 
                 aria-current={isCompetitionActive ? 'page' : undefined}
                 className={
                   isCompetitionActive
-                    ? 'film-filter-switch__competition film-filter-switch__competition--active'
-                    : 'film-filter-switch__competition'
+                    ? 'film-filter-switch__mode film-filter-switch__mode--competition film-filter-switch__mode--active'
+                    : 'film-filter-switch__mode film-filter-switch__mode--competition'
                 }
                 onClick={() => setIsOpen(false)}
               >
-                <span className="film-filter-switch__competition-icon">
+                <span className="film-filter-switch__mode-icon">
                   <Swords aria-hidden="true" size={18} />
                 </span>
-                <span className="film-filter-switch__competition-main">
+                <span className="film-filter-switch__mode-main">
                   <span className="film-filter-switch__option-label">{competitionLabel}</span>
                   <span className="film-filter-switch__option-count">{competitionDetail}</span>
                 </span>
                 {isCompetitionActive ? <Check aria-hidden="true" size={18} /> : null}
+              </Link>
+              <Link
+                to="/tournament"
+                aria-current={isTournamentActive ? 'page' : undefined}
+                className={
+                  isTournamentActive
+                    ? 'film-filter-switch__mode film-filter-switch__mode--tournament film-filter-switch__mode--active'
+                    : 'film-filter-switch__mode film-filter-switch__mode--tournament'
+                }
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="film-filter-switch__mode-icon">
+                  <Brackets aria-hidden="true" size={18} />
+                </span>
+                <span className="film-filter-switch__mode-main">
+                  <span className="film-filter-switch__option-label">{tournamentLabel}</span>
+                  <span className="film-filter-switch__option-count">{tournamentDetail}</span>
+                </span>
+                {isTournamentActive ? <Check aria-hidden="true" size={18} /> : null}
               </Link>
               {filmFilters.map((availableFilter) => {
                 const isActive = availableFilter.id === activeFilter.id;

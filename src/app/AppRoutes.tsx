@@ -7,6 +7,7 @@ import { SuggestListIdeaPage } from '../modules/listIdeas/SuggestListIdeaPage';
 import { RankingPage } from '../modules/ranking/RankingPage';
 import { SavedMoviesPage } from '../modules/ranking/SavedMoviesPage';
 import { SharedRankingPage } from '../modules/ranking/SharedRankingPage';
+import { TournamentPage } from '../modules/tournament/TournamentPage';
 import { BranchPreviewSelector } from './BranchPreviewSelector';
 import { FilteredComparisonRoute } from './FilteredComparisonRoute';
 
@@ -35,6 +36,7 @@ export function AppRoutes() {
         ))}
         <Route path="/shared-ranking" element={<SharedRankingPage />} />
         <Route path="/competition" element={<CompetitionPage />} />
+        <Route path="/tournament" element={<TournamentPage />} />
         <Route path="/suggestions/new" element={<SuggestListIdeaPage />} />
         <Route path="/suggestions/review" element={<ListIdeaReviewPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

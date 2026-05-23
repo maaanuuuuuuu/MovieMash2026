@@ -26,6 +26,7 @@ L'application utilise un `HashRouter`, ce qui donne des routes avec `#` sur GitH
 | `#/ranking` | Liste | Classement global complet. |
 | `#/saved` | Liste | Films globaux marqués `interested` ou `removed`, avec restauration. |
 | `#/competition` | Match | Ligue fixe sur le top 20 global courant tant qu'une ligue existe. |
+| `#/tournament` | Match | Bracket fixe sur le top 16 global courant tant qu'un tournoi existe. |
 | `#/shared-ranking?top=...` | Liste | Snapshot lecture seule d'un top 20 partage, avec bouton pour essayer l'app. |
 | `#/suggestions/new` | Formulaire | Soumission d'une idée de nouvelle liste. |
 | `#/suggestions/review` | Admin | Revue des idées soumises et changement de statut. |
@@ -44,7 +45,10 @@ Le sélecteur de filtre ne change pas de base de données. Il change seulement l
 
 Le filtre actif est visible sur l'écran de match, la page de classement et la page de restauration. Un bouton ouvre un panneau avec `All`, les 10 genres exposés, puis les 8 décennies exposées. Chaque option affiche aussi le nombre de films du filtre. Changer de filtre depuis une liste garde le même type de vue.
 
-Ce panneau contient aussi une entrée `Competition league`. Elle ouvre `#/competition`. Si une ligue est déjà en cours, cette même entrée la reprend au lieu d'en créer une nouvelle.
+Ce panneau contient aussi deux entrees de mode `All` only :
+
+- `Competition league` ouvre `#/competition`. Si une ligue est deja en cours, cette meme entree la reprend au lieu d'en creer une nouvelle.
+- `Top 16 tournament` ouvre `#/tournament`. Si un tournoi est deja en cours, cette meme entree le reprend au lieu d'en creer un nouveau.
 
 ## Catalogue de films
 
@@ -161,6 +165,28 @@ Si l'utilisateur quitte la page puis revient sur `#/competition`, l'application 
 Quand la ligue finit, la page affiche le top 3 du classement global courant. Un bouton permet alors de relancer une nouvelle ligue, qui reprend à ce moment-là le nouveau top 20 global actif.
 
 Le mode compétition ne propose pas de geste `not seen` ni de bouton d'annulation. Il sert seulement à enchaîner les duels de la ligue fixe.
+
+## Mode tournoi
+
+Le mode tournoi vit sur `#/tournament`.
+
+Quand l'utilisateur ouvre ce mode sans tournoi existant, l'application fige les 16 meilleurs films actifs du classement global `All` a cet instant. Les films `interested` et `removed` sont donc exclus de la selection. Cette selection reste fixe jusqu'a la fin du tournoi, meme si le classement global bouge ensuite.
+
+Le tournoi est un bracket a elimination directe :
+
+- les affiches de depart suivent un seeding fixe sur le top 16 ;
+- le tournoi commence en huitiemes de finale ;
+- il continue avec quarts de finale, demi-finales, petite finale, puis finale ;
+- chaque match du bracket est un vrai duel qui modifie le ranking global normal ;
+- il n'existe pas de classement separe propre au tournoi.
+
+Si l'utilisateur quitte la page puis revient sur `#/tournament`, l'application reprend le meme tournoi tant qu'il reste des matchs.
+
+Le mode tournoi ne propose ni egalite, ni geste `not seen`, ni bouton d'annulation. L'utilisateur doit choisir un gagnant a chaque duel.
+
+La page affiche le round courant, le nombre de matchs joues, le nombre de matchs restants dans le bracket, et les seeds des deux films du duel courant.
+
+Quand le tournoi finit, la page affiche le podium final avec les places 1, 2 et 3. Un bouton permet alors de relancer un nouveau tournoi, qui reprend a ce moment-la le nouveau top 16 global actif.
 
 ## Responsivité
 
@@ -301,7 +327,9 @@ Base actuelle :
 - table `comparisons` : historique des choix, égalités et états non vus, avec les changements de score requis pour annuler le dernier vote ;
 - table `meta` : petits drapeaux applicatifs, comme les notifications de top stable déjà affichées.
 
-La table `meta` stocke aussi l'état éventuel de la ligue de compétition, avec ses participants figés et ses duels restants.
+La table `meta` stocke aussi l'etat eventuel de la ligue de competition, avec ses participants figes et ses duels restants.
+
+La meme table `meta` stocke aussi l'etat eventuel du tournoi, avec ses 16 participants figes, les matchs restants du bracket, les matchs deja joues, et la date de fin quand le tournoi est termine.
 
 Le code initialise seulement le scope `default`. Si de nouveaux films sont ajoutés au catalogue, leurs états manquants sont créés avec 1000 points sans effacer l'historique existant.
 
