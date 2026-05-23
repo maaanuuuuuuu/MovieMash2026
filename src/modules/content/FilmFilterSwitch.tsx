@@ -55,14 +55,14 @@ export function FilmFilterSwitch({ activeFilter, view }: FilmFilterSwitchProps) 
   }, [isOpen]);
 
   return (
-    <nav className="film-filter-switch" aria-label="Genre filter">
+    <nav className="film-filter-switch" aria-label="Movie filter">
       <button
         ref={triggerRef}
         type="button"
         className="film-filter-switch__trigger"
         aria-expanded={isOpen}
         aria-controls={panelId}
-        aria-label={`Change genre filter. Current filter: ${activeFilter.shortLabel}`}
+        aria-label={`Change movie filter. Current filter: ${activeFilter.shortLabel}`}
         onClick={() => setIsOpen((current) => !current)}
       >
         <span className="film-filter-switch__trigger-icon">
@@ -101,7 +101,7 @@ export function FilmFilterSwitch({ activeFilter, view }: FilmFilterSwitchProps) 
               <button
                 type="button"
                 className="film-filter-switch__close"
-                aria-label="Close genre filters"
+                aria-label="Close movie filters"
                 onClick={() => {
                   setIsOpen(false);
                   triggerRef.current?.focus();

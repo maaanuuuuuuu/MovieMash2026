@@ -28,12 +28,17 @@ L'application utilise un `HashRouter`, ce qui donne des routes avec `#` sur GitH
 | `#/<genre>` | Match | Seuls les films avec ce genre peuvent être proposés. |
 | `#/<genre>/ranking` | Liste | Vue filtrée du classement global sur les films de ce genre. |
 | `#/<genre>/saved` | Liste | Films de ce genre marqués `interested` ou `removed`, avec restauration. |
+| `#/<decade>` | Match | Seuls les films de cette décennie peuvent être proposés. |
+| `#/<decade>/ranking` | Liste | Vue filtrée du classement global sur les films de cette décennie. |
+| `#/<decade>/saved` | Liste | Films de cette décennie marqués `interested` ou `removed`, avec restauration. |
 
 Les routes de genre exposées sont `action`, `adventure`, `animation`, `comedy`, `drama`, `horror`, `science-fiction`, `thriller`, `war`, et `western`.
 
+Les routes de décennie exposées sont `1950s`, `1960s`, `1970s`, `1980s`, `1990s`, `2000s`, `2010s`, et `2020s`.
+
 Le sélecteur de filtre ne change pas de base de données. Il change seulement le filtre de vue et de sélection des duels.
 
-Le filtre actif est visible sur l'écran de match, la page de classement et la page de restauration. Un bouton ouvre un panneau avec `All` et les 10 genres exposés. Chaque option affiche aussi le nombre de films du filtre. Changer de filtre depuis une liste garde le même type de vue.
+Le filtre actif est visible sur l'écran de match, la page de classement et la page de restauration. Un bouton ouvre un panneau avec `All`, les 10 genres exposés, puis les 8 décennies exposées. Chaque option affiche aussi le nombre de films du filtre. Changer de filtre depuis une liste garde le même type de vue.
 
 ## Catalogue de films
 
@@ -60,6 +65,14 @@ Le catalogue actuel contient 397 films. Les filtres actuellement exposés sont :
 - `Thriller` : 75 films.
 - `War` : 40 films.
 - `Western` : 6 films.
+- `1950s` : 1 film.
+- `1960s` : 1 film.
+- `1970s` : 2 films.
+- `1980s` : 53 films.
+- `1990s` : 73 films.
+- `2000s` : 98 films.
+- `2010s` : 108 films.
+- `2020s` : 61 films.
 
 Les 10 filtres de genre exposés couvrent tout le catalogue : chaque film a au moins un de ces genres. `All` ne compte pas dans cette règle de couverture.
 
@@ -71,15 +84,17 @@ Les genres servent aujourd'hui aux filtres. Ils ne sont pas affichés directemen
 
 Les affiches sont des assets locaux. TMDb peut servir à collecter des données pendant le développement, mais l'application de production ne dépend pas d'un appel runtime à TMDb ou à une autre API externe.
 
-## Classement global et filtres de genre
+## Classement global et filtres
 
 Il n'existe qu'un seul scope de ranking actif : `default`.
 
-Les filtres de genre ne sont pas des listes séparées. Ils sont des vues temporaires sur le classement global :
+Les filtres de genre et de décennie ne sont pas des listes séparées. Ils sont des vues temporaires sur le classement global :
 
 - Un duel lancé dans `#/<genre>` oppose seulement deux films avec ce genre.
+- Un duel lancé dans `#/<decade>` oppose seulement deux films de cette décennie.
 - Le résultat du duel modifie quand même le score global du film.
 - La liste `#/<genre>/ranking` montre seulement les films de ce genre, mais dans l'ordre du classement global.
+- La liste `#/<decade>/ranking` montre seulement les films de cette décennie, mais dans l'ordre du classement global.
 - Les numéros de rang en vue filtrée restent les rangs globaux. Ils peuvent donc sauter des numéros.
 
 Le compteur de picks sur l'écran de match compte les comparaisons du scope global. Il n'est pas limité au filtre courant.
@@ -90,7 +105,7 @@ L'historique d'un film dans la liste lit aussi l'historique global. Un film cons
 
 L'écran de match affiche :
 
-- le sélecteur de filtre avec `All` et les 10 genres exposés ;
+- le sélecteur de filtre avec `All`, les 10 genres exposés, puis les 8 décennies exposées ;
 - le contexte du filtre courant ;
 - deux cartes de films ;
 - une action d'égalité ;
@@ -137,17 +152,18 @@ La protection des 10 derniers films est évaluée dans le filtre courant :
 
 - dans `All`, il faut garder au moins 10 films actifs au total ;
 - dans un filtre de genre, il faut garder au moins 10 films actifs avec ce genre.
+- dans un filtre de décennie, il faut garder au moins 10 films actifs dans cette décennie.
 
 Deux états non-ranking existent :
 
 - `interested` : l'utilisateur n'a pas vu le film mais veut le garder pour plus tard.
 - `removed` : l'utilisateur veut retirer le film de son pool actif.
 
-Les deux états désactivent le film dans le ranking global. Même si la protection est évaluée dans le filtre courant, l'état appliqué est global après validation. Un film marqué dans un filtre de genre disparaît aussi de `All` et de toute autre vue où il était présent.
+Les deux états désactivent le film dans le ranking global. Même si la protection est évaluée dans le filtre courant, l'état appliqué est global après validation. Un film marqué dans un filtre de genre ou de décennie disparaît aussi de `All` et de toute autre vue où il était présent.
 
 ## Page de classement
 
-La page de classement affiche aussi le sélecteur de filtre `All` et les 10 genres exposés.
+La page de classement affiche aussi le sélecteur de filtre `All`, les 10 genres exposés, puis les 8 décennies exposées.
 
 La page de classement trie les films actifs par score décroissant.
 
@@ -168,14 +184,14 @@ Glisser une ligne de ranking vers la gauche marque le film `interested`. Glisser
 
 ## Page de restauration
 
-La page de restauration affiche aussi le sélecteur de filtre `All` et les 10 genres exposés.
+La page de restauration affiche aussi le sélecteur de filtre `All`, les 10 genres exposés, puis les 8 décennies exposées.
 
 La page `saved` affiche deux vues :
 
 - `Interested` : films marqués `interested`.
 - `Removed` : films marqués `removed`.
 
-Chaque vue respecte le filtre courant : `#/<genre>/saved` ne montre que les films de ce genre, et `#/saved` montre tout.
+Chaque vue respecte le filtre courant : `#/<genre>/saved` ne montre que les films de ce genre, `#/<decade>/saved` ne montre que les films de cette décennie, et `#/saved` montre tout.
 
 Les films sont triés par date de dernière mise à jour décroissante.
 
@@ -219,7 +235,7 @@ Les notifications de top stable apparaissent pour les paliers top 10, top 15 et 
 
 Un palier est atteint quand tous les films du top N courant ont le niveau `stable`.
 
-Ces notifications sont suivies par filtre (`All` et chaque genre exposé) et par palier. Si plusieurs paliers sont déjà valides, l'application montre d'abord le plus petit palier non affiché. Chaque notification a un bouton vers la page de classement du filtre courant.
+Ces notifications sont suivies par filtre (`All`, chaque genre exposé et chaque décennie exposée) et par palier. Si plusieurs paliers sont déjà valides, l'application montre d'abord le plus petit palier non affiché. Chaque notification a un bouton vers la page de classement du filtre courant.
 
 ## Persistance locale
 
