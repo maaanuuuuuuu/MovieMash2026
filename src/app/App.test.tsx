@@ -199,6 +199,13 @@ describe('main app flow', () => {
     expect(screen.getByLabelText('Back to ranking')).toHaveAttribute('href', '#/science-fiction/ranking');
   });
 
+  it('opens the public profile route directly', async () => {
+    window.location.hash = '#/profiles/friend-1';
+    render(<App />);
+
+    expect(await screen.findByRole('heading', { name: 'Public profiles are not available in this build.' })).toBeInTheDocument();
+  });
+
   it('opens the decade ranking filter directly and returns to decade comparisons', async () => {
     const user = userEvent.setup();
     window.location.hash = '#/1990s/ranking';
